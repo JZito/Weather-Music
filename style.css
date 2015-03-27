@@ -21,16 +21,6 @@ h1 {
     font-size: 10vw;
 }
 
-h2 {
-	font-family: 'open sans',arial,sans-serif;
-	color: rgb(255,255,255);
-    height: 50vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 5vw;
-}
-
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
