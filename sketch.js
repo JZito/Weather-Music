@@ -189,17 +189,7 @@ function mousePressed() {
      }
 }
 
-$(document).mousemove(function() {
-    if (timer) {
-        clearTimeout(timer);
-        timer = 0;
-    }
 
-    $('#tempDiv').fadeIn();
-    timer = setTimeout(function() {
-        $('#tempDiv').fadeOut()
-    }, 3000)
-});
 
 
 function DrawWeather(weather2) {
@@ -1183,3 +1173,17 @@ function NewScore() {
 	}
 
 }
+
+jQuery(function($) {$(document).mousemove(function() {
+    if (timer) {
+        clearTimeout(timer);
+        timer = 0;
+    }
+
+    $('#tempDiv').fadeIn();
+    timer = setTimeout(function() {
+        $('#tempDiv').fadeOut()
+    }, 3000)
+	})
+})
+;
