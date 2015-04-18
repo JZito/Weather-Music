@@ -23,6 +23,7 @@ var canvas, wind, mouseMove = false, url, time, tempDivP5, weatherStringP5, lerp
 	bassWaveform = ['Saw','Sine','Triangle', 'Square'],
 	presetLeadArray = ['gong', 'brass', 'bass', 'bass','clarinet', 'glockenspiel', 'glockenspiel', 'glockenspiel'],
 	patternArray = ['updown2', 'updown', 'down', 'up'],
+	nightDrumArray = ['.*.*.*.*', '.**.*.**.*.**.*.**.*.**.*.**.*'],
 	//conditions = [200,201,202,210,211,212,221,230,231,232, 300,301,302,310,311,312,313,314,321,500,501,502,503,504,511,520,521,522,531,600,601,602,611,612,615,616,620
 	//				621,622,]
 	ranNote1, ranNote2, ranNote3, ranNote4, ranNote5, ranNote6, ranNote7, ranNote8, ranNote9, ranNote10, 
@@ -50,11 +51,13 @@ function setup() {
 	duration5 = durationz[floor(random(durationz.length))], duration6 = durationz[floor(random(durationz.length))];
  	canvas = createCanvas( windowWidth, windowHeight );
  	//position = createVector(width/2, height/2);
-  	loadJSON(url, DrawWeather);
+  	//loadJSON(url, DrawWeather);
   	//RandomWeather();
   	
   	
   	Clock.bpm(55)
+  	
+
   	score = Score([0,
   		function() {
   			print ('start')
@@ -85,7 +88,7 @@ function setup() {
 	prevColor4 = color(225,45,105, 127);
 	prevColor5 = color (225,46,222, 127);
 	prevColor6 = color(72, 111, 222, 55);
-	
+
   }
 
 function draw() {
@@ -246,7 +249,7 @@ function DrawWeather(weather2) {
  	temperature = floor(random(33,75));
  	temperatureC = floor((temperature  -  32)  *  5/9);
  	night = floor(random(0,2));
- 	//night = 0;
+ 	//night = 1;
  	rainy = floor(random(0,2));
  	//rainy = 0;
  	//cloudy = 1;
@@ -1173,7 +1176,7 @@ function NewScore() {
 	}
 
 }
-
+/*
 jQuery(function($) {$(document).mousemove(function() {
     if (timer) {
         clearTimeout(timer);
@@ -1186,4 +1189,5 @@ jQuery(function($) {$(document).mousemove(function() {
     }, 3000)
 	})
 })
+*/
 ;
