@@ -37,9 +37,11 @@ function setup () {
   var oct3 = -12;
   cat3 = new music("bing", FM, 'glockenspiel', beets[floor(random(3))], oct3, 0, 0 )
   cat3.make()
-  NewScore();
-  bus = Bus().fx.add( Reverb('large'),Crush({bitDepth:16}),Vibrato(.02),Delay({time:1/4, feedback:.45, wet:.9, dry:.05}) )
  
+  bus = Bus().fx.add( Reverb('large'),Crush({bitDepth:16}),Vibrato(.02),Delay({time:1/4, feedback:.45, wet:.9, dry:.05}) )
+ for (var i = 0; i < musicMakers.length; i++) {
+   NewScore(i);
+ }
 
 //      a.note[1].values.transpose.seq( 1, 2 )
 }
@@ -91,36 +93,34 @@ var objLit = function(){
   }
 }
 
+var myObjectLiteral = {
+    myBehavior1 : function() {
+        /* do something */
+    },
+
+    myBehavior2 : function() {
+        /* do something else */
+    }
+}
+
 var fxObj = new objLit();
 
-function NewMelody () {
-      musicMakers[floor(random(2))].send( bus, .9 )
-     for (var i = 0; i < musicMakers.length; i++) {
-          ranOct = octaves[floor(random(octaves.length))], ranMul = multipliers[floor(random(multipliers.length))]
-          var sNotes = ReturnNotesArray(ranOct);
-          var sBeets = ReturnBeetsArray(ranMul);
+function NewMelody (mm) {
+  // melody logic, for ex. determine highest note of first three notes. repeat that note
+   //   musicMakers[floor(random(2))].send( bus, .9 )
+ //    for (var i = 0; i < musicMakers.length; i++) {
+          var ranOct = octaves[floor(random(octaves.length))], ranMul = multipliers[floor(random(multipliers.length))],
+          sNotes = ReturnNotesArray(ranOct), sBeets = ReturnBeetsArray(ranMul);
         //  musicMakers[i] = mm
-          console.log(sNotes);
-          musicMakers[i].note.seq(sNotes, sBeets)
-        }
+          console.log(mm);
+          musicMakers[mm].note.seq(sNotes, sBeets)
+   //     }
 
 }
 
-function NewScore () {
-  var mm0,mm1, mm2, mm3, mm4, mm5, mm6;
-    score = Score([0,
-      function() {
-        console.log("bi");
-       NewMelody();
-      }, measures(8),
-      function() {
-       // for (var i = 0; i < musicMakers.length; i++) {
-          NewMelody()
-        }
-       // }
-      , measures(8)
-      ]).start().loop();
-
+function NewScore (mmaker) { 
+        var mMaker = mmaker, s1 = function(){NewMelody(mMaker);}, s2 = measures(floor(random(1,16)));
+         score = Score([0, s1, s2, s1, s2]).start().loop();
 }
 
 function CheckTheTime(time) //function check the time
