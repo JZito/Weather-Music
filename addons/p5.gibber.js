@@ -12155,7 +12155,10 @@ module.exports = function( Gibber ) {
     },
     pad4: { waveform:'Saw', maxVoices:4, attack:2, decay:2, cutoff:.3, filterMult:.35, resonance:4.5, amp:.2,
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Delay( 1/9, .75 ) ) }
-    },     
+    },
+    rainTri: {waveform:'Triangle', maxVoices:6, amp:.5, glide:.9, resonance:1, useADSR:true, 
+                               requireReleaseTrigger:false,
+                attack:4, decay:12, sustain:.1, release:2}     
   }
   
   Synths.Presets.Mono = {
