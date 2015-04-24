@@ -1,11 +1,15 @@
 var bpm = 120, globalSR = 44100, vanillaNotes = [0,2,4,7,9,11,12], beets = [1, 1/2, 1/4, 1/8,1/16], scorePhrases = 9, musicMakers = [],
 effects = [], rain = true, state, previousState;
+
 function ExampleScore(mM) {
+  //call scoreSteps to return array of sequences to fill Score
   var ss = scoreSteps(mM);
   score = Score(ss).start().loop()
 };
 
 function scoreSteps(mm) {
+  //steps is each entry for score, nm - sto are functions for the odd numbered entries, 
+  //first is always 0 thought possibly can be changed, even is always measure counts
   var steps = [], nm = function(){mm.note.seq(varInSeqPar, ReturnBeetsArray(1));}, sp = function(){ReturnNotesArray(-12, 4, 8), ReturnBeetsArray(2);}, 
   pm = function(){mm.note.seq(ReturnNotesArray(0, 4, 8), ReturnBeetsArray(1));}, sto = function(){mm.note.seq.stop();},
   objects = [nm, sp, pm, sto];
@@ -43,14 +47,8 @@ function scoreSteps(mm) {
     return steps;
 }
 
-function StopSeq(z) {
-  z.note.seq.stop();
-}
-
 function setup () {
   canvas = createCanvas( windowWidth, windowHeight );
-  //Module.createCrush();
-  
   CreateInstrumentAndFx();
   ExampleScore(musicMakers[0]);
   ExampleScore(musicMakers[1]);
@@ -65,53 +63,53 @@ function draw () {
 
 function music(name, kind, pre) {
   var leadInstruments = [FM, Pluck, Synth], presets = ['cascade', 'bleep', 'rhodes', 'warble'],
-   padInstruments = [Synth2], padPresets = ['pad2','pad4', 'rainTri' ];
+      padInstruments = [Synth2], padPresets = ['pad2','pad4', 'rainTri' ];
   // name - name object, kind - role of instrument (lead, pad etc), pre- preset,
   //reference item by spot in musicmakers array... current plan is to assign each to specific
   // spot. musicMakers[0] = lead, 1 = pad, 2 = bass, 4 = lead2, 5 = noise, 6 = drums
-    this.name = name;
+  this.name = name;
    
-    this.make = function() {
-       if (kind == 'lead') {
-        var instrumentKind = leadInstruments[floor(random(3))]
-        if (instrumentKind == Pluck){
-            pre = {};
-          }
-        else if (instrumentKind == Synth){
-            pre = presets[floor(random(3))];
-          }
-        else if (instrumentKind != Synth || Pluck){
-            pre = 'glockenspiel';
-          }
-            //create the synth object 
-        console.log( this.name + " is born " + pre + ' pre ' )
-        name = instrumentKind(pre)
-        if (!musicMakers[0]){
-          musicMakers.push(name);
+  this.make = function() {
+   if (kind == 'lead') {
+    var instrumentKind = leadInstruments[floor(random(3))]
+    if (instrumentKind == Pluck){
+        pre = {};
       }
-        else {
-          musicMakers[0] = name;
-        }
+    else if (instrumentKind == Synth){
+        pre = presets[floor(random(3))];
       }
+    else if (instrumentKind != Synth || Pluck){
+        pre = 'glockenspiel';
+      }
+        //create the synth object 
+    console.log( this.name + " is born " + pre + ' pre ' )
+    name = instrumentKind(pre)
+    if (!musicMakers[0]){
+      musicMakers.push(name);
+  }
+    else {
+      musicMakers[0] = name;
+    }
+  }
 
-      else if (kind == 'pad') {
-        var instrumentKind = padInstruments[0],
-        pre = padPresets[floor(random(padPresets.length))];
-          //create the synth object 
-        console.log( this.name + " is born " + pre + ' pre ' )
-        name = instrumentKind(pre)
-        if (!musicMakers[1]){
-          musicMakers.push(name);
-      }
-        else {
-          musicMakers[1] = name;
-        }
-      }
+  else if (kind == 'pad') {
+    var instrumentKind = padInstruments[0],
+    pre = padPresets[floor(random(padPresets.length))];
+      //create the synth object 
+    console.log( this.name + " is born " + pre + ' pre ' )
+    name = instrumentKind(pre)
+    if (!musicMakers[1]){
+      musicMakers.push(name);
+  }
+    else {
+      musicMakers[1] = name;
+    }
+  }
 
-      else if (kind == 'bass'){
-        console.log( this.name + " is born " + pre + ' pre ')
-        name = Mono('waveBass')
-        musicMakers.push(name);
+  else if (kind == 'bass'){
+    console.log( this.name + " is born " + pre + ' pre ')
+    name = Mono('waveBass')
+    musicMakers.push(name);
     }
   }
 };
@@ -148,7 +146,6 @@ function CreateInstrumentAndFx() {
 }
 
 function ReturnNotesArray(oct, lowRange, highRange) {
-  // can declare scalar here by passing it in ()
     var scoreNotes = [];
     for (var i = 0; i < floor(random(lowRange,highRange)); i++) {
       scoreNotes[i] = vanillaNotes[floor(random(0,vanillaNotes.length))] + oct;
@@ -157,7 +154,6 @@ function ReturnNotesArray(oct, lowRange, highRange) {
 }
 
 function ReturnRainNotesArray(oct, lowRange, highRange) {
-  // can declare scalar here by passing it in ()
   console.log('its raaaaaiiiiiinin');
     var scoreNotes = [];
     for (var i = 0; i < floor(random(lowRange,highRange)); i++) {
@@ -167,7 +163,6 @@ function ReturnRainNotesArray(oct, lowRange, highRange) {
 }
 
 function ReturnBassNotesArray(oct, lowRange, highRange, repeat) {
-  // can declare scalar here by passing it in ()
     var bassNotes = [], arrayNotes = ReturnNotesArray(-12, 4, 8),
     repeeat = [1,2,4,8,16].rnd();
     for (var i = 0; i < floor(random(lowRange,highRange)); i++) {
