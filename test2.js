@@ -10,14 +10,16 @@ function ExampleScore(mM) {
 function scoreSteps(mm) {
   //steps is each entry for score, nm - sto are functions for the odd numbered entries, 
   //first is always 0 thought possibly can be changed, even is always measure counts
-  var steps = [], nm = function(){mm.note.seq(varInSeqPar, ReturnBeetsArray(1));}, sp = function(){ReturnNotesArray(-12, 4, 8), ReturnBeetsArray(2);}, 
+  var steps = [], nm = function(){mm.note.seq(varInSeqPar, beetsVar);}, sp = function(){ReturnNotesArray(-12, 4, 8), beetsVar;}, 
   pm = function(){mm.note.seq(ReturnNotesArray(0, 4, 8), ReturnBeetsArray(1));}, sto = function(){mm.note.seq.stop();},
   objects = [nm, sp, pm, sto];
   if (rain){
     varInSeqPar = ReturnRainNotesArray(0,16,17);
+    beetsVar = ReturnBeetsArray(2);
   }
   else if (mm = musicMakers[2]) {
     varInSeqPar = ReturnBassNotesArray(0,1,2, 2);
+    beetsVar = [4,4,4,4,2,2,2,2];
   }
   else {
     varInSeqPar = ReturnNotesArray();
@@ -48,21 +50,37 @@ function scoreSteps(mm) {
 }
 
 function setup () {
+  var bpmToS, bpm = 77;
+  Clock.bpm(bpm);
+  bpmToS = 60 / bpm;
+  console.log(bpmToS);
   canvas = createCanvas( windowWidth, windowHeight );
   CreateInstrumentAndFx();
-  ExampleScore(musicMakers[0]);
-  ExampleScore(musicMakers[1]);
-  ExampleScore(musicMakers[2]);
-  drum = EDrums('x*x*x*xx', 1/8)
+   ExampleScore(musicMakers[0]);
+   ExampleScore(musicMakers[1]);
+   ExampleScore(musicMakers[2]);
+  //drum = EDrums('x.*.x.*.x.*.x.-.', 1/16)
+
+  /**###Gibberish.Synth2.waveform : property  
+String. The type of waveform to use. Options include 'Sine', 'Triangle', 'PWM', 'Saw' etc.
+**/
+
+  // pad = FM({ waveform:'Sine',
+  //   maxVoices:6, amp:.25, glide:.95, useADSR:true, 
+  //   requireReleaseTrigger:false,
+  //     attack:bpmToS *4, decay:bpmToS *1, sustain:bpmToS *2, release:0 }) 
+  
+  // .fx.add(Crush({bitDepth:16}), Vibrato(0.05), Delay(1/6,.85 ) )
+  // .chord.seq([[12,11,7], [14,11,5], [12,11,4], [14,11,4]], [4,1,1/4,1/4])
 };
 
 function draw () {
   // has the time changed? check.
-  CheckTheTime(minute());
+ // CheckTheTime(minute());
 };
 
 function music(name, kind, pre) {
-  var leadInstruments = [FM, Pluck, Synth], presets = ['cascade', 'bleep', 'rhodes', 'warble'],
+  var leadInstruments = [FM, Pluck, Synth], presets = ['cascade', 'bleep', 'bleepEcho', 'rhodes', 'warble'],
       padInstruments = [Synth2], padPresets = ['pad2','pad4', 'rainTri' ];
   // name - name object, kind - role of instrument (lead, pad etc), pre- preset,
   //reference item by spot in musicmakers array... current plan is to assign each to specific
@@ -84,6 +102,9 @@ function music(name, kind, pre) {
         //create the synth object 
     console.log( this.name + " is born " + pre + ' pre ' )
     name = instrumentKind(pre)
+    if (instrumentKind == Pluck) {
+      name.amp(1.25)
+    }
     if (!musicMakers[0]){
       musicMakers.push(name);
   }
@@ -120,7 +141,7 @@ function FX(name, kind) {
   this.make = function() {
     var bd = "bitDepth:" + 2,
        sr= "sampleRate:" + Math.round(random(0.01,0.05) * 100) / 100,
-       t = "time:" + 1/6
+       t = "time:" + 1/8
     //Gibber formatting
 //ex  synthName =  Synth('preset')
     name = kind({t});
@@ -142,7 +163,7 @@ function CreateInstrumentAndFx() {
   //musicMakers[0].note.seq(ReturnNotesArray(0, 2,24), 1/4)
   //musicMakers[1].note.seq([-24,-12,-24,12,17,12,12],ReturnBeetsArray(2))
   //Crush({bitDepth:16})
-  musicMakers[0].fx.add(effects[0])
+  //musicMakers[0].fx.add(effects[0])
 }
 
 function ReturnNotesArray(oct, lowRange, highRange) {

@@ -12151,10 +12151,10 @@ module.exports = function( Gibber ) {
   
   Synths.Presets.Synth2 = {
     pad2: { waveform:'Saw', maxVoices:4, attack:1.5, decay:1/2, cutoff:.3, filterMult:.35, resonance:4.5, amp:.2, 
-      presetInit: function() { this.fx.add( Gibber.Audio.FX.Delay( 1/9, .75 ) ) } 
+      presetInit: function() { this.fx.add( Gibber.Audio.FX.Delay( 1/9, .55 ) ) } 
     },
     pad4: { waveform:'Saw', maxVoices:4, attack:2, decay:2, cutoff:.3, filterMult:.35, resonance:4.5, amp:.2,
-      presetInit: function() { this.fx.add( Gibber.Audio.FX.Delay( 1/9, .75 ) ) }
+      presetInit: function() { this.fx.add( Gibber.Audio.FX.Delay( 1/9, .55 ) ) }
     },
     rainTri: {waveform:'Triangle', maxVoices:6, amp:.5, glide:.9, resonance:1, useADSR:true, 
                                requireReleaseTrigger:false,
@@ -12266,11 +12266,12 @@ module.exports = function( Gibber ) {
       maxVoices:1, 
       useADSR:true, 
       amp:.3,
-      cutoff: .45,
-      resonance: .4,
+      
       octave:-2,
-      attack:3, decay: 5, sustain:1, release:.5,
-      presetInit: function() { this.fx.add(Gibber.Audio.FX.Reverb({ preset:'large', wet:.75, dry:.35 })) }
+      octave2:-1,
+      octave3:1,
+      attack:.5, decay: 5, sustain:1, release:.5,
+      presetInit: function() { this.fx.add(Gibber.Audio.FX.Reverb({ preset:'small', wet:.75, dry:.35 })) }
     }
   }
   
