@@ -12132,7 +12132,7 @@ module.exports = function( Gibber ) {
   	short:  { attack: 44, decay: 1/16, },
   	bleep:  { waveform:'Sine', attack:44, decay:1/16 },
     bleepEcho: { waveform:'Sine', attack:44, decay:1/16, presetInit:function() { this.fx.add( Delay(1/6,.85 ) ) } },
-    cascade: { waveform:'Sine', maxVoices:10, attack:Clock.maxMeasures, decay:Clock.beats(1/32),
+    cascade: { waveform:'Sine', maxVoices:10, amp: .23, attack:Clock.maxMeasures, decay:Clock.beats(1/32),
       presetInit: function() { 
         this.fx.add( Gibber.Audio.FX.Delay(1/9,.2), Gibber.Audio.FX.Flanger() )
         this.pan = Sine( .25, 1 )._
@@ -12260,6 +12260,18 @@ module.exports = function( Gibber ) {
       filterMult:0,
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Gain(.1), Gibber.Audio.FX.Delay(1/6,.35) ) }
     },
+
+    waveBass: {
+      waveform:'Sine',
+      maxVoices:1, 
+      useADSR:true, 
+      amp:.3,
+      cutoff: .45,
+      resonance: .4,
+      octave:-2,
+      attack:3, decay: 5, sustain:1, release:.5,
+      presetInit: function() { this.fx.add(Gibber.Audio.FX.Reverb({ preset:'large', wet:.75, dry:.35 })) }
+    }
   }
   
   Synths.Presets.FM = {
@@ -12284,6 +12296,7 @@ module.exports = function( Gibber ) {
       octave:-2
     },
 		glockenspiel : {
+      maxVoices: 4,
 			cmRatio	: 3.5307,
 			index 	: 1,
 			attack	: 44,

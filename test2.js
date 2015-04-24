@@ -1,41 +1,66 @@
 var bpm = 120, globalSR = 44100, vanillaNotes = [0,2,4,7,9,11,12], beets = [1, 1/2, 1/4, 1/8,1/16], scorePhrases = 9, musicMakers = [],
-effects = [];
+effects = [], rain = true, state, previousState;
 function ExampleScore(mM) {
   var ss = scoreSteps(mM);
   score = Score(ss).start().loop()
 };
 
 function scoreSteps(mm) {
-  console.log("called");
-  var steps = [];
+  var steps = [], nm = function(){mm.note.seq(varInSeqPar, ReturnBeetsArray(1));}, sp = function(){ReturnNotesArray(-12, 4, 8), ReturnBeetsArray(2);}, 
+  pm = function(){mm.note.seq(ReturnNotesArray(0, 4, 8), ReturnBeetsArray(1));}, sto = function(){mm.note.seq.stop();},
+  objects = [nm, sp, pm, sto];
+  if (rain){
+    varInSeqPar = ReturnRainNotesArray(0,16,17);
+  }
+  else if (mm = musicMakers[2]) {
+    varInSeqPar = ReturnBassNotesArray(0,1,2, 2);
+  }
+  else {
+    varInSeqPar = ReturnNotesArray();
+  }
   //going to need object score will be referencing
   for (var i = 0; i < scorePhrases; i++){
     if (i == 0){
       steps.push(0);
-      console.log(steps[i] + i);
+     // console.log(steps[i] + i);
+    }
+    else if (i == 1 || steps[i-2] == sto) {
+      var n =  objects[floor(random(objects.length - 1))] ;
+      steps.push(n)
     }
     else if ((i+2)%2==0 ) {
-      steps.push(measures(4));
-      console.log(steps[i] + i);
+      steps.push(measures(floor(random(16))));
+    //  console.log(steps[i] + i);
     }
-    else 
-    {
-      steps.push(function(){mm.note.seq(ReturnNotesArray(0, 4, 16), ReturnBeetsArray(16)); console.log("called function")});
-      console.log(steps[i] + i);
+    
+    else {
+      var n =  objects[floor(random(objects.length))] ;
+      steps.push(n);
+      console.log(n + i + mm);
     }
   }
 
     return steps;
 }
 
+function StopSeq(z) {
+  z.note.seq.stop();
+}
+
 function setup () {
   canvas = createCanvas( windowWidth, windowHeight );
   //Module.createCrush();
-  TestChanges();
+  
   CreateInstrumentAndFx();
   ExampleScore(musicMakers[0]);
   ExampleScore(musicMakers[1]);
-  clave = Clave({amp: .2, pan: [-1, 1]}).play( Rndf(2400, 3600), 1/8 );
+  ExampleScore(musicMakers[2]);
+  drum = EDrums('x*x*x*xx', 1/8)
+};
+
+function draw () {
+  // has the time changed? check.
+  CheckTheTime(minute());
 };
 
 function music(name, kind, pre) {
@@ -61,21 +86,31 @@ function music(name, kind, pre) {
             //create the synth object 
         console.log( this.name + " is born " + pre + ' pre ' )
         name = instrumentKind(pre)
-        musicMakers.push(name);
+        if (!musicMakers[0]){
+          musicMakers.push(name);
+      }
+        else {
+          musicMakers[0] = name;
+        }
       }
 
       else if (kind == 'pad') {
         var instrumentKind = padInstruments[0],
-        pre = padPresets[floor(random(padPresets.length+1))];
+        pre = padPresets[floor(random(padPresets.length))];
           //create the synth object 
         console.log( this.name + " is born " + pre + ' pre ' )
         name = instrumentKind(pre)
-        musicMakers.push(name);
+        if (!musicMakers[1]){
+          musicMakers.push(name);
+      }
+        else {
+          musicMakers[1] = name;
+        }
       }
 
-      else if (kind != 'lead' || kind != 'pad'){
+      else if (kind == 'bass'){
         console.log( this.name + " is born " + pre + ' pre ')
-        name = kind(pre)
+        name = Mono('waveBass')
         musicMakers.push(name);
     }
   }
@@ -97,11 +132,13 @@ function FX(name, kind) {
 };
 
 function CreateInstrumentAndFx() {
-  var beep = FXMod.createCrush().bitDepth;
-  leadSynth = new music ("leadSynth", 'lead', 'foo')
+ // var beep = FXMod.createCrush().bitDepth;
+  leadSynth = new music ("leadSynth", 'lead', 'oo')
   leadSynth.make()
-  padSynth = new music ("padSynth", 'pad', 'foo')
+  padSynth = new music ("padSynth", 'pad', 'oo')
   padSynth.make()
+  bass = new music ("bassSynth", 'bass', 'oo')
+  bass.make()
   crush = new FX("hippo", Delay)
   crush.make()
   //musicMakers[0].note.seq(ReturnNotesArray(0, 2,24), 1/4)
@@ -119,6 +156,37 @@ function ReturnNotesArray(oct, lowRange, highRange) {
     return scoreNotes;
 }
 
+function ReturnRainNotesArray(oct, lowRange, highRange) {
+  // can declare scalar here by passing it in ()
+  console.log('its raaaaaiiiiiinin');
+    var scoreNotes = [];
+    for (var i = 0; i < floor(random(lowRange,highRange)); i++) {
+      scoreNotes[i] = vanillaNotes[floor(random(0,vanillaNotes.length))] + oct;
+    }
+    return scoreNotes;
+}
+
+function ReturnBassNotesArray(oct, lowRange, highRange, repeat) {
+  // can declare scalar here by passing it in ()
+    var bassNotes = [], arrayNotes = ReturnNotesArray(-12, 4, 8),
+    repeeat = [1,2,4,8,16].rnd();
+    for (var i = 0; i < floor(random(lowRange,highRange)); i++) {
+      if (i <= repeat){
+        bassNotes[i] = arrayNotes[0];
+      }
+      else if (i > repeat && i <= (repeat*2) ) {
+        bassNotes[i] = arrayNotes[1];
+      }
+      else if (i > repeat && i <= (repeat*4) ) {
+        bassNotes[i] = arrayNotes[2];
+      }
+      else if (i > repeat && i <= (repeat*8) ) {
+        bassNotes[i] = arrayNotes[3];
+      }
+    }
+    return bassNotes;
+}
+
 function ReturnBeetsArray(mul) {
   // can declare beat multiplier here by passing it in ()
     var scoreBeets = [];
@@ -128,43 +196,73 @@ function ReturnBeetsArray(mul) {
     return scoreBeets;
 }
 
-var FXMod = (function () {
+function CheckTheTime(time) //function check the time
+ {
+    var previousState = state; 
+    state = time;
+    football = musicMakers[0];
+    if (state != previousState) 
+    {
+      // objNum is random object to change
+      objNum = floor(random(2));
+      console.log('changing' + objNum);
+      // THIS WILL HAVE TO BE BROKEN UP INTO AT LEAST TWO MORE FUNCTIONS
+      // CALL FADEOUT SCORE TO FADE OUT OBJECT BEFORE IT IS KILLED
+      //RECREATE THE RIGHT OBJECT
+      musicMakers[objNum].kill();
+      if (objNum == 0){
+        leadSynth = new music ("leadSynth", 'lead', 'foo')
+        leadSynth.make()
+      }
+      else if (objNum == 1) {
+        padSynth = new music ("padSynth", 'pad', 'foo')
+        padSynth.make()
+      }
+      else if (objNum >= 2) {
+        bass = new music("bassSynth", 'bass', 'glockenspiel');
+        bass.make()
+    }
+    ExampleScore(musicMakers[objNum]);
+   }
+ }
 
-  var privateMethod = function () {
-    // private
-    console.log("private")
-    // this method can do stuff for creating fx
-  };
+ // var FXMod = (function () {
 
-  var createCrush = function () {
-    // public bit depth and sample rate
-    //var bd =floor(random(8,23)), sr = 55;
-    return {
-      bitDepth: "bitDepth:" + floor(random(12,23)),
-      sampleRate: "sampleRate:" + Math.round(random(0.65,0.95) * 100) / 100
-  };
+//   var privateMethod = function () {
+//     // private
+//     console.log("private")
+//     // this method can do stuff for creating fx
+//   };
+
+//   var createCrush = function () {
+//     // public bit depth and sample rate
+//     //var bd =floor(random(8,23)), sr = 55;
+//     return {
+//       bitDepth: "bitDepth:" + floor(random(12,23)),
+//       sampleRate: "sampleRate:" + Math.round(random(0.65,0.95) * 100) / 100
+//   };
     
-  };
+//   };
 
-  var createDelay = function () {
-    // public
-    console.log("another")
-    return {
-      time: "time:" + [1/4,1/2,1/3,1/6].rnd(), 
-      feedback: "feedback:" + random(.5,1),
-      wet: "wet" + Math.round(random(0.5,0.75) * 100) / 100, 
-      dry: "dry" + Math.round(random(0.5,0.95) * 100) / 100 
-  };
-  };
+//   var createDelay = function () {
+//     // public
+//     console.log("another")
+//     return {
+//       time: "time:" + [1/4,1/2,1/3,1/6].rnd(), 
+//       feedback: "feedback:" + random(.5,1),
+//       wet: "wet" + Math.round(random(0.5,0.75) * 100) / 100, 
+//       dry: "dry" + Math.round(random(0.5,0.95) * 100) / 100 
+//   };
+//   };
   
-  return {
-    createCrush: createCrush,
-    createDelay: createDelay
-  };
+//   return {
+//     createCrush: createCrush,
+//     createDelay: createDelay
+//   };
 
-} )();
+// } )();
 
-function TestChanges() {
-  console.log (FXMod.createCrush().bitDepth + " bd  " + FXMod.createCrush().sampleRate + " s r ");
-  console.log(FXMod.createDelay().time);
-}
+// function TestChanges() {
+//   console.log (FXMod.createCrush().bitDepth + " bd  " + FXMod.createCrush().sampleRate + " s r ");
+//   console.log(FXMod.createDelay().time);
+// }
