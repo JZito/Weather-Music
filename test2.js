@@ -1,44 +1,64 @@
-var bpm = 120, globalSR = 44100, vanillaNotes = [0,2,4,7,9,11,12], beets = [1, 1/2, 1/4, 1/8,1/16], musicMakers = [],
+var bpm = 120, globalSR = 44100, vanillaNotes = [0,2,4,7,9,11,12], beets = [1, 1/2, 1/4, 1/8,1/16], scorePhrases = 9, musicMakers = [],
 effects = [];
-function ExampleScore() {
-  score = Score([0,
-    function() {
-
-    }, measures(4)
-    ]).start().loop()
+function ExampleScore(mM) {
+  var ss = scoreSteps(mM);
+  score = Score(ss).start().loop()
 };
+
+function scoreSteps(mm) {
+  console.log("called");
+  var steps = [];
+  //going to need object score will be referencing
+  for (var i = 0; i < scorePhrases; i++){
+    if (i == 0){
+      steps.push(0);
+      console.log(steps[i] + i);
+    }
+    else if ((i+2)%2==0 ) {
+      steps.push(measures(4));
+      console.log(steps[i] + i);
+    }
+    else 
+    {
+      steps.push(function(){mm.note.seq(ReturnNotesArray(0, 4, 16), ReturnBeetsArray(16)); console.log("called function")});
+      console.log(steps[i] + i);
+    }
+  }
+
+    return steps;
+}
 
 function setup () {
   canvas = createCanvas( windowWidth, windowHeight );
   //Module.createCrush();
   TestChanges();
   CreateInstrumentAndFx();
-
-  pad = Synth2('rainTri')
-      .note.seq([12,24,12,36,0,-12], 1/2)
+  ExampleScore(musicMakers[0]);
+  ExampleScore(musicMakers[1]);
+  clave = Clave({amp: .2, pan: [-1, 1]}).play( Rndf(2400, 3600), 1/8 );
 };
 
 function music(name, kind, pre) {
   var leadInstruments = [FM, Pluck, Synth], presets = ['cascade', 'bleep', 'rhodes', 'warble'],
    padInstruments = [Synth2], padPresets = ['pad2','pad4', 'rainTri' ];
-  // name - name object, kind - type of synth, pre- preset,
-  // beet- beat in 1/2,1/4 etc, scalar = octave,
-  // note# - note to play,
+  // name - name object, kind - role of instrument (lead, pad etc), pre- preset,
+  //reference item by spot in musicmakers array... current plan is to assign each to specific
+  // spot. musicMakers[0] = lead, 1 = pad, 2 = bass, 4 = lead2, 5 = noise, 6 = drums
     this.name = name;
    
     this.make = function() {
        if (kind == 'lead') {
         var instrumentKind = leadInstruments[floor(random(3))]
         if (instrumentKind == Pluck){
-          pre = {};
-        }
+            pre = {};
+          }
         else if (instrumentKind == Synth){
-          pre = presets[floor(random(3))];
-        }
+            pre = presets[floor(random(3))];
+          }
         else if (instrumentKind != Synth || Pluck){
-          pre = 'glockenspiel';
-        }
-          //create the synth object 
+            pre = 'glockenspiel';
+          }
+            //create the synth object 
         console.log( this.name + " is born " + pre + ' pre ' )
         name = instrumentKind(pre)
         musicMakers.push(name);
@@ -46,23 +66,17 @@ function music(name, kind, pre) {
 
       else if (kind == 'pad') {
         var instrumentKind = padInstruments[0],
-          pre = padPresets[floor(random(padPresets.length+1))];
+        pre = padPresets[floor(random(padPresets.length+1))];
           //create the synth object 
         console.log( this.name + " is born " + pre + ' pre ' )
         name = instrumentKind(pre)
         musicMakers.push(name);
       }
 
-            //  .note.seq( noteArray, beet )
-             
-    
-    else if (kind != 'lead' || kind != 'pad'){
-      console.log( this.name + " is born " + pre + ' pre ')
-              name = kind(pre)
-            
-
-            //  .note.seq( noteArray, beet )
-              musicMakers.push(name);
+      else if (kind != 'lead' || kind != 'pad'){
+        console.log( this.name + " is born " + pre + ' pre ')
+        name = kind(pre)
+        musicMakers.push(name);
     }
   }
 };
@@ -90,8 +104,8 @@ function CreateInstrumentAndFx() {
   padSynth.make()
   crush = new FX("hippo", Delay)
   crush.make()
-  musicMakers[0].note.seq(ReturnNotesArray(0, 2,24), 1/4)
-  musicMakers[1].note.seq(ReturnNotesArray(-12,16,64),ReturnBeetsArray(2))
+  //musicMakers[0].note.seq(ReturnNotesArray(0, 2,24), 1/4)
+  //musicMakers[1].note.seq([-24,-12,-24,12,17,12,12],ReturnBeetsArray(2))
   //Crush({bitDepth:16})
   musicMakers[0].fx.add(effects[0])
 }
@@ -109,7 +123,7 @@ function ReturnBeetsArray(mul) {
   // can declare beat multiplier here by passing it in ()
     var scoreBeets = [];
     for (var i = 0; i < floor(random(1,8)); i++) {
-      scoreBeets[i] = beets[floor(random(1,beets.length))];
+      scoreBeets[i] = beets[floor(random(1,beets.length))] * mul;
     }
     return scoreBeets;
 }
