@@ -1,5 +1,5 @@
-var bpm = 120, globalSR = 44100, vanillaNotes = [0,2,4,7,9,11,12], beets = [1, 1/2, 1/4, 1/8,1/16], scorePhrases = 9, musicMakers = [],
-effects = [], rain = true, state, previousState;
+var bpm = 120, globalSR = 44100, vanillaMeasures = [1,2,4,6,8,12,16], vanillaNotes = [0,2,4,7,9,11,12], beets = [1, 1/2, 1/4, 1/8,1/16], scorePhrases = 9, musicMakers = [],
+effects = [], rain = true, state, previousState, cloud;
 
 function ExampleScore(mM) {
   //call scoreSteps to return array of sequences to fill Score
@@ -10,7 +10,7 @@ function ExampleScore(mM) {
 function scoreSteps(mm) {
   //steps is each entry for score, nm - sto are functions for the odd numbered entries, 
   //first is always 0 thought possibly can be changed, even is always measure counts
-  var steps = [], nm = function(){mm.note.seq(varInSeqPar, beetsVar);}, sp = function(){ReturnNotesArray(-12, 4, 8), beetsVar;}, 
+  var steps = [], nm = function(){mm.note.seq(varInSeqPar, beetsVar);}, sp = function(){mm.note.seq(ReturnNotesArray(-12, 4, 8), beetsVar);}, 
   pm = function(){mm.note.seq(ReturnNotesArray(0, 4, 8), ReturnBeetsArray(1));}, sto = function(){mm.note.seq.stop();},
   objects = [nm, sp, pm, sto];
   if (rain){
@@ -30,12 +30,14 @@ function scoreSteps(mm) {
       steps.push(0);
      // console.log(steps[i] + i);
     }
+    //prevent seq from repeating itself (but this is not accounting for all circumstances, must solve )
     else if (i == 1 || steps[i-2] == sto) {
       var n =  objects[floor(random(objects.length - 1))] ;
       steps.push(n)
     }
     else if ((i+2)%2==0 ) {
-      steps.push(measures(floor(random(16))));
+      //length of each step
+      steps.push(measures(vanillaMeasures[floor(random(vanillaMeasures.length))]));
     //  console.log(steps[i] + i);
     }
     
@@ -56,9 +58,9 @@ function setup () {
   console.log(bpmToS);
   canvas = createCanvas( windowWidth, windowHeight );
   CreateInstrumentAndFx();
-   ExampleScore(musicMakers[0]);
-   ExampleScore(musicMakers[1]);
-   ExampleScore(musicMakers[2]);
+  ExampleScore(musicMakers[0]);
+  ExampleScore(musicMakers[1]);
+  ExampleScore(musicMakers[2]);
   //drum = EDrums('x.*.x.*.x.*.x.-.', 1/16)
 
   /**###Gibberish.Synth2.waveform : property  
@@ -76,7 +78,7 @@ String. The type of waveform to use. Options include 'Sine', 'Triangle', 'PWM', 
 
 function draw () {
   // has the time changed? check.
- // CheckTheTime(minute());
+  CheckTheTime(minute());
 };
 
 function music(name, kind, pre) {
@@ -163,7 +165,7 @@ function CreateInstrumentAndFx() {
   //musicMakers[0].note.seq(ReturnNotesArray(0, 2,24), 1/4)
   //musicMakers[1].note.seq([-24,-12,-24,12,17,12,12],ReturnBeetsArray(2))
   //Crush({bitDepth:16})
-  //musicMakers[0].fx.add(effects[0])
+  musicMakers[0].fx.add(effects[0])
 }
 
 function ReturnNotesArray(oct, lowRange, highRange) {
