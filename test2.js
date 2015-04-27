@@ -7,10 +7,55 @@ function ExampleScore(mM) {
   score = Score(ss).start().loop()
 };
 
+
 function scoreSteps(mm) {
   //steps is each entry for score, nm - sto are functions for the odd numbered entries, 
   //first is always 0 thought possibly can be changed, even is always measure counts
   var steps = [], nm = function(){mm.note.seq(varInSeqPar, beetsVar);}, sp = function(){mm.note.seq(ReturnNotesArray(-12, 4, 8), beetsVar);}, 
+  pm = function(){mm.note.seq(ReturnNotesArray(0, 4, 8), ReturnBeetsArray(1));}, sto = function(){mm.note.seq.stop();},
+  objects = [nm, sp, pm, sto];
+  if (rain){
+    varInSeqPar = ReturnRainNotesArray(0,16,17);
+    beetsVar = ReturnBeetsArray(2);
+  }
+  else if (mm = musicMakers[2]) {
+    varInSeqPar = ReturnBassNotesArray(0,1,2, 2);
+    beetsVar = [4,4,4,4,2,2,2,2];
+  }
+  else {
+    varInSeqPar = ReturnNotesArray();
+  }
+  //going to need object score will be referencing
+  for (var i = 0; i < scorePhrases; i++){
+    if (i == 0){
+      steps.push(0);
+     // console.log(steps[i] + i);
+    }
+    //prevent seq from repeating itself (but this is not accounting for all circumstances, must solve )
+    else if (i == 1 || steps[i-2] == sto) {
+      var n =  objects[floor(random(objects.length - 1))] ;
+      steps.push(n)
+    }
+    else if ((i+2)%2==0 ) {
+      //length of each step
+      steps.push(measures(vanillaMeasures[floor(random(vanillaMeasures.length))]));
+    //  console.log(steps[i] + i);
+    }
+    
+    else {
+      var n =  objects[floor(random(objects.length))] ;
+      steps.push(n);
+      console.log(n + i + mm);
+    }
+  }
+
+    return steps;
+}
+
+function scoreSteps(mm) {
+  //steps is each entry for score, nm - sto are functions for the odd numbered entries, 
+  //first is always 0 thought possibly can be changed, even is always measure counts
+  var steps = [], nm = function(){mm.note.seq(varInSeqPar, beetsVar);}, sp = function(){mm.chord.seq(ReturnNotesArray(-12, 4, 8), beetsVar);}, 
   pm = function(){mm.note.seq(ReturnNotesArray(0, 4, 8), ReturnBeetsArray(1));}, sto = function(){mm.note.seq.stop();},
   objects = [nm, sp, pm, sto];
   if (rain){

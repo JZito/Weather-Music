@@ -14,4 +14,8 @@ rainTri: \{waveform:'Triangle', maxVoices:6, amp:.5, glide:.9, resonance:1, useA
 Mono \'97\
 waveBass:\{waveform:\'92Sine\'92, maxVoices:2, useADSR:true, amp:.4,\
 		musicMakers[0].cutoff = Sine(.55,0.25)._, resonance: Sine(.55,0.25)._, \
-			attack:2, decay: 5, sustain:1, release:.5\}}
+			attack:2, decay: 5, sustain:1, release:.5\}\
+FM\'97\
+pad = FM(\{preset:'glockenspiel' OR \'91, maxVoices:4, useADSR:'true'\})\
+pad.fx.add(Tremolo(\{amp:.55, frequency:(beepEM / 120.1)\}), Reverb('space'))\
+slow ADSR}

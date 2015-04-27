@@ -1,0 +1,11 @@
+function setup() {
+canvas = createCanvas( windowWidth, windowHeight );
+p = Pluck()
+exampleScore = Score([0, function(){
+  p.note.seq(NoteArray, 1/4);
+}, measures(1), function(){
+	p.chord.seq([chordArray, chordArray, chordArray], 1),
+	measures(4)
+}]).start().loop()
+	
+}
