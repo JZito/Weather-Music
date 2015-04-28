@@ -29,7 +29,7 @@ Clock.bpm(beepEM);
 p = Pluck()
 pp = Pluck()
 ppp = Pluck()
-p.fx.add(Delay({time:1/16.005, feedback:.5, dry: .95, wet:.55}, Reverb('space')))
+p.fx.add(Delay({time:1/16.005, feedback:.5, dry: .45, wet:.75}, Reverb('space')))
 //pp.fx.add(Delay({time:.503, feedback:.4, dry: .75, wet:.25}),Reverb({preset:'small', wet:.5, dry:.65}))
 //PAD
 pad = FM({preset:'radio', maxVoices:4, useADSR:'true', attack:.5, decay:2, sustain:.5, release:.5})
@@ -51,43 +51,71 @@ pad.chord.seq([[-12,-8, -3], [-15, -8, -5], [-10,-5, 4], [2,7,11]], 4)
 
 
 
- var mainS = function() {
- 	mainScore = Score([0,
- 	function(){
- 		
- 		p.note.seq([0,4,7], 1/12)
- 		//lovelyGuitar.start()
- 		console.log(measureCount);
- 	}, measures(1),
- 	function () {
- 		measureCount++;
- 		p.note.seq([-1,2,9], 1/12)
- 		//console.log('here we are');
- 		console.log(measureCount);
- 		//stopper.start()
- 	}, measures(1), 
- 	function() {
- 		measureCount++;
- 		p.note.seq([-3,4,11], 1/12)
- 		console.log(measureCount);
- 	//	console.log('stop stopper');
- 	//	stopper.stop();
- 	}, measures(1)]).start().loop() }, 
- 	
- stopS = function() {
+ var strum = function() {
+ 	strumScore = Score([0, function(){
+ 		p.note.seq(notesArray(-12, 4,4), [1/78, 1/74, 1/72]);
+ 	}, measures(1/16), function(){
+  			p.note.seq.stop();
+		}, measures(measures[floor(random(measures.length))] + (1-1/16))]).start().loop();
+ },
+ 	lovelyGuitar = function(){
+ 		l = Score([0, function(){
+			console.log("func one")
+			pp.note.seq(notesArray(-12, 2, 12), ReturnBeetsArray(4))
+			ppp.note.seq(notesArray(-12,1,2), ReturnBeetsArray(8))
+		}, measures(3), strum, measures(1)]).start().loop();
+ 	}, 
+
+ 	stopper = function() {
  	s = Score([0, function(){
  		console.log('silence')
- 	mainScore.stop();
- 	p.note.seq.stop();
+ 	l.stop();
+ 	pp.note.seq.stop();
+ 	ppp.note.seq.stop();
  }, measures(1)]).start();
- },
+
+ 	},
+
+
+ // mainS = function() {
+ // 	mainScore = Score([0,
+ // 	function(){
+ 		
+ // 		p.note.seq([0,4,7], 1/12)
+ // 		//lovelyGuitar.start()
+ // 		console.log(measureCount);
+ // 	}, measures(1),
+ // 	function () {
+ // 		measureCount++;
+ // 		p.note.seq([-1,2,9], 1/12)
+ // 		//console.log('here we are');
+ // 		console.log(measureCount);
+ // 		//stopper.start()
+ // 	}, measures(1), 
+ // 	function() {
+ // 		measureCount++;
+ // 		p.note.seq([-3,4,11], 1/12)
+ // 		console.log(measureCount);
+ // 	//	console.log('stop stopper');
+ // 	//	stopper.stop();
+ // 	}, measures(1)]).start().loop() }, 
+ 	
+ // stopS = function() {
+ // 	s = Score([0, function(){
+ // 		console.log('silence')
+ // 	mainScore.stop();
+ // 	p.note.seq.stop();
+ // }, measures(1)]).start();
+ // },
 
 parentScore = function() {
-	 	 s = Score([0, mainS, measures(3), stopS, measures(1)]).start().loop();
+	 	 s = Score([0, lovelyGuitar, measures(3), stopper, measures(1)]).start().loop();
 	 	//p.note.seq([-1,2,9], 1/16)
  	};
 
- score = Score([0, parentScore, measures(654)]).start().loop()
+ 	score = Score([0, parentScore, measures(654)]).start().loop();
+
+	follow = Follow( pad )
 
 
 
@@ -99,6 +127,7 @@ parentScore = function() {
 }
 
 function draw() {
+	background( follow.getValue() * 255 )
 	// if (measureCount >= 8){
 	// 	mainScore.stop()
 	// 	measureCount = 0;
