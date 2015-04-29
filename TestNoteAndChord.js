@@ -27,14 +27,14 @@ Clock.bpm(beepEM);
 
 //GIT
 p = Pluck()
-pp = Synth('rhodes')
-ppp = Synth('rhodes')
+pp = Pluck()
+ppp = Pluck()
 ppp.fx.add(Delay({time:1/16.005, feedback:.5, dry: .45, wet:.75}, Reverb('space')))
 //pp.fx.add(Delay({time:.503, feedback:.4, dry: .75, wet:.25}),Reverb({preset:'small', wet:.5, dry:.65}))
 //PAD
 pad = FM({preset:'radio', maxVoices:4, useADSR:'true', attack:.1, decay:.5, sustain:.25, release:2})
 pad.fx.add(Tremolo({amp:.55, frequency:(beepEM / 120.1)}), Reverb('space'))
-pad.chord.seq(ReturnChordsArray(4,4), 4)
+pad.chord.seq(LeadMelody.chordsReturn(4,4), 4)
 
 
 
@@ -62,19 +62,17 @@ pad.chord.seq(ReturnChordsArray(4,4), 4)
  },
  	lovelyGuitar = function(){
  		l = Score([0, function(){
-			console.log("func one")
-			pp.note.seq(notesArray(-12, 2, 12), ReturnBeetsArray(4))
-			ppp.note.seq(notesArray(-12,1,2), ReturnBeetsArray(8))
+			pp.note.seq(LeadMelody.notesReturn(-12, 2, 12), LeadMelody.beetsReturn(4))
+			ppp.note.seq(LeadMelody.notesReturn(-12,1,2), LeadMelody.beetsReturn(8))
 		}, measures(3), strum, measures(1)]).start().loop();
  	}, 
 
  	stopper = function() {
- 	s = Score([0, function(){
- 		console.log('silence')
-	 	l.stop();
-	 	pp.note.seq.stop();
-	 	ppp.note.seq.stop();
-	 }, measures(1)]).start();
+	 	s = Score([0, function(){
+		 	l.stop();
+		 	pp.note.seq.stop();
+		 	ppp.note.seq.stop();
+		 }, measures(1)]).start().loop();
  	},
 
 	parentScore = function() {
@@ -100,102 +98,104 @@ var LeadMelody = (function () {
     // private
   	};
 
-  	var notesReturn = function () {
+  	var notesReturn = function (oct, lowRange, highRange) {
+  		var scoreNotes = [];
+    	for (var i = 0; i < floor(random(lowRange,highRange)); i++) {
+      		scoreNotes[i] = vanillaNotes[floor(random(0,vanillaNotes.length))] + oct;
+    	}
+    	return scoreNotes;
     // public
   	};
 
-  	var beetsReturn = function () {
-    // public
+  	var beetsReturn = function (mul) {
+  		var scoreBeets = [];
+    	for (var i = 0; i < floor(random(1,8)); i++) {
+      		scoreBeets[i] = beets[floor(random(1,beets.length))] * mul;
+    	}
+    	return scoreBeets;
   	};
+
+  	var chordsReturn = function (c, cLength) {
+  		var chords = [], oct = [-12,-12,-12,0,0,0,12,12,24], pedalPoint = vanillaNotes[floor(random(vanillaNotes.length))];
+		console.log(pedalPoint + "returnChordsArray");
+		for (var i = 0; i < c; i++){
+			var innerChord= [];
+			console.log("every loop")
+			//create first chord
+			if (i == 0){
+				for (var j = 0; j < cLength; j++) {
+					//first note is pedal point
+					if (j==0){
+						innerChord.push(pedalPoint)
+					}
+					else if (j >= 1){
+						var n = vanillaNotes[floor(random(vanillaNotes.length))];
+						innerChord.push(n + oct[floor(random(oct.length))]);
+						console.log("inside first loop")
+					}
+				}
+			}
+			// create additional chords
+			else if( i >= 1) {
+				for (var j = 0; j < cLength; j++) {
+					// first note is pedal point
+					if (j==0){
+						innerChord.push(pedalPoint)
+					}
+					else if (j >= 1) {
+						var n = vanillaNotes[floor(random(vanillaNotes.length))];
+						//if this note is the same as the note in the same spot of the last chord
+						if (n == chords[(i - 1)][j]) {
+							//o is new note
+							var o = n - 1;
+							//if new note o is in key
+							if (vanillaNotes.indexOf(o) >= 0){
+								console.log("o " + " if indexof(o) >= 0 " + o)
+								innerChord.push(o + oct[floor(random(oct.length))]);
+							}
+							//else if new note o is not in key, move it down one more step
+							else if (vanillaNotes.indexOf(o) == -1){
+								o = o -1;
+								console.log("o " + " else " + o)
+								innerChord.push(o);
+							}
+						}
+
+						else if (n != chords[(i-1)] [j]) {
+							innerChord.push(n + oct[floor(random(oct.length))]);
+						}
+					}
+				}
+			
+			}
+				chords.push(innerChord);
+				console.log(innerChord);
+		}
+		return chords;
+
+  	}
   
   	return {
     	notesReturn: notesReturn,
-    	beetsReturn: beetsReturn
+    	beetsReturn: beetsReturn,
+    	chordsReturn: chordsReturn
   	};
 
 })();
 
-function ReturnChordsArray(c, cLength) {
-	//c = number of chords, cLength = length of chords
-	var chords = [], oct = [-12,-12,-12,0,0,0,12,12,24], pedalPoint = vanillaNotes[floor(random(vanillaNotes.length))];
-	console.log(pedalPoint + "returnChordsArray");
-	for (var i = 0; i < c; i++){
-		var innerChord= [];
-		console.log("every loop")
-		//create first chord
-		if (i == 0){
-			for (var j = 0; j < cLength; j++) {
-				//first note is pedal point
-				if (j==0){
-					innerChord.push(pedalPoint)
-				}
-				else if (j >= 1){
-					var n = vanillaNotes[floor(random(vanillaNotes.length))];
-					innerChord.push(n + oct[floor(random(oct.length))]);
-					console.log("inside first loop")
-				}
-			}
-		}
-		// create additional chords
-		else if( i >= 1) {
-			for (var j = 0; j < cLength; j++) {
-				// first note is pedal point
-				if (j==0){
-					innerChord.push(pedalPoint)
-				}
-				else if (j >= 1) {
-					var n = vanillaNotes[floor(random(vanillaNotes.length))];
-					//if this note is the same as the note in the same spot of the last chord
-					if (n == chords[(i - 1)][j]) {
-						//o is new note
-						var o = n - 1;
-						//if new note o is in key
-						if (vanillaNotes.indexOf(o) >= 0){
-							console.log("o " + " if indexof(o) >= 0 " + o)
-							innerChord.push(o + oct[floor(random(oct.length))]);
-						}
-						//else if new note o is not in key, move it down one more step
-						else if (vanillaNotes.indexOf(o) == -1){
-							o = o -1;
-							console.log("o " + " else " + o)
-							innerChord.push(o);
-						}
-					}
+// function ReturnBeetsArray(mul) {
+//   // can declare beat multiplier here by passing it in ()
 
-					else if (n != chords[(i-1)] [j]) {
-						innerChord.push(n + oct[floor(random(oct.length))]);
-					}
-				}
-			}
-		
-		}
-			chords.push(innerChord);
-			console.log(innerChord);
-	}
-	return chords;
-}
+// }
 
-function ReturnBeetsArray(mul) {
-  // can declare beat multiplier here by passing it in ()
-    var scoreBeets = [];
-    for (var i = 0; i < floor(random(1,8)); i++) {
-      scoreBeets[i] = beets[floor(random(1,beets.length))] * mul;
-    }
-    return scoreBeets;
-}
+// function notesArray(oct, lowRange, highRange) {
 
-function notesArray(oct, lowRange, highRange) {
-    var scoreNotes = [];
-    for (var i = 0; i < floor(random(lowRange,highRange)); i++) {
-      scoreNotes[i] = vanillaNotes[floor(random(0,vanillaNotes.length))] + oct;
-    }
-    return scoreNotes;
-}
+// }
 
-function chordArray(oct, lowRange, highRange) {
-    var scoreChord = [];
-    for (var i = 0; i < floor(random(lowRange,highRange)); i++) {
-      scoreChord[i] = vanillaNotes[floor(random(0,vanillaNotes.length))] + oct;
-    }
-    return scoreChord;
-}
+// function chordArray(oct, lowRange, highRange) {
+//     var scoreChord = [];
+//     for (var i = 0; i < floor(random(lowRange,highRange)); i++) {
+//       scoreChord[i] = vanillaNotes[floor(random(0,vanillaNotes.length))] + oct;
+//     }
+//     return scoreChord;
+// }
