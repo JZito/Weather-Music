@@ -27,14 +27,14 @@ Clock.bpm(beepEM);
 
 //GIT
 p = Pluck()
-pp = Pluck()
-ppp = Pluck()
-p.fx.add(Delay({time:1/16.005, feedback:.5, dry: .45, wet:.75}, Reverb('space')))
+pp = Synth('rhodes')
+ppp = Synth('rhodes')
+ppp.fx.add(Delay({time:1/16.005, feedback:.5, dry: .45, wet:.75}, Reverb('space')))
 //pp.fx.add(Delay({time:.503, feedback:.4, dry: .75, wet:.25}),Reverb({preset:'small', wet:.5, dry:.65}))
 //PAD
-pad = FM({preset:'radio', maxVoices:4, useADSR:'true', attack:.5, decay:2, sustain:.5, release:.5})
+pad = FM({preset:'radio', maxVoices:4, useADSR:'true', attack:.1, decay:.5, sustain:.25, release:2})
 pad.fx.add(Tremolo({amp:.55, frequency:(beepEM / 120.1)}), Reverb('space'))
-pad.chord.seq([[-12,-8, -3], [-15, -8, -5], [-10,-5, 4], [2,7,11]], 4)
+pad.chord.seq(ReturnChordsArray(4,4), 4)
 
 
 
@@ -42,6 +42,8 @@ pad.chord.seq([[-12,-8, -3], [-15, -8, -5], [-10,-5, 4], [2,7,11]], 4)
 // for length of chord 1
 // choose pedal point
 // if next number chosen is = pedal point
+// choose a different number 
+// 
 
 
 // score length equals number of chords * random square mult like 2 4 8 16
@@ -53,10 +55,10 @@ pad.chord.seq([[-12,-8, -3], [-15, -8, -5], [-10,-5, 4], [2,7,11]], 4)
 
  var strum = function() {
  	strumScore = Score([0, function(){
- 		p.note.seq(notesArray(-12, 4,4), [1/78, 1/74, 1/72]);
+ 			p.note.seq([-12,-8,-5,2], [1/56, 1/64, 1/52]);
  	}, measures(1/16), function(){
   			p.note.seq.stop();
-		}, measures(measures[floor(random(measures.length))] + (1-1/16))]).start().loop();
+	}, measures(measures[floor(random(measures.length))] + (1-1/16))]).start().loop();
  },
  	lovelyGuitar = function(){
  		l = Score([0, function(){
@@ -69,61 +71,19 @@ pad.chord.seq([[-12,-8, -3], [-15, -8, -5], [-10,-5, 4], [2,7,11]], 4)
  	stopper = function() {
  	s = Score([0, function(){
  		console.log('silence')
- 	l.stop();
- 	pp.note.seq.stop();
- 	ppp.note.seq.stop();
- }, measures(1)]).start();
-
+	 	l.stop();
+	 	pp.note.seq.stop();
+	 	ppp.note.seq.stop();
+	 }, measures(1)]).start();
  	},
 
-
- // mainS = function() {
- // 	mainScore = Score([0,
- // 	function(){
- 		
- // 		p.note.seq([0,4,7], 1/12)
- // 		//lovelyGuitar.start()
- // 		console.log(measureCount);
- // 	}, measures(1),
- // 	function () {
- // 		measureCount++;
- // 		p.note.seq([-1,2,9], 1/12)
- // 		//console.log('here we are');
- // 		console.log(measureCount);
- // 		//stopper.start()
- // 	}, measures(1), 
- // 	function() {
- // 		measureCount++;
- // 		p.note.seq([-3,4,11], 1/12)
- // 		console.log(measureCount);
- // 	//	console.log('stop stopper');
- // 	//	stopper.stop();
- // 	}, measures(1)]).start().loop() }, 
- 	
- // stopS = function() {
- // 	s = Score([0, function(){
- // 		console.log('silence')
- // 	mainScore.stop();
- // 	p.note.seq.stop();
- // }, measures(1)]).start();
- // },
-
-parentScore = function() {
+	parentScore = function() {
 	 	 s = Score([0, lovelyGuitar, measures(3), stopper, measures(1)]).start().loop();
 	 	//p.note.seq([-1,2,9], 1/16)
  	};
 
  	score = Score([0, parentScore, measures(654)]).start().loop();
-
 	follow = Follow( pad )
-
-
-
-
-
-//k = Seq({ note:notesArray(12,2,4), durations:1/16, target:p})
-//kk = Seq({ note:notesArray(-12,2,4), durations:[1/8], target:p})
-	
 }
 
 function draw() {
@@ -132,6 +92,87 @@ function draw() {
 	// 	mainScore.stop()
 	// 	measureCount = 0;
 	// }
+}
+
+var LeadMelody = (function () {
+
+  	var privateMethod = function () {
+    // private
+  	};
+
+  	var notesReturn = function () {
+    // public
+  	};
+
+  	var beetsReturn = function () {
+    // public
+  	};
+  
+  	return {
+    	notesReturn: notesReturn,
+    	beetsReturn: beetsReturn
+  	};
+
+})();
+
+function ReturnChordsArray(c, cLength) {
+	//c = number of chords, cLength = length of chords
+	var chords = [], oct = [-12,-12,-12,0,0,0,12,12,24], pedalPoint = vanillaNotes[floor(random(vanillaNotes.length))];
+	console.log(pedalPoint + "returnChordsArray");
+	for (var i = 0; i < c; i++){
+		var innerChord= [];
+		console.log("every loop")
+		//create first chord
+		if (i == 0){
+			for (var j = 0; j < cLength; j++) {
+				//first note is pedal point
+				if (j==0){
+					innerChord.push(pedalPoint)
+				}
+				else if (j >= 1){
+					var n = vanillaNotes[floor(random(vanillaNotes.length))];
+					innerChord.push(n + oct[floor(random(oct.length))]);
+					console.log("inside first loop")
+				}
+			}
+		}
+		// create additional chords
+		else if( i >= 1) {
+			for (var j = 0; j < cLength; j++) {
+				// first note is pedal point
+				if (j==0){
+					innerChord.push(pedalPoint)
+				}
+				else if (j >= 1) {
+					var n = vanillaNotes[floor(random(vanillaNotes.length))];
+					//if this note is the same as the note in the same spot of the last chord
+					if (n == chords[(i - 1)][j]) {
+						//o is new note
+						var o = n - 1;
+						//if new note o is in key
+						if (vanillaNotes.indexOf(o) >= 0){
+							console.log("o " + " if indexof(o) >= 0 " + o)
+							innerChord.push(o + oct[floor(random(oct.length))]);
+						}
+						//else if new note o is not in key, move it down one more step
+						else if (vanillaNotes.indexOf(o) == -1){
+							o = o -1;
+							console.log("o " + " else " + o)
+							innerChord.push(o);
+						}
+					}
+
+					else if (n != chords[(i-1)] [j]) {
+						innerChord.push(n + oct[floor(random(oct.length))]);
+					}
+				}
+			}
+		
+		}
+			chords.push(innerChord);
+			console.log(innerChord);
+	}
+	return chords;
 }
 
 function ReturnBeetsArray(mul) {
