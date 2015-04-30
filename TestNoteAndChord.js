@@ -24,17 +24,19 @@ function setup() {
 
 canvas = createCanvas( windowWidth, windowHeight );
 Clock.bpm(beepEM);
+drum = XOX('x*x*', 1/16)
+			drum.fx.add(Crush({bitDepth:16}))
 
 //GIT
-p = Pluck()
-pp = Pluck()
-ppp = Pluck()
+p = Synth({preset:'bleepEcho', maxVoices:4})
+pp = Synth({preset:'bleepEcho', maxVoices:4})
+ppp = Synth({preset:'bleepEcho', maxVoices:4})
 ppp.fx.add(Delay({time:1/16.005, feedback:.5, dry: .45, wet:.75}, Reverb('space')))
 //pp.fx.add(Delay({time:.503, feedback:.4, dry: .75, wet:.25}),Reverb({preset:'small', wet:.5, dry:.65}))
 //PAD
-pad = FM({preset:'radio', maxVoices:4, useADSR:'true', attack:.1, decay:.5, sustain:.25, release:2})
-pad.fx.add(Tremolo({amp:.55, frequency:(beepEM / 120.1)}), Reverb('space'))
-pad.chord.seq(LeadMelody.chordsReturn(4,4), 4)
+//pad = FM({preset:'radio', maxVoices:4, useADSR:'true', attack:.1, decay:.5, sustain:.25, release:2})
+//pad.fx.add(Tremolo({amp:.55, frequency:(beepEM / 120.1)}), Reverb('space'))
+//pad.chord.seq(LeadMelody.chordsReturn(4,4), 4)
 
 
 
@@ -62,26 +64,29 @@ pad.chord.seq(LeadMelody.chordsReturn(4,4), 4)
  },
  	lovelyGuitar = function(){
  		l = Score([0, function(){
-			pp.note.seq(LeadMelody.notesReturn(-12, 2, 12), LeadMelody.beetsReturn(4))
-			ppp.note.seq(LeadMelody.notesReturn(-12,1,2), LeadMelody.beetsReturn(8))
-		}, measures(3), strum, measures(1)]).start().loop();
+			pp.note.seq(LeadMelody.notesReturn(0, 2, 12), LeadMelody.beetsReturn(2))
+			pp.chord.seq(LeadMelody.chordsReturn(4,4), LeadMelody.beetsReturn(8))
+			ppp.note.seq(LeadMelody.notesReturn(12,4,8), LeadMelody.beetsReturn(1))
+		}, measures(3)]).start().loop();
  	}, 
 
  	stopper = function() {
 	 	s = Score([0, function(){
+	 		console.log("stopper");
 		 	l.stop();
 		 	pp.note.seq.stop();
+		 	pp.chord.seq.stop();
 		 	ppp.note.seq.stop();
-		 }, measures(1)]).start().loop();
+		 }, measures(1)]).start();
  	},
 
 	parentScore = function() {
-	 	 s = Score([0, lovelyGuitar, measures(3), stopper, measures(1)]).start().loop();
+	 	 s = Score([0, lovelyGuitar, measures(7), stopper, measures(1)]).start().loop();
 	 	//p.note.seq([-1,2,9], 1/16)
  	};
 
  	score = Score([0, parentScore, measures(654)]).start().loop();
-	follow = Follow( pad )
+	follow = Follow( pp )
 }
 
 function draw() {
