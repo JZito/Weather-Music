@@ -3,16 +3,15 @@ var vanillaNotes = [12,11,9,7,4,2,0], vanillaMeasures = [1,2,4,6,8,12,16], beets
 function setup() {
 	canvas = createCanvas( windowWidth, windowHeight );
 	Clock.bpm(beepEM);
+	Song.groupSynths(4);
+	Song.scoreCreate();
+	// Song.scoreCreate(Song.publicSyns);
+
 }
 
 function draw() {
-	// background( follow.getValue() * 255 )
-	// if (measureCount >= 8){
-	// 	mainScore.stop()
-	// 	measureCount = 0;
-	// }
+
 }
-//name = instrumentKind(pre)
 
 var Harmony = (function () {
 
@@ -115,16 +114,33 @@ var Song = (function () {
     // check the time function will be calling module.clear method to start over
     // use a circle ? for each follow... needs to be referenced from draw. call method from draw? how
     // will that work?
-	var scoreDetails = function(mm) {
+	var scoreDetails = function() {
 		  var steps = [], 
-		  nm = function(){syns[mm].note.seq(varInSeqPar, beetsVar);}, 
-		  sp = function(){syns[mm].note.seq(Harmony.notesReturn(-12, 4, 8), beetsVar);}, 
-		  pm = function(){syns[mm].note.seq(Harmony.notesReturn(0, 4, 8), Harmony.beetsReturn(1));}, 
-		  sto = function(){syns[mm].note.seq.stop();},
+		  nm = function(){
+		  	console.log("nm");
+		  						for (var i = 0; i < syns.length; i++) {
+		  							if (syns[i][1] == 'lead'){
+		  					syns[i][0].note.seq(varInSeqPar, beetsVar)}
+		  							else if (syns[i][1] == 'pad'){
+		  					syns[i][0].note.seq([-12,-12,-13,-13], beetsVar)}			
+		  							}
+		  				;}, 
+
+		  sp = function(){
+		  	console.log("sp");
+		  						for (var i = 0; i < syns.length; i++) {
+		  							console.log(i + "sp - i");
+		  					syns[i][0].note.seq(Harmony.notesReturn(-12, 4, 8), beetsVar)};}, 
+		  pm = function(){
+		  						for (var i = 0; i < syns.length; i++) {
+		  					syns[i][0].note.seq(Harmony.notesReturn(0, 4, 8), Harmony.beetsReturn(1))};}, 
+		  sto = function(){
+		  						for (var i = 0; i < syns.length; i++) {
+		  					syns[i][0].note.seq.stop()};},
 		  functions = [nm, sp, pm, sto];
 		 // if (rain){
 		    varInSeqPar = Harmony.notesReturn(0,16,17);
-		    beetsVar = Harmony.beetsReturn(2);
+		    beetsVar = Harmony.beetsReturn(1);
 		//  }
 		  // else if (mm = musicMakers[2]) {
 		  //   varInSeqPar = ReturnBassNotesArray(0,1,2, 2);
@@ -164,17 +180,21 @@ var Song = (function () {
 		publicSyns: syns,
 		//need a for loop to create each instrument and add to the syn array
 		// groupsynths is create a whole group of individual synthcreates
-		groupSysnths: function(q) {
+		groupSynths: function(q) {
+			console.log("suuup");
 			// q is number of instruments to create
-
-		for (var i = 0; i <= q; i++){
-			songG = new Song.synthCreate (i, 'lead', 'oo')
-			songG.make()
-			//Song.scoreCreate(i);
-		}
-		Song.scoreCreate(0);
-		Song.scoreCreate(1);
-		Song.scoreCreate(2);
+			for (var i = 0; i <= q; i++){
+				if (i == 2) {
+					synth = new Song.synthCreate(i, 'pad', 'oo');
+					synth.make();
+				}
+				else {
+					synth = new Song.synthCreate (i, 'lead', 'oo');
+					synth.make();
+				}
+				
+				//Song.scoreCreate(i);
+			}
 		},
 		synthCreate:	  function (name, kind, pre) {
 		  var leadInstruments = [FM, Pluck, Synth], padInstruments = [Synth2];
@@ -197,22 +217,17 @@ var Song = (function () {
 		      //}
 		        //create the synth object 
 		    console.log( this.name + " is born " + pre + ' pre ' )
-		    name = instrumentKind(pre)
+		    
 		    if (instrumentKind == Pluck) {
 		      name.amp(2.25)
-		    }
-		    if (!syns[0]){
-		      syns.push(name);
-		  }
-		    else {
-		      syns[0] = name;
-		    }
-		  }
-
-		  // else if (kind == 'pad') {
-		  //   var instrumentKind = padInstruments[0],
-		  //   pre = padPresets[floor(random(padPresets.length))];
-		  //     //create the synth object 
+		    	}
+		  	}
+		  	
+		    
+		   else if (kind == 'pad') {
+		    var instrumentKind = Synth2,
+		    pre = padPresets[floor(random(padPresets.length))];
+		      //create the synth object 
 		  //   console.log( this.name + " is born " + pre + ' pre ' )
 		  //   name = instrumentKind(pre)
 		  //   if (!syns[1]){
@@ -221,24 +236,31 @@ var Song = (function () {
 		  //   else {
 		  //     syns[1] = name;
 		  //   }
-		  // }
+		  }
 
 		  // else if (kind == 'bass'){
 		  //   console.log( this.name + " is born " + pre + ' pre ')
 		  //   name = Mono('waveBass')
 		  //   syns.push(name);
 		  //   }
+		  name = instrumentKind(pre)
+		  var valueToPush = new Array();
+				valueToPush[0] = name;
+				valueToPush[1] = kind;
+				//cookie_value_add.push(valueToPush);
+		    syns.push(valueToPush);
 		  }
 		},
 		clear: function(c) {
 			syns[c].kill();
 
 		}, 
-		scoreCreate: function(q) {
-			var ss = scoreDetails(q);
+		scoreCreate: function() {
+			var ss = scoreDetails();
   			score = Score(ss).start().loop()
+  	//		drum = XOX('x*x*', 1/16)
+  	//			drum.fx.add(Crush({bitDepth:16}))
 			//s = Score([scoreDetails(syns[q])]).start().loop();
-			console.log(q + " . q ")
 		}
 	} ;
 
