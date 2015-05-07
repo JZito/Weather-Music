@@ -1,4 +1,4 @@
-var bpm = 120, globalSR = 44100, vanillaMeasures = [1,2,4,6,8,12,16], vanillaNotes = [0,2,4,7,9,11,12], beets = [1, 1/2, 1/4, 1/8,1/16], scorePhrases = 9, musicMakers = [],
+var bpm = 120, globalSR = 44100, vanillaMeasures = [1,2,4,6,8,12,16], vanillaNotes = [0,2,4,7,9,11,12], beets = [1, 1/2, 1/4, 1/8,1/16], scorePhrases = 78, musicMakers = [],
 effects = [], rain = true, state, previousState, cloud;
 
 function ExampleScore(mM) {
