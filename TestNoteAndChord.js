@@ -1,6 +1,6 @@
 // to do--- fix for loop in score- set it back to individual score for each instrument
 // 
-var state, uno, vanillaNotes = [12,11,9,7,4,2,0], vanillaMeasures = [1,2,4,6,8,12,16], 
+var state, ticker, uno, vanillaNotes = [12,11,9,7,4,2,0], vanillaMeasures = [1,2,4,6,8,12,16], 
 beets = [1, 1/2, 1/4, 1/8,1/16, 1/32], beepEM = 67, rotations = [2,4,6,8], pieces = [],
 measureCount = 0, mainScore, bassWaveform = ['Saw','Sine','Triangle', 'Square'], 
 presetLeadArray = ['gong', 'brass', 'bass', 'bass','clarinet', 'glockenspiel', 'glockenspiel', 'glockenspiel'];
@@ -16,8 +16,11 @@ function setup() {
 function StartIt() {
 	song = new Song('hi');
 	song.make();
-	console.log(pieces[0])
-	pieces[0].testReturn();
+	console.log(pieces[0]);
+	pieces[0].groupSynths(4);
+	pieces[0].scoreCreate();
+	
+	//pieces[0].scoreCreate(pieces[0].publicSyns);
 	//song.Sooong.testReturn();
 	
 
@@ -139,7 +142,7 @@ var Song = function (n) { //enclose song
 			   
 	this.make = function() {
 		console.log('second level');
-		var Sooong = (function () {
+		var innerSong = (function () {
 			console.log('third level');
 			var score, syn, syns = [], m = 4, scorePhrases = 9,
 			presets = ['cascade', 'bleep', 'bleepEcho', 'rhodes', 'warble'],
@@ -226,11 +229,11 @@ var Song = function (n) { //enclose song
 					// q is number of instruments to create
 					for (var i = 0; i <= q; i++){
 						if (i == 2) {
-							synth = new Song.synthCreate(i, 'pad', 'oo');
+							synth = new innerSong.synthCreate(i, 'pad', 'oo');
 							synth.make();
 						}
 						else {
-							synth = new Song.synthCreate (i, 'lead', 'oo');
+							synth = new innerSong.synthCreate (i, 'lead', 'oo');
 							synth.make();
 						}
 						
@@ -291,7 +294,7 @@ var Song = function (n) { //enclose song
 							Master.fadeIn(2);
 							drum = XOX('x*x*', 1/16);
 							drum.amp(.25);
-							for (var i = 0; i < Song.publicSyns.length; i++){
+							for (var i = 0; i < innerSong.publicSyns.length; i++){
 								var ss = scoreDetails(i);
 		  						inScore = Score(ss).start().loop();
 		  				}
@@ -309,7 +312,7 @@ var Song = function (n) { //enclose song
 		  				function(){
 		  					score0.stop();
 		  					for (var i = 0; i < syns.length; i++){
-		  						Song.clearr(i);
+		  						Soooong.clearr(i);
 		  					}
 		  				}, measures(1)]);
 		  			}
@@ -317,7 +320,7 @@ var Song = function (n) { //enclose song
 		  			
 					//s = Score([scoreDetails(syns[q])]).start().loop();
 			})();//inner song enclosure
-		pieces.push(Sooong);
+		pieces.push(innerSong);
 	}
 	// return {
 	// 	newSong : Song
