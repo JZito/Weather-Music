@@ -1,7 +1,7 @@
 // to do--- fix for loop in score- set it back to individual score for each instrument
 // 
-var state, vanillaNotes = [12,11,9,7,4,2,0], vanillaMeasures = [1,2,4,6,8,12,16], 
-beets = [1, 1/2, 1/4, 1/8,1/16, 1/32], beepEM = 67, rotations = [2,4,6,8], 
+var state, uno, vanillaNotes = [12,11,9,7,4,2,0], vanillaMeasures = [1,2,4,6,8,12,16], 
+beets = [1, 1/2, 1/4, 1/8,1/16, 1/32], beepEM = 67, rotations = [2,4,6,8], pieces = [],
 measureCount = 0, mainScore, bassWaveform = ['Saw','Sine','Triangle', 'Square'], 
 presetLeadArray = ['gong', 'brass', 'bass', 'bass','clarinet', 'glockenspiel', 'glockenspiel', 'glockenspiel'];
 
@@ -14,14 +14,12 @@ function setup() {
 
 }
 function StartIt() {
-	var my_module3 = new (Song());
-		my_module3.init();
-	my_module3.groupSynths(2);
-	// for amount of instruments
-	//song.scorecreate(i)
-	for (var i = 0; i < Song.publicSyns.length; i++){
-		my_module3.scoreCreate(i);
-	}
+	song = new Song('hi');
+	song.make();
+	console.log(pieces[0])
+	pieces[0].testReturn();
+	//song.Sooong.testReturn();
+	
 
 };
 
@@ -123,228 +121,208 @@ function CheckTheTime(time) //function check the time
     //football = musicMakers[0];
     if (state != previousState) 
     {
-		Song.scoreFadeOut();
+    	if (ticker == 0){
+    		//change pieces[0]
+    		ticker = 1;
+    	}
+    	else if (ticker == 1){
+    		ticker = 0;
+    	}
+		//Song.scoreFadeOut();
    }
  }
 
-var Sooong = function () { //enclose song
+var Song = function (n) { //enclose song
+	console.log('first level');
 
-
-	this.name = name;
+	this.name = n;
 			   
 	this.make = function() {
+		console.log('second level');
+		var Sooong = (function () {
+			console.log('third level');
+			var score, syn, syns = [], m = 4, scorePhrases = 9,
+			presets = ['cascade', 'bleep', 'bleepEcho', 'rhodes', 'warble'],
+			padPresets = ['pad2','pad4', 'rainTri' ];
+			//it can all happen in here. handle each score, handle each instrument
+			// array of syn objects can live here but be changed by a public method
+			// syns = [];
+			// public method to restart clears objects
+			// syn is the object to be effected... how to assign?
+			// privtely fill details of score
+		    // check the time function will be calling module.clear method to start over
+		    // use a circle ? for each follow... needs to be referenced from draw. call method from draw? how
+		    // will that work?
+			var scoreDetails = function(m) {
+				  var steps = [], newM, newC, pm, sto, beetsVar = Harmony.beetsReturn(1);;
+				  if (syns[m][1] == 'lead') {
+						newM = function(){
+							var nR = Harmony.notesReturn(0,16,17);	  							
+				  			syns[m][0].note.seq(nR, beetsVar)
+					  ;}, 
+					 	newC = function(){
+					  		var nR = Harmony.notesReturn(-12, 4, 8), bV = beetsVar;
+					  		syns[m][0].note.seq(nR, bV)
+				      ;}, 
+					    pm = function(){
+					  		var nR = Harmony.notesReturn(-12, 4, 8), bV = beetsVar;
+					  		syns[m][0].note.seq(nR, bV)
+				      ;}, 
+					    sto = function(){
+					  		syns[m][0].note.seq.stop()
+					  ;};
+				   var functions = [newM, newC, pm, sto]; 
+				}
+				else if (syns[m][1] == 'pad'){ 
+						newM = function(){
+							var nR = Harmony.notesReturn(-12,2,4);	  							
+				  			syns[m][0].note.seq(nR, beetsVar)
+					  ;}, 
+					 	newC = function(){
+					  		var nR = [0,12,11,12,11,12,11,19], bV = beetsVar;
+					  		syns[m][0].note.seq(nR, bV)
+				      ;}, 
+					    pm = function(){
+					  		var nR = [0,0,0,0,-1,-1,-1,-1], bV = beetsVar;
+					  		syns[m][0].note.seq(nR, bV)
+				      ;}, 
+					    sto = function(){
+					  		syns[m][0].note.seq.stop()
+					  ;};
+				   var functions = [newM, newC, pm, sto]; 
 
-		var score, syn, syns = [], m = 4, scorePhrases = 9,
-		presets = ['cascade', 'bleep', 'bleepEcho', 'rhodes', 'warble'],
-		padPresets = ['pad2','pad4', 'rainTri' ];
-		//it can all happen in here. handle each score, handle each instrument
-		// array of syn objects can live here but be changed by a public method
-		// syns = [];
-		// public method to restart clears objects
-		// syn is the object to be effected... how to assign?
-		// privtely fill details of score
-	    // check the time function will be calling module.clear method to start over
-	    // use a circle ? for each follow... needs to be referenced from draw. call method from draw? how
-	    // will that work?
-		var scoreDetails = function(m) {
-			  var steps = [], newM, newC, pm, sto, beetsVar = Harmony.beetsReturn(1);;
-			  if (syns[m][1] == 'lead') {
-					newM = function(){
-						var nR = Harmony.notesReturn(0,16,17);	  							
-			  			syns[m][0].note.seq(nR, beetsVar)
-				  ;}, 
-				 	newC = function(){
-				  		var nR = Harmony.notesReturn(-12, 4, 8), bV = beetsVar;
-				  		syns[m][0].note.seq(nR, bV)
-			      ;}, 
-				    pm = function(){
-				  		var nR = Harmony.notesReturn(-12, 4, 8), bV = beetsVar;
-				  		syns[m][0].note.seq(nR, bV)
-			      ;}, 
-				    sto = function(){
-				  		syns[m][0].note.seq.stop()
-				  ;};
-			   var functions = [newM, newC, pm, sto]; 
-			}
-			else if (syns[m][1] == 'pad'){ 
-					newM = function(){
-						var nR = Harmony.notesReturn(-12,2,4);	  							
-			  			syns[m][0].note.seq(nR, beetsVar)
-				  ;}, 
-				 	newC = function(){
-				  		var nR = [0,12,11,12,11,12,11,19], bV = beetsVar;
-				  		syns[m][0].note.seq(nR, bV)
-			      ;}, 
-				    pm = function(){
-				  		var nR = [0,0,0,0,-1,-1,-1,-1], bV = beetsVar;
-				  		syns[m][0].note.seq(nR, bV)
-			      ;}, 
-				    sto = function(){
-				  		syns[m][0].note.seq.stop()
-				  ;};
-			   var functions = [newM, newC, pm, sto]; 
-
-			}
-			 // if (rain){
-			    
-			    
-			//  }
-			  // else if (mm = musicMakers[2]) {
-			  //   varInSeqPar = ReturnBassNotesArray(0,1,2, 2);
-			  //   beetsVar = [4,4,4,4,2,2,2,2];
-			  // }
-			  // else {
-			  //   varInSeqPar = Harmony.notesReturntesArray();
-			  // }
-			  //going to need object score will be referencing
-			  for (var i = 0; i < scorePhrases; i++){
-			    if (i == 0){
-			      steps.push(0);
-			     // console.log(steps[i] + i);
-			    }
-			    //prevent seq from repeating itself (but this is not accounting for all circumstances, must solve )
-			    else if (i == 1 || steps[i-2] == sto) {
-			      var n =  functions[floor(random(functions.length - 1))] ;
-			      steps.push(n)
-			    }
-			    else if ((i+2)%2==0 ) {
-			      //length of each step
-			      steps.push(measures(vanillaMeasures[floor(random(vanillaMeasures.length))]));
-			    //  console.log(steps[i] + i);
-			    }
-			    
-			    else {
-			      var n =  functions[floor(random(functions.length))] ;
-			      steps.push(n);
-			    //  console.log(n + i + mm);
-			    }
-			  }
-
-			    return steps;
+				}
+				for (var i = 0; i < scorePhrases; i++){
+				    if (i == 0){
+				    	steps.push(0);
+				     // console.log(steps[i] + i);
+				    }
+				    //prevent seq from repeating itself (but this is not accounting for all circumstances, must solve )
+				    else if (i == 1 || steps[i-2] == sto) {
+				    	var n =  functions[floor(random(functions.length - 1))] ;
+				    	steps.push(n)
+				    }
+				    else if ((i+2)%2==0 ) {
+				      //length of each step
+				    	steps.push(measures(vanillaMeasures[floor(random(vanillaMeasures.length))]));
+				    //  console.log(steps[i] + i);
+				    }
+				    
+				    else {
+				    	var n =  functions[floor(random(functions.length))] ;
+				    	steps.push(n);
+				    //  console.log(n + i + mm);
+				    }
+				  }
+				return steps;
 			};
 
-		return {
-			publicSyns: syns,
-			//need a for loop to create each instrument and add to the syn array
-			// groupsynths is create a whole group of individual synthcreates
-			groupSynths: function(q) {
-				console.log("suuup");
-				// q is number of instruments to create
-				for (var i = 0; i <= q; i++){
-					if (i == 2) {
-						synth = new Song.synthCreate(i, 'pad', 'oo');
-						synth.make();
+			return {
+				publicSyns: syns,
+				//need a for loop to create each instrument and add to the syn array
+				// groupsynths is create a whole group of individual synthcreates
+				groupSynths: function(q) {
+					console.log("suuup");
+					// q is number of instruments to create
+					for (var i = 0; i <= q; i++){
+						if (i == 2) {
+							synth = new Song.synthCreate(i, 'pad', 'oo');
+							synth.make();
+						}
+						else {
+							synth = new Song.synthCreate (i, 'lead', 'oo');
+							synth.make();
+						}
+						
+						//Song.scoreCreate(i);
 					}
-					else {
-						synth = new Song.synthCreate (i, 'lead', 'oo');
-						synth.make();
-					}
-					
-					//Song.scoreCreate(i);
-				}
-			},
-			synthCreate:	  function (name, kind, pre) {
-				var leadInstruments = [FM, Pluck, Synth], padInstruments = [Synth2];
-				  // name - name object, kind - role of instrument (lead, pad etc), pre- preset,
-				  //reference item by spot in syns array... current plan is to assign each to specific
-				  // spot. syns[0] = lead, 1 = pad, 2 = bass, 4 = lead2, 5 = noise, 6 = drums
-				this.name = name;
-				   
-				this.make = function() {
-				var instrumentKind;
-				if (kind == 'lead') {
-				    	instrumentKind = leadInstruments[0];
-				    	pre = 'glockenspiel';
-				    	console.log( this.name + " is born " + pre + ' pre ' )
-				  	}
-				    
-				else if (kind == 'pad') {
-				    	instrumentKind = Synth2;
-				    	pre = padPresets[floor(random(padPresets.length))];
-				  	}
+				},
+				testReturn: function(){
+					console.log(n + "testReturn");
+				},
+				synthCreate: function (name, kind, pre) {
+					var leadInstruments = [FM, Pluck, Synth], padInstruments = [Synth2];
+					  // name - name object, kind - role of instrument (lead, pad etc), pre- preset,
+					  //reference item by spot in syns array... current plan is to assign each to specific
+					  // spot. syns[0] = lead, 1 = pad, 2 = bass, 4 = lead2, 5 = noise, 6 = drums
+					this.name = name;
+					   
+					this.make = function() {
+					var instrumentKind;
+					if (kind == 'lead') {
+					    	instrumentKind = leadInstruments[0];
+					    	pre = 'glockenspiel';
+					    	console.log( this.name + " is born " + pre + ' pre ' )
+					  	}
+					    
+					else if (kind == 'pad') {
+					    	instrumentKind = Synth2;
+					    	pre = padPresets[floor(random(padPresets.length))];
+					  	}
 
-				else if (kind == 'bass'){
-				  		instrumentKind = Mono;
-				    	pre = 'waveBass';
+					else if (kind == 'bass'){
+					  		instrumentKind = Mono;
+					    	pre = 'waveBass';
+					    }
+					name = instrumentKind(pre)
+
+					var valueToPush = new Array();
+							valueToPush[0] = name;
+							valueToPush[1] = kind;
+					syns.push(valueToPush);
+					    // pluck is very quiet
+				    if (instrumentKind == Pluck) {
+					      name.amp(2.25)
 				    }
-				name = instrumentKind(pre)
+				  }
+				},
+				clearr: function(c) {
+					syns[c][0].kill();
 
-				var valueToPush = new Array();
-						valueToPush[0] = name;
-						valueToPush[1] = kind;
-				syns.push(valueToPush);
-				    // pluck is very quiet
-			    if (instrumentKind == Pluck) {
-				      name.amp(2.25)
-			    }
-			  }
-			},
-			clearr: function(c) {
-				syns[c][0].kill();
-
-			}, 
-			scoreCreate: function() {
-				var ticker = 0;
-				//scorecreate needs to pass var for scoredetails(var)
-				//remove for loop from scoredetails
-				if (ticker == 0) {
-				score0 = Score([0,
-					function(){ 
-						// can assign fx in here but should have accessible variable above it somewhere
-						Master.fadeIn(2);
-						drum = XOX('x*x*', 1/16);
-						drum.amp(.25);
-						for (var i = 0; i < Song.publicSyns.length; i++){
-							var ss = scoreDetails(i);
-	  						inScore = Score(ss).start().loop();
-	  				}
-	  			}, measures(2),
-	  				function(){
-	  					Master.amp(1);
-	  				}, measures(680)]).start().loop();
-				ticker = 1;
-				}
-
-				else if (ticker == 1) {
-				score1 = Score([0,
-					function(){ 
-						// can assign fx in here but should have accessible variable above it somewhere
-						Master.fadeIn(2);
-						drum = XOX('x*x*', 1/16);
-						drum.amp(.25);
-						for (var i = 0; i < Song.publicSyns.length; i++){
-							var ss = scoreDetails(i);
-	  						inScore = Score(ss).start().loop();
+				}, 
+				scoreCreate: function() {
+					
+					//scorecreate needs to pass var for scoredetails(var)
+					//remove for loop from scoredetails
+					
+					score= Score([0,
+						function(){ 
+							// can assign fx in here but should have accessible variable above it somewhere
+							Master.fadeIn(2);
+							drum = XOX('x*x*', 1/16);
+							drum.amp(.25);
+							for (var i = 0; i < Song.publicSyns.length; i++){
+								var ss = scoreDetails(i);
+		  						inScore = Score(ss).start().loop();
 		  				}
 		  			}, measures(2),
 		  				function(){
 		  					Master.amp(1);
 		  				}, measures(680)]).start().loop();
-					ticker = 0;
-					}
-	  			},
-	  		scoreFadeOut: function() {
-	  			scoreFade = Score([0,
-	  				function(){
-	  					Master.fadeOut(2);
-	  					//will need to make this main bus, assign main bus in creation
-	  				}, measures(2),
-	  				function(){
-	  					score0.stop();
-	  					for (var i = 0; i < syns.length; i++){
-	  						Song.clearr(i);
-	  					}
-	  				}, measures(1)
-	  				]);
-
-	  			}
-	  		};
-	  			
-				//s = Score([scoreDetails(syns[q])]).start().loop();
-		}
+		  			},
+		  		scoreFadeOut: function() {
+		  			scoreFade = Score([0,
+		  				function(){
+		  					Master.fadeOut(2);
+		  					//will need to make this main bus, assign main bus in creation
+		  				}, measures(2),
+		  				function(){
+		  					score0.stop();
+		  					for (var i = 0; i < syns.length; i++){
+		  						Song.clearr(i);
+		  					}
+		  				}, measures(1)]);
+		  			}
+		  		};
+		  			
+					//s = Score([scoreDetails(syns[q])]).start().loop();
+			})();//inner song enclosure
+		pieces.push(Sooong);
+	}
 	// return {
 	// 	newSong : Song
 	// }
+	
 }; //new enclosure 
 
 //})
