@@ -1,6 +1,6 @@
 // to do--- fix for loop in score- set it back to individual score for each instrument
 // 
-var state, ticker, uno, vanillaNotes = [12,11,9,7,4,2,0], vanillaMeasures = [1,2,4,6,8,12,16], 
+var state, ticker = 0, uno, vanillaNotes = [12,11,9,7,4,2,0], vanillaMeasures = [1,2,4,6,8,12,16], 
 beets = [1, 1/2, 1/4, 1/8,1/16, 1/32], beepEM = 67, rotations = [2,4,6,8], pieces = [],
 measureCount = 0, mainScore, bassWaveform = ['Saw','Sine','Triangle', 'Square'], 
 presetLeadArray = ['gong', 'brass', 'bass', 'bass','clarinet', 'glockenspiel', 'glockenspiel', 'glockenspiel'];
@@ -8,27 +8,41 @@ presetLeadArray = ['gong', 'brass', 'bass', 'bass','clarinet', 'glockenspiel', '
 function setup() {
 	canvas = createCanvas( windowWidth, windowHeight );
 	Clock.bpm(beepEM);
-	
-	// Song.scoreCreate(Song.publicSyns);
-	StartIt();
+	NewSong(0);
 
-}
-function StartIt() {
-	song = new Song('hi');
+};
+
+function CheckTheTime(time) //function check the time
+ {
+    var previousState = state; 
+    state = time;
+    if (state != previousState) 
+    {
+    	console.log("state !=")
+    	if (ticker == 0){
+    		ticker = 1;
+    	}
+    	else if (ticker == 1){
+    		pieces[0].scoreFadeOut(1);
+    		ticker = 2;	
+    	}
+    	else if (ticker == 2){
+    		pieces[1].scoreFadeOut(0);
+    		ticker = 1;	
+    	}
+    }
+};
+
+function NewSong(t) {
+	song = new Song('ho', t);
 	song.make();
-	console.log(pieces[0]);
-	pieces[0].groupSynths(4);
-	pieces[0].scoreCreate();
-	
-	//pieces[0].scoreCreate(pieces[0].publicSyns);
-	//song.Sooong.testReturn();
-	
-
+	pieces[t].groupSynths(4);
+	pieces[t].scoreCreate();
 };
 
 function draw() {
 	CheckTheTime(minute());
-}
+};
 
 var Harmony = (function () {
 
@@ -117,25 +131,8 @@ var Harmony = (function () {
 
 })();
 
-function CheckTheTime(time) //function check the time
- {
-    var previousState = state; 
-    state = time;
-    //football = musicMakers[0];
-    if (state != previousState) 
-    {
-    	if (ticker == 0){
-    		//change pieces[0]
-    		ticker = 1;
-    	}
-    	else if (ticker == 1){
-    		ticker = 0;
-    	}
-		//Song.scoreFadeOut();
-   }
- }
 
-var Song = function (n) { //enclose song
+var Song = function (n, place) { //enclose song
 	console.log('first level');
 
 	this.name = n;
@@ -144,7 +141,7 @@ var Song = function (n) { //enclose song
 		console.log('second level');
 		var innerSong = (function () {
 			console.log('third level');
-			var score, syn, syns = [], m = 4, scorePhrases = 9,
+			var score, syn, syns = [], m = 4, scorePhrases = 9, innerSongBus,
 			presets = ['cascade', 'bleep', 'bleepEcho', 'rhodes', 'warble'],
 			padPresets = ['pad2','pad4', 'rainTri' ];
 			//it can all happen in here. handle each score, handle each instrument
@@ -200,7 +197,7 @@ var Song = function (n) { //enclose song
 				    	steps.push(0);
 				     // console.log(steps[i] + i);
 				    }
-				    //prevent seq from repeating itself (but this is not accounting for all circumstances, must solve )
+				    //prevent seq from hitting stop twice (but this is not accounting for all circumstances, must solve )
 				    else if (i == 1 || steps[i-2] == sto) {
 				    	var n =  functions[floor(random(functions.length - 1))] ;
 				    	steps.push(n)
@@ -222,10 +219,11 @@ var Song = function (n) { //enclose song
 
 			return {
 				publicSyns: syns,
-				//need a for loop to create each instrument and add to the syn array
 				// groupsynths is create a whole group of individual synthcreates
 				groupSynths: function(q) {
 					console.log("suuup");
+					// opportunity to return different bus effects based on circumstance
+					
 					// q is number of instruments to create
 					for (var i = 0; i <= q; i++){
 						if (i == 2) {
@@ -290,37 +288,54 @@ var Song = function (n) { //enclose song
 					
 					score= Score([0,
 						function(){ 
+							innerSongBus = Bus().fx.add( Schizo({chance:.5, rate:ms(250), length:ms(1000)}) ) // right
+							//innerSongBus.fx[0].amp(0);
 							// can assign fx in here but should have accessible variable above it somewhere
-							Master.fadeIn(2);
+							
+							//innerSongBus.fadeIn(2, 1);
 							drum = XOX('x*x*', 1/16);
-							drum.amp(.25);
+							drum.fadeIn(4, 1);
 							for (var i = 0; i < innerSong.publicSyns.length; i++){
+								innerSong.publicSyns[i][0].fadeIn(4, 1);
+								innerSong.publicSyns[i][0].send(innerSongBus, 1);
 								var ss = scoreDetails(i);
 		  						inScore = Score(ss).start().loop();
 		  				}
-		  			}, measures(2),
+		  					//innerSongBus.amp = 0;
+		  			}, measures(1),
 		  				function(){
-		  					Master.amp(1);
+		  					//innerSongBus.amp = 1;
 		  				}, measures(680)]).start().loop();
 		  			},
-		  		scoreFadeOut: function() {
+		  		scoreFadeOut: function(tick) {
 		  			scoreFade = Score([0,
 		  				function(){
-		  					Master.fadeOut(2);
+		  					innerSongBus.fx.add(Delay(1/6,.95 ));
+		  					drum.fadeOut(4);
+		  					for (var i = 0; i < syns.length; i++) {
+		  					syns[i][0].fadeOut(4);
+		  				}
 		  					//will need to make this main bus, assign main bus in creation
-		  				}, measures(2),
+		  				}, measures(4),
 		  				function(){
-		  					score0.stop();
 		  					for (var i = 0; i < syns.length; i++){
-		  						Soooong.clearr(i);
+		  						innerSong.clearr(i);
 		  					}
-		  				}, measures(1)]);
+		  					drum.kill();
+		  					NewSong(tick);
+		  					innerSongBus.fx[1].feedback = .49;
+		  				}, measures(8),
+		  				function(){
+		  					score.stop();
+		  					innerSongBus.kill();
+		  					
+		  				}, measures(1)]).start();
 		  			}
 		  		};
 		  			
 					//s = Score([scoreDetails(syns[q])]).start().loop();
 			})();//inner song enclosure
-		pieces.push(innerSong);
+		pieces[place] = innerSong;
 	}
 	// return {
 	// 	newSong : Song

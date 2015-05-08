@@ -8311,6 +8311,16 @@ Audio = {
     // start : function() {
     //   if( this.seq ) this.seq.start()
     // },
+
+    fader : function(_time, endLevel, startLevel) {
+      if(isNan( startLevel)){
+        startLevel = this.amp.value
+      }
+
+      var time = Audio.Clock.time( _time),
+          decay = new Audio.Core.ExponentialDecay()
+
+    },
     
     fadeIn : function( _time, endLevel ) {
       if( isNaN( endLevel ) ) {
@@ -8318,7 +8328,7 @@ Audio = {
       }
 
       var time = Audio.Clock.time( _time ),
-          decay = new Audio.Core.ExponentialDecay({ decayCoefficient:.05, length:time }),
+          decay = new Audio.Core.ExponentialDecay({ decayCoefficient:.00005, length:time }),
           //ramp = Mul( Sub(1,decay), endLevel )
           line = new Audio.Core.Line( 0, endLevel, time )
           
