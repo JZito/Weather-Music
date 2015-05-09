@@ -8312,14 +8312,31 @@ Audio = {
     //   if( this.seq ) this.seq.start()
     // },
 
-    fader : function(_time, endLevel, startLevel) {
-      if(isNan( startLevel)){
-        startLevel = this.amp.value
+    fader : function(_time, fadeObj, endLevel, startLevel) {
+
+      if(isNaN( startLevel )){
+        if (fadeObj == "feedback"){
+          startLevel = this.feedback.value
+        }
+        else if (fadeObj == "amp"){
+          startLevel = this.amp.value
+        }
       }
 
-      var time = Audio.Clock.time( _time),
-          decay = new Audio.Core.ExponentialDecay()
-
+       var time = Audio.Clock.time( _time ),
+          decay = new Audio.Core.ExponentialDecay({ decayCoefficient:.0005, length:time }),
+          //ramp = Mul( decay, this.amp() )
+          line = new Audio.Core.Line( startLevel, endLevel, Audio.Clock.time( time ) )
+      if (fadeObj == "feedback"){
+        this.feedback(line)
+      }
+      else if (fadeObj == "amp"){
+        this.amp( line )
+      }
+      
+      future( function() { this.amp = endLevel }.bind( this ), time )
+      
+      return this
     },
     
     fadeIn : function( _time, endLevel ) {
@@ -8328,11 +8345,11 @@ Audio = {
       }
 
       var time = Audio.Clock.time( _time ),
-          decay = new Audio.Core.ExponentialDecay({ decayCoefficient:.00005, length:time }),
+          decay = new Audio.Core.ExponentialDecay({ decayCoefficient:.05, length:time }),
           //ramp = Mul( Sub(1,decay), endLevel )
-          line = new Audio.Core.Line( 0, endLevel, time )
+          line = new Audio.Core.Line( 0, endLevel, Audio.Clock.time( time ) )
           
-      this.amp = line
+      this.amp ( line )
       
       future( function() { this.amp = endLevel }.bind( this ), time)
       
@@ -9914,6 +9931,11 @@ module.exports = function( Gibber ) {
       out: { min: 0, max: 1, output: LINEAR, timescale: 'audio', dimensions:1 },
     },
     Delay : {
+      amp: {
+        min: 0, max: 1,
+        output: LINEAR,
+        timescale: 'audio',
+      },
       feedback: {
         min: 0, max: 1,
         output: LINEAR,
@@ -12142,7 +12164,7 @@ module.exports = function( Gibber ) {
   	short:  { attack: 44, decay: 1/16, },
   	bleep:  { waveform:'Sine', attack:44, decay:1/16 },
     bleepEcho: { waveform:'Sine', attack:44, decay:1/16, presetInit:function() { this.fx.add( Delay(1/6,.85 ) ) } },
-    cascade: { waveform:'Sine', maxVoices:10, amp: .33, attack:Clock.maxMeasures, decay:Clock.beats(1/32),
+    cascade: { waveform:'Sine', maxVoices:4, out:.25, amp: .13, attack:Clock.maxMeasures, decay:Clock.beats(1/32),
       presetInit: function() { 
         this.fx.add( Gibber.Audio.FX.Delay(1/9,.2), Gibber.Audio.FX.Flanger() )
         this.pan = Sine( .25, 1 )._
