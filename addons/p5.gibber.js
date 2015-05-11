@@ -12182,10 +12182,14 @@ module.exports = function( Gibber ) {
   }
   
   Synths.Presets.Synth2 = {
-    pad2: { waveform:'Saw', maxVoices:4, attack:1.5, decay:1/2, cutoff:.3, filterMult:.35, resonance:4.5, amp:.2, 
+    pad2: { waveform:'Saw', maxVoices:4, attack:1.5, decay:1/2, cutoff:.3, filterMult:.35, 
+    resonance:1.5, 
+    amp:.2, 
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Delay( 1/9, .55 ) ) } 
     },
-    pad4: { waveform:'Saw', maxVoices:4, attack:2, decay:2, cutoff:.3, filterMult:.35, resonance:4.5, amp:.2,
+    pad4: { waveform:'Saw', maxVoices:4, attack:2, decay:2, cutoff:.3, filterMult:.35, 
+    resonance:1.5, 
+    amp:.2,
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Delay( 1/9, .55 ) ) }
     },
     rainTri: {waveform:'Triangle', maxVoices:6, amp:.5, glide:.9, resonance:1, useADSR:true, 
@@ -12373,10 +12377,9 @@ module.exports = function( Gibber ) {
 			decay: 20 * 44.1,
 		},
 		brass : {
-      maxVoices:4,
-			cmRatio : 1 / 1.0007,
-			index	: 5,
-			attack	: 4100,
+      cmRatio : 2,
+			index	: 2,
+			attack	: 16400,
 			decay	: 1,
 		},
 		clarinet : {
