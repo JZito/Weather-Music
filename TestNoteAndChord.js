@@ -1,24 +1,18 @@
 // to do--- fix for loop in score- set it back to individual score for each instrument
 // 
-var state, follows = [], radiuses = [], values = [], ticker = 0, uno, vanillaNotes = [12,11,9,7,4,2,0], vanillaMeasures = [1,2,4,6,8,12,16], 
+var state, radiuses = [], fols = [], col, currentSong, mouseHit = false, bgCol, values = [], lerpVar, radius, a = 0, countdown = 140, ticker = 0, uno, vanillaNotes = [12,11,9,7,4,2,0], vanillaMeasures = [1,2,4,6,8,12,16], 
 beets = [1, 1/2, 1/4, 1/8,1/16, 1/32], beepEM = 67, rotations = [2,4,6,8], pieces = [],
-measureCount = 0, mainScore, bassWaveform = ['Saw','Sine','Triangle', 'Square'], 
+measureCount = 0, prevColor1, newColor1, prevColor6, newColor6, mainScore, bassWaveform = ['Saw','Sine','Triangle', 'Square'], 
 presetLeadArray = ['bass', 'bass','clarinet', 'glockenspiel', 'glockenspiel', 'glockenspiel'];
 // brass-- CLOUDY DAY TIME- brass only acceptable if octave is kept low 0  or lower. 
 // 
+
+function mousePressed () {
+	mouseHit = true;
+}
 function setup() {
 	canvas = createCanvas( windowWidth, windowHeight );
-	
 	NewSong(0);
-
-	
-	// followLead = Follow (melodyLead.fx[1]);
-	// followPad = Follow(pad.fx[0]);
-	// followBass = Follow(bass.fx[2]);
-	// followDrum = Follow(drum.fx[0]);
-	//followGit = Follow(git.fx[2]);
-
-
 	newColor1 = color(255, 204, 0, 127);
 	newColor2 = color(255,142,5, 127);
 	newColor3 = color(255,55,3, 127);
@@ -31,7 +25,6 @@ function setup() {
 	prevColor4 = color(225,45,105, 127);
 	prevColor5 = color (225,46,222, 127);
 	prevColor6 = color(72, 111, 222, 55);
-	//CheckTheTime(minute());
 };
 
 function CheckTheTime(time) //function check the time
@@ -69,31 +62,80 @@ function NewSong(t) {
 	// }
 };
 
+function TimeToGo (cS){
+	for (var i = 0; i < cS.follows.length; i++){
+		console.log(cS.follows[i] + " i ");
+		var fol = Follow ( cS.follows[i])
+		fols.push(fol);
+	}
+	go = true;
+	currentSong = cS;
+}
+
 function draw() {
 	CheckTheTime(minute());
-	var 	  x = mouseX / windowWidth,
-		      y = mouseY / windowHeight,
-		      ww2 = windowWidth / 2,
-		      wh2 = windowHeight / 2,
-   	       radius = ( ww2 > wh2 ? wh2 * value: ww2 * value),
-		       col = lerpColor(prevColor1, newColor1, (lerpVar2)),
-		       bgCol = lerpColor(prevColor6, newColor6, (lerpVar2));
-	centerSquare(ww2, wh2, col, radius, value);
+	var x = ww2 = windowWidth / 2, wh2 = windowHeight / 2, 
+		col = prevColor1, 
+		bgCol = newColor6, 
+		x = mouseX / windowWidth, y = mouseY / windowHeight;
+	//centerSquare(ww2, wh2, col, radius, value);
 
-    // for (var i = 0 ; i < pieces[0].follows.length; i++){
-	// 	values[i] = follows[i].getValue() * 10;
-	// }
+   
 		      // value = followLead.getValue() * 12;
 		      // value2 = followPad.getValue() * 12,
 		      // value3 = followBass.getValue() * 12,
 		      // value4 = followDrum.getValue() * 5,
 		     
 		     // value5 = followGit.getValue() * 10,
-
+    
 	noStroke();
     fill(bgCol) ;
+    
     rect(0, 0, width, height); 
+
+    if (a < countdown)
+  	{
+  		lerpVar = (lerpVar += a % countdown) * .0001;
+  	}
+  	SquareDraw();
+  	
+	//for (var i = 0 ; i < peeces.follows.length; i++){
+		// values.push(pieces[0].follows[0].getValue() * 10);
+	 // 	var value = values[0];
+	 // 	fill(col);
+	 // 	strokeWeight(values[i]);
+	 // 	radius = ( ww2 > wh2 ? wh2 * value: ww2 * value);
+	 // 	rect(width, height, radius, radius);
+	// }
 };
+
+
+function SquareDraw() {
+	if (go) {
+		var cww2 = windowWidth / 2, wh2 = windowHeight / 2, 
+			col = newColor1;
+			// val = currentSong.fol.getValue() * 10;
+			//for (var i = 0 ; i < currentSong.follows.length; i++){
+
+	 	// 		values[i] = currentSong.follows[i].getValue() * 10;
+	 	// 		console.log(values[i]);
+			// }
+			for (var i = 0; i < fols.length; i++){
+				var val = fols[i].getValue();
+				console.log(val);
+			}
+	//	for (var i = 0 ; i < cS.follows.length; i++){
+		//	followSound = Follow(cS.follows[i]);
+			//values.push (peeces.follows[i].getValue() * 10);
+	//	 	var value = followSound.getValue() * 10;
+			
+		 	fill(col);
+		 	strokeWeight(val);
+		 	radius = ( ww2 > wh2 ? wh2 * val: ww2 * val);
+		 	console.log(radius + " rad " + ww2 + " ww2 " + val + "valuesi")
+		 	rect(ww2, wh2, radius, radius);
+	 }
+}
 
 function centerSquare(width, height, cols, rad, val) {
 	rectMode(CENTER)
@@ -104,7 +146,7 @@ function centerSquare(width, height, cols, rad, val) {
 	//	rect( width , height, rad / 2, rad * rad / 4 );
 	//}
 	//else {
-		rect(width, height, rad, rad);
+	rect(width, height, rad, rad);
 	//}
 }
 
@@ -231,7 +273,7 @@ var Song = function (n, place) { //enclose song
 		beepEM = floor(random(56,79));
 		Clock.bpm(beepEM);
 		var innerSong = (function () {
-			var score, syn, busses = [], syns = [], m = 4, scorePhrases = 9, innerSongBus,
+			var score, fol, valued, syn, go = false, follows = [], busses = [], syns = [], m = 4, scorePhrases = 9, innerSongBus,
 			presets = ['bleep', 'bleepEcho', 'rhodes', 'warble'], 
 			padPresets = ['cascade']
 			pad2Presets = ['pad2','pad4', 'rainTri' ];
@@ -339,6 +381,8 @@ var Song = function (n, place) { //enclose song
 			};
 
 			return {
+				follows: follows,
+				fol: fol,
 				publicSyns: syns,
 				// groupsynths is create a whole group of individual synthcreates
 				groupSynths: function(q) {
@@ -355,9 +399,12 @@ var Song = function (n, place) { //enclose song
 							synth = new innerSong.synthCreate (i, 'lead', 'oo');
 							synth.make();
 						}
+						fol = Follow (synth);
+						follows.push(synth);
 					
 						//Song.scoreCreate(i);
-					}
+					};
+					//go = true;
 				},
 				testReturn: function(){
 					console.log(n + 'testReturn');
@@ -402,7 +449,7 @@ var Song = function (n, place) { //enclose song
 					
 					name = instrumentKind(pre)
 					name.amp (ampVar)
-					name._;
+					
 					console.log(name + ' . ' + instrumentKind + ' . ' + pre + ' . ' + name)
 					// if want to add fx, call fxObj = new FX(blah blah)
 					//fxObj.make();
@@ -411,7 +458,8 @@ var Song = function (n, place) { //enclose song
 							valueToPush[0] = name;
 							valueToPush[1] = kind;
 					syns.push(valueToPush);
-					follows.push(Follow (name))
+					go = true;
+					name._;
 					    // pluck is very quiet
 				  }
 				},
@@ -444,6 +492,8 @@ var Song = function (n, place) { //enclose song
 					innerSongBus = Bus().fx.add( //Schizo({chance:.95, pitchChance: 0, rate:ms(beeps/4), length:ms(beeps)}), 
 					Reverb('large') ) // right
 					innerSongBus.connect();
+					//followed = Follow (innerSongBus);
+					TimeToGo(pieces[place]);
 					innerSongBus.amp(0)
 					l = Line(0, 1, 4)
 					score= Score([0,
@@ -458,6 +508,7 @@ var Song = function (n, place) { //enclose song
 							drum = XOX('x*x*', 1/16);
 							//drum.fadeIn(4, .5);
 							drum.fadeIn(4, 1);
+							//go = true;
 							//innerSongBus.amp(l)
 							for (var i = 0; i < syns.length; i++){
 								syns[i][0].connect(innerSongBus);
@@ -465,7 +516,10 @@ var Song = function (n, place) { //enclose song
 								var ss = scoreDetails(i);
 		  						inScore = Score(ss).start();
 		  				}
-		  					innerSongBus.amp = l;
+		  					
+		  			innerSongBus.amp = l;
+
+		  				
 		  			}, measures(4),
 		  				function(){
 		  					l.kill();
@@ -510,6 +564,8 @@ var Song = function (n, place) { //enclose song
 		  		};
 			})();//inner song enclosure
 		pieces[place] = innerSong;
+		//currentSong = pieces[place];
+		//SquareDraw(pieces[place]);
 	}
 
 }; //new enclosure 
