@@ -322,8 +322,8 @@ var Song = function (n, place) { //enclose song
 				    //prevent seq from hitting stop twice (but this is not accounting for all circumstances, must solve )
 				    else if (i == 1) {
 				    	var n = function(){
-				    		 fS = Follow (syns[m][0]);
-    						 fols.push(fS);
+				    		 //fS = Follow (syns[m][0]);
+    						 //fols.push(fS);
     						 go = true;
 				    	};
 				    	steps.push(n);
@@ -498,26 +498,31 @@ var Song = function (n, place) { //enclose song
 		  					innerSongBus.amp(ll);	
 		  				}, measures(4),
 		  				function(){
-		  					
-		  					
-		  					fols.length = 0;
-		  					scores.length = 0;
-		  					//innerSongBus.kill();
 
-							lll = new Line(b.fx[0].feedback.value, 0, 1)
-		  					drum.kill();
+		  					for (var i = 0; i < syns.length; i++){
+ 		  						syns[i][0].kill();
+ 		  					}
+		  					lll = new Line(.5, 0, 2)
+ 		  					drum.kill();
+ 		  					
+		  					b.fx[0].feedback = .45;
 		  					b.fx[0].feedback = lll;
+		  					
+		  					//fols.length = 0;
+		  					scores.length = 0;
 		  					NewSong(tick);
 		  				}, measures(1),
 		  				function(){
 		  					console.log("killer function");
-		  					//b.kill();
+		  					inScore.stop();
+		  					score.stop();
+ 		  					innerSongBus.kill();
+ 		  					b.kill();
+		  					l.kill();
 		  					
 		  					llll.kill();
 		  					ll.kill();
 		  					lll.kill();
-		  					
-							syns.length = 0;
 		  			 		console.log('killed successfully');
 		  				}, measures(10000)]).start();
 		  			}
