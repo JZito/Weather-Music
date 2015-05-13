@@ -4441,7 +4441,7 @@ Oscillator + attack / decay envelope.
 a = new Gibberish.Synth({ attack:44, decay:44100 }).connect();  
 a.note(880);  
 a.waveform = "Triangle";  
-`  
+`  synth section
 ## Constructor   
 **param** *properties*: Object. A dictionary of property values (see below) to set for the synth on initialization.
 - - - -
@@ -12164,7 +12164,7 @@ module.exports = function( Gibber ) {
   	short:  { attack: 44, decay: 1/16, },
   	bleep:  { waveform:'Sine', attack:44, decay:1/16 },
     bleepEcho: { waveform:'Sine', attack:44, decay:1/16, presetInit:function() { this.fx.add( Delay(1/6,.85 ) ) } },
-    cascade: { waveform:'Sine', maxVoices:4, out:.25, amp: .13, attack:Clock.maxMeasures, decay:Clock.beats(1/32),
+    cascade: { waveform:'Sine', maxVoices:4, amp: .08, attack:Clock.maxMeasures, decay:Clock.beats(1/32),
       presetInit: function() { 
         this.fx.add( Gibber.Audio.FX.Delay(1/9,.2), Gibber.Audio.FX.Flanger() )
         this.pan = Sine( .25, 1 )._
@@ -12173,8 +12173,9 @@ module.exports = function( Gibber ) {
     rhodes: { waveform:'Sine', maxVoices:4, attack:44, decay:1, 
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo(2, .2) ) },
     },
-    calvin: { waveform:'PWM',  maxVoices:4, amp:.075, attack:Clock.maxMeasures, decay:1/4,
-      presetInit: function() { this.fx.add( Gibber.Audio.FX.Delay(1/6,.5), Gibber.Audio.FX.Vibrato() ) }  
+    calvin: { waveform:'PWM',  maxVoices:4, pulsewidth:.25, out: .2, amp:.075, attack:Clock.maxMeasures, decay:1,
+    presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo({input : 0, frequency:2.5,
+      amp:.1}), Gibber.Audio.FX.Reverb('space') ) }
     },
     warble: { waveform:'Sine', attack:Clock.maxMeasures,
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Vibrato(2), Gibber.Audio.FX.Delay( 1/6, .75 ) ) } 
@@ -12185,7 +12186,8 @@ module.exports = function( Gibber ) {
     pad2: { waveform:'Saw', maxVoices:4, attack:1.5, decay:1/2, cutoff:.3, filterMult:.35, 
     resonance:1.5, 
     amp:.2, 
-      presetInit: function() { this.fx.add( Gibber.Audio.FX.Delay( 1/9, .55 ) ) } 
+      presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo({input : 0, frequency:2.5,
+      amp:.5}), Gibber.Audio.FX.Reverb('space') ) }
     },
     pad4: { waveform:'Saw', maxVoices:4, attack:2, decay:2, cutoff:.3, filterMult:.35, 
     resonance:1.5, 
@@ -12326,12 +12328,12 @@ module.exports = function( Gibber ) {
         this.send( this.bus, .65 )
       },
     },
-    bass : {
-      cmRatio:1,
-      index:3,
+    bong : {
+      cmRatio:3,
+      index:1.5,
       presetInit: function() { this.attack = ms(1); },
-      decay:1/16,
-      octave:-2
+      decay:1/8,
+      octave:0
     },
 		glockenspiel : {
       maxVoices: 4,
