@@ -1,6 +1,8 @@
 // to do--- fix for loop in score- set it back to individual score for each instrument
 // 
-var state, radiuses = [], go = false, col, currentSong, mouseHit = false, bgCol, values = [], lerpVar, radius, a = 0, countdown = 140, ticker = 0, uno, vanillaNotes = [12,11,9,7,4,2,0], vanillaMeasures = [1,2,4,6,8,12,16], 
+var state, radiuses = [], go = false, col, currentSong, mouseHit = false, bgCol, values = [], 
+lerpVar, radius, a = 0, countdown = 140, ticker = 0, cubeGo = 2,
+vanillaNotes = [12,11,9,7,4,2,0], vanillaMeasures = [1,2,4,6,8,12,16], 
 beets = [1, 1/2, 1/4, 1/8,1/16, 1/32], beepEM = 67, rotations = [2,4,6,8], pieces = [],
 measureCount = 0, prevColor1, newColor1, prevColor6, newColor6, mainScore;
 // brass-- CLOUDY DAY TIME- brass only acceptable if octave is kept low 0  or lower. 
@@ -31,12 +33,12 @@ function CheckTheTime(time) //function check the time
     	}
     	else if (ticker == 1){
     		pieces[0].scoreFadeOut(1);
-    		go = false;
+    		//go = false;
     		ticker = 2;	
     	}
     	else if (ticker == 2){
     		pieces[1].scoreFadeOut(0);
-    		go = false;
+    		//go = false;
     		ticker = 1;	
     	}
     }
@@ -52,28 +54,28 @@ function NewSong(t) {
 
 function draw() {
 	//console.log(go + "go")
-	var mult = [10,20,14,16], ww2 = windowWidth / 2, wh2 = windowHeight / 2;
-	//p0 = pieces[0], p1 = pieces[1];
+	var mult = [10,20,14,16], ww2 = windowWidth / 2, wh2 = windowHeight / 2,
+	p0 = pieces[0], p1 = pieces[1];
 	CheckTheTime(minute());
 	noStroke();
     fill(bgCol);
     rect(0, 0, width, height); 
- //    if (go) {
- //    	if (ticker == 1){
-	// 		for (var i = 0; i < p0.publicFols.length; i++){
-	// 			var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
-	// 		    radius = ( ww2 > wh2 ? wh2 * value: ww2 * value);
-	// 			CoolSquare(col, value, ww2, wh2, radius  );
-	// 		}
-	// 	}
-	// 	else if (ticker == 2){
-	// 		for (var i = 0; i < p1.publicFols.length; i++) {
-	// 			var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
-	// 		    radius = ( ww2 > wh2 ? wh2 * value: ww2 * value);
-	// 			CoolSquare(col, value, ww2, wh2, radius  );
-	// 		}
-	// 	}
-	// }
+    if (go) {
+    	if (cubeGo == 0){
+			for (var i = 0; i < p0.publicFols.length; i++){
+				var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
+			    radius = ( ww2 > wh2 ? wh2 * value: ww2 * value);
+				CoolSquare(col, value, ww2, wh2, radius  );
+			}
+		}
+		else if (cubeGo == 1){
+			for (var i = 0; i < p1.publicFols.length; i++) {
+				var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
+			    radius = ( ww2 > wh2 ? wh2 * value: ww2 * value);
+				CoolSquare(col, value, ww2, wh2, radius  );
+			}
+		}
+	}
     if (a < countdown)
   	{
   		lerpVar = (lerpVar += a % countdown) * .0001;
@@ -322,8 +324,8 @@ var Song = function (n, place) { //enclose song
 				    //prevent seq from hitting stop twice (but this is not accounting for all circumstances, must solve )
 				    else if (i == 1) {
 				    	var n = function(){
-				    		 //fS = Follow (syns[m][0]);
-    						 //fols.push(fS);
+				    		 fS = Follow (syns[m][0]);
+    						 fols.push(fS);
     						 go = true;
 				    	};
 				    	steps.push(n);
@@ -409,11 +411,20 @@ var Song = function (n, place) { //enclose song
     					if (coin == 1) {
 							instrumentKind = Synth;
 							pre = padPresets[floor(random(padPresets.length))]
+							if (pre = 'cascade' || 'warble' || 'calvin') {
+					   			ampVar = .1
+					   		}
+					   		else {
+					   			ampVar = .4
+					   		}
 						}
 						else {
 							instrumentKind = Synth2;
 					    	pre = pad2Presets[floor(random(pad2Presets.length))]
+					    	ampVar = .5
+					   		
 						}
+
 					   	;
 					}
 					else if (kind == 'bass'){
@@ -498,17 +509,21 @@ var Song = function (n, place) { //enclose song
 		  					innerSongBus.amp(ll);	
 		  				}, measures(4),
 		  				function(){
-
+		  					go = false;
+							for (var j = 0; j < fols.length; j++) {
+ 		  						fols[j].remove();
+ 		  					};
 		  					for (var i = 0; i < syns.length; i++){
  		  						syns[i][0].kill();
- 		  					}
+ 		  					};
+ 		  					
 		  					lll = new Line(.5, 0, 2)
  		  					drum.kill();
  		  					
 		  					b.fx[0].feedback = .45;
 		  					b.fx[0].feedback = lll;
 		  					
-		  					//fols.length = 0;
+		  					fols.length = 0;
 		  					scores.length = 0;
 		  					NewSong(tick);
 		  				}, measures(1),
@@ -529,6 +544,8 @@ var Song = function (n, place) { //enclose song
 		  		};
 			})();//inner song enclosure
 		pieces[place] = innerSong;
+		cubeGo  = place;
+
 		//currentSong = pieces[place];
 		//SquareDraw(pieces[place]);
 	}

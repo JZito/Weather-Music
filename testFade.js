@@ -34,7 +34,7 @@ function draw () {
 	 noStroke();
     fill(bgCol) ;
     rect(0, 0, width, windowHeight);  
-    	if (go) {
+    if (go) {
 		for (var i = 0; i < fols.length; i++){
 			var value = fols[i].getValue() * mult[i], col = colors[i],
 			 radius = ( ww2 > wh2 ? wh2 * value: ww2 * value);
@@ -51,7 +51,6 @@ function CoolSquare(c, v, w, h, r){
 	fill(c);
 	strokeWeight(v);
 	rect(w, h, r, r);
-
 }
 
 function centerSquare() {
@@ -62,6 +61,7 @@ function centerSquare() {
 }
 
 function mousePressed () {
+	
 }
 
 function NewScore() {
@@ -74,15 +74,17 @@ function NewScore() {
     				followBackup = Follow (m2);
     				fols[0] = followLead;
     				fols[1] = followBackup;
+    				go = true;
 					//songBus.amp(1)
   					//innerSongBus.amp = 0;
-  			}, measures(1),
+  			}, measures(4),
   				function(){
-  					go =true;
+  					//go =true;
+  					followBackup.remove();
   					//l = Line(songBus.fx[1].feedback.value, 0, 1)
   					//songBus.amp(l)
   					//songBus.fx[1].wet = l
   					//m.amp(l)
   					//innerSongBus.amp = 1;
-  				}, measures(4)]).start()
+  				}, measures(4)]).start().loop()
 }
