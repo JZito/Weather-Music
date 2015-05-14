@@ -12173,7 +12173,7 @@ module.exports = function( Gibber ) {
     rhodes: { waveform:'Sine', maxVoices:4, attack:44, decay:1, 
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo(2, .2) ) },
     },
-    calvin: { waveform:'PWM',  maxVoices:4, pulsewidth:.25, out: .2, amp:.075, attack:Clock.maxMeasures, decay:1,
+    calvin: { waveform:'PWM',  maxVoices:4, pulsewidth:.25, out: .2, attack:Clock.maxMeasures, decay:1,
     presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo({input : 0, frequency:2.5,
       amp:.1}), Gibber.Audio.FX.Reverb('space') ) }
     },

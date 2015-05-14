@@ -470,8 +470,7 @@ function NewInstruments() {
 	  				requireReleaseTrigger:false,
 	  					attack:ms(4000), decay:ms(12000), sustain:ms(100), release:ms(2000) }) 
 	  			
-	  			.fx.add(Crush({bitDepth:16}), Vibrato(0.05)
-	    		)
+	  			.fx.add(Crush({bitDepth:16}), Vibrato(0.05))
 	  		
 	  		drum = EDrums('x*x*x*xx', 1/16)
 	  				//drum.note.seq('.*.*.*.o'.split(""))

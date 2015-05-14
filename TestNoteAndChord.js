@@ -138,6 +138,24 @@ var Harmony = (function () {
     	return scoreBeets;
   	};
 
+  	var bassLineReturn = function() {
+  		var scoreNotes = [],note, bassLineMeasures = [2, 4, 8], bunchOfNotes = [2,4,8,16],
+  		bLM = bassLineMeasures[floor(random(bassLineMeasures.length))];
+  		//create bass lines that work in cycles of 2, 4, 8, 16, 32
+		// for loop inside of for loop
+
+		for (var i = 0; i < bLM; i++){
+			note = vanillaNotes[floor(random(vanillaNotes.length))] - 12,
+			bunchNote = bunchOfNotes[floor(random(bunchOfNotes.length))];
+
+			for (var j = 0; j < bunchNote; j++ ) {
+				scoreNotes.push(note);
+				console.log(i + j + ' n o t e . . ' + note)
+		  	}
+  		}
+  		return scoreNotes;
+  	};
+
 // chordsreturn might need a type argument to specify behavior. it is product horrible frequencies with
 // one of the synths right now
   	var chordsReturn = function (c, cLength) {
@@ -195,6 +213,7 @@ var Harmony = (function () {
   
   	return {
     	notesReturn: notesReturn,
+    	bassLineReturn: bassLineReturn,
     	melodyReturn: melodyReturn,
     	beetsReturn: beetsReturn,
     	chordsReturn: chordsReturn
@@ -231,9 +250,33 @@ var Song = function (n, place) { //enclose song
 				  newM, newS, newF, newC, pm, sto, beetsVar; 
 				  //= Harmony.beetsReturn(1);
 				  console.log (syns[m][1] + " m  +  1  " + syns[m][0] + "  m  +   0")
-				  
+				  if (syns[m][1] == 'bass'){
+				  //	if(syns[m][1].pre = 'xx') {
+				  		newM = function() {
+				  			console.log('bass line' + syns[m][1] + syns[m[0]]);
+				  			var nR = Harmony.bassLineReturn();
+				  			bV = Harmony.beetsReturn(2, floor(random(1,2)));
+				  			syns[m][0].note.seq(nR, bV);
+				  		},
+				  		newF = function() {
+				  			console.log('bass line newF melody style' + syns[m][1] + syns[m][0])
+				  			var nR = Harmony.notesReturn(0, 1, 8);
+				  			bV = Harmony.beetsReturn(4, floor(random(2,4)));
+				  			syns[m][0].note.seq(nR, bV);
+				  		},
+				  		pm = function() {
+				  			var nR = Harmony.chordsReturn(floor(random(2,24)), 2);
+				  			bV = Harmony.beetsReturn(2, floor(random(1,3)));
+				  			syns[m][0].note.seq(nR, bV);
+				  		},
+				  		sto = function(){
+					  		syns[m][0].note.seq.stop()
+					  ;}
+				//  	}
+				  	 functions = [newM, newF, pm, sto];
+				  }
 				 
-				  if (syns[m][1] == 'lead') {
+				  else if (syns[m][1] == 'lead') {
 				  	if (syns[m][1].pre == 'brass') {
 				  		newM = function() {
 				  			console.log('brass lead newM' + syns[m][1] + syns[m][0])
@@ -359,17 +402,21 @@ var Song = function (n, place) { //enclose song
 				// groupsynths is create a whole group of individual synthcreates
 				groupSynths: function(q) {
 					// opportunity to return different bus effects based on circumstance
-					
+					// bass must be last entry in kinds
+					var kinds = ['pad', 'lead', 'bass'], synthKinds = [];
 					// q is number of instruments to create
 					for (var i = 0; i <= q; i++){
-						var coin = Math.round(Math.random()*2);
-						if (coin == 1){
-							synth = new innerSong.synthCreate(i, 'pad', 'oo');
-							synth.make();
+						if (synthKinds.indexOf('bass') > -1) {
+							var k = kinds[floor(random(kinds.length - 1))];
+							synth = new innerSong.synthCreate(i, k, 'oo');
+							synth.make(k);
+							synthKinds.push(synth);
 						}
 						else {
-							synth = new innerSong.synthCreate (i, 'lead', 'oo');
-							synth.make();
+							var k = kinds[floor(random(kinds.length))];
+							synth = new innerSong.synthCreate(i, k, 'oo');
+							synth.make(k);
+							synthKinds.push(synth);
 						}
 					};
 				},
