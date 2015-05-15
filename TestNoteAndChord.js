@@ -97,6 +97,7 @@ var Harmony = (function () {
   		var scoreNotes = [];
     	for (var i = 0; i < floor(random(lowRange,highRange)); i++) {
       		scoreNotes[i] = vanillaNotes[floor(random(0,vanillaNotes.length))] + oct;
+      		console.log(scoreNotes[i])
     	}
 
     	return scoreNotes;
@@ -154,6 +155,41 @@ var Harmony = (function () {
   		}
   		return scoreNotes;
   	};
+
+  	var wholeBeetsReturn = function (mul, len) {
+		var scoreBeets = [], sum;
+		
+	  	for (var i = 0; i < len; i ++){
+	  		//grab some beets
+	  		scoreBeets.push(beets[floor(random(1, beets.length))]);	
+	  	}
+		//add contents of beets array
+	  	sum = scoreBeets.reduce(add, 0);
+	  	//if the sum is an odd number
+	  	if (sum %2 != 0) {
+	  	//sumRound is difference between sum and a whole set of measures
+	  		var sumRound;
+	  	// if sum will not round to 1, is short phrase
+	  		if (sum < .5){
+	  			sumRound = .5 - sum;
+	  			scoreBeets.push(sumRound);
+	  		}
+	  		else {
+	  	// if odd and >= 1,
+	  	//not just round but floor the amount to round up by by one for simplicity. 
+				sumRound = Math.ceil(sum) - sum; 
+	  			if (Math.abs(sum + sumRound) % 2 == 1 && (sum + sumRound) >= 3) {
+	  				//if this new, larger sum to round plus sum 
+	  				//gonna add up to an odd number like 3, 5, etc add one more to it
+	  				sumRound = sumRound + 1;
+	 				}
+	  	//add the time to the array to make it a full even measure count
+	  			scoreBeets.push(sumRound);
+	  		}
+	  	//	return scoreBeets;
+	  	}
+	  	return scoreBeets;
+	};
 
 // chordsreturn might need a type argument to specify behavior. it is product horrible frequencies with
 // one of the synths right now
@@ -215,6 +251,7 @@ var Harmony = (function () {
     	bassLineReturn: bassLineReturn,
     	melodyReturn: melodyReturn,
     	beetsReturn: beetsReturn,
+    	wholeBeetsReturn: wholeBeetsReturn,
     	chordsReturn: chordsReturn
   	};
 
@@ -231,7 +268,7 @@ var Song = function (n, place) { //enclose song
 		Clock.bpm(beepEM);
 		var innerSong = (function () {
 			var inScore, score, scores = [], syn, fols = [], busses = [], syns = [], m = 4, scorePhrases = 9, innerSongBus,
-			presets = ['bleep', 'bleepEcho', 'rhodes', 'warble'], bassWaveform = ['Saw','Sine','Triangle', 'Square'], 
+			presets = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin'], bassWaveform = ['Saw','Sine','Triangle', 'Square'], 
 			presetLeadArray = ['bong', 'bong','clarinet', 'glockenspiel', 'glockenspiel', 'glockenspiel'],
 			padPresets = ['cascade', 'calvin'],
 			pad2Presets = ['pad2','pad4', 'rainTri' ];
@@ -248,7 +285,6 @@ var Song = function (n, place) { //enclose song
 				  var functions = [], oct = [-12,-12,-12,0,0,0,12,12], steps = [], 
 				  newM, newS, newF, newC, pm, sto, beetsVar; 
 				  //= Harmony.beetsReturn(1);
-				  console.log (syns[m][1] + " m  +  1  " + syns[m][0] + "  m  +   0")
 				  if (syns[m][1] == 'bass'){
 				  //	if(syns[m][1].pre = 'xx') {
 				  		newM = function() {
@@ -264,7 +300,7 @@ var Song = function (n, place) { //enclose song
 				  			syns[m][0].note.seq(nR, bV);
 				  		},
 				  		pm = function() {
-				  			var nR = Harmony.chordsReturn(floor(random(2,24)), 2);
+				  			var nR = Harmony.notesReturn(floor(random(2,4)), 2);
 				  			bV = Harmony.beetsReturn(2, floor(random(1,3)));
 				  			syns[m][0].note.seq(nR, bV);
 				  		},
@@ -298,10 +334,11 @@ var Song = function (n, place) { //enclose song
 				  		
 				  	}
 				  	else {
-				  		bV = Harmony.beetsReturn(rotations[floor(random(rotations.length))], floor(random(4)));
+				  		
 						newM = function(){
 							console.log('lead newM' + syns[m][1] + syns[m][0]);
-							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, 4);
+							var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
+							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
 
 				  			syns[m][0].note.seq(nR, bV)
 					  ;}, 
@@ -320,12 +357,15 @@ var Song = function (n, place) { //enclose song
 				  		// 	}, 
 					 	newF = function(){
 					 		console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
-					  		var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, 4)
+					  		var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
+							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
 					  		syns[m][0].note.seq(nR, bV)
 				      ;}, 
 					    pm = function(){
 					    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
-					  		var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, 8);
+					    	var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
+							
+					  		var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
 					  		
 					  		syns[m][0].note.seq(nR, bV)
 				      ;}, 
@@ -419,9 +459,6 @@ var Song = function (n, place) { //enclose song
 						}
 					};
 				},
-				testReturn: function(){
-					console.log(n + 'testReturn');
-				},
 				synthCreate: function (name, kind, pre) {
 					var ampVar = .5, 
 					leadInstruments = [FM, Synth], padInstruments = [Synth2];
@@ -440,7 +477,8 @@ var Song = function (n, place) { //enclose song
 					   }
 					  else if (instrumentKind == Synth){
 					   		pre = presets[floor(random(presets.length))];
-					   		if (pre = 'cascade' || 'warble' || 'calvin') {
+					   		console.log(pre + 'lead section')
+					   		if (pre == 'cascade' || 'warble' || 'calvin') {
 					   			ampVar = .1
 					   		}
 					   		else {
@@ -457,7 +495,7 @@ var Song = function (n, place) { //enclose song
     					if (coin == 1) {
 							instrumentKind = Synth;
 							pre = padPresets[floor(random(padPresets.length))]
-							if (pre = 'cascade' || 'warble' || 'calvin') {
+							if (pre == 'cascade' || 'warble' || 'calvin') {
 					   			ampVar = .1
 					   		}
 					   		else {
@@ -489,7 +527,7 @@ var Song = function (n, place) { //enclose song
 							valueToPush[0] = name;
 							valueToPush[1] = kind;
 					syns.push(valueToPush);
-					name._;
+					//name._;
 					    // pluck is very quiet
 				  }
 				},
@@ -597,4 +635,8 @@ var Song = function (n, place) { //enclose song
 	}
 
 }; //new enclosure 
+
+function add(a, b) {
+	return a + b;
+}
 

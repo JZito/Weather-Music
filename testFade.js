@@ -1,5 +1,5 @@
 // sandbox
-var go = false, fols = [], beets = [1, 1/2, 1/2, 1/3, 1/6, 1/12, 1/4, 1/4, 1/8, 1/8,1/16, 1/16, 1/32];
+var go = false, fols = [], beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32];
 function setup () {
 	canvas = createCanvas( windowWidth, windowHeight );
 	newColor0 = color(255, 204, 0, 127);
@@ -12,7 +12,7 @@ function setup () {
 	drum = XOX('x*o*x*o-x*o*x*oox*o*x*o-x*o*xxoo', 1/8);
 	m = Synth('bleep')
 	
-	m2 = Synth('cascade')
+	m2 = Synth('bleepEcho')
 	
 	m.send(songBus, 1)
 	m2.send(songBus, 1)
@@ -76,21 +76,17 @@ var wholeBeetsReturn = function (mul, len) {
 	var scoreBeets = [], sum;
 	
   	for (var i = 0; i < len; i ++){
-  		//grab a bunch of beets
-  		scoreBeets[i] = beets[floor(random(1, beets.length))];
-  		
+  		//grab some beets
+  		scoreBeets.push(beets[floor(random(1, beets.length))]);	
   	}
 	//add contents of beets array
-  		sum = scoreBeets.reduce(add, 0);
-  	// if the sum of the beets is an even number (2, 4,6,8) array is all good, return it
-  	if (sum %2 == 0) {
-  		console.log ("even");
-  		return scoreBeets;
-  	}
-
-  	else if (sum %2 != 0) {
+  	sum = scoreBeets.reduce(add, 0);
+  	//if the sum is an odd number
+  	if (sum %2 != 0) {
+  	//sumRound is difference between sum and a whole number
   		var sumRound;
   		console.log ("odd");
+  	// if sum will not round to 1, is short phrase
   		if (sum < .5){
   			console.log("less than .5")
   			sumRound = .5 - sum;
@@ -98,31 +94,21 @@ var wholeBeetsReturn = function (mul, len) {
   			scoreBeets.push(sumRound);
   		}
   		else {
-  			sumRound = Math.round(sum) - sum;
-  			if (sumRound <= 0 ) {
-
-  				sumRound = Math.ceil(sum) - sum; 
-  				console.log(sumRound + "sumRound <=" + (sum + sumRound) + "sum + sumRound bing bon")
-  				if (Math.abs(sumRound) % 2 == 1 && (sum + sunRound) >=3) {
-  					sum = sum + 1;
-  					console.log(sumRound + "sumRound" + (sum + sumRound) + "sum + sumRound % 2 == 1 &");
-  				//scoreBeets.push(sumRound);
+  	// if odd and >= 1,
+  	//not just round but floor the amount to round up by by one for simplicity. 
+			sumRound = Math.ceil(sum) - sum; 
+  			if (Math.abs(sum + sumRound) % 2 == 1 && (sum + sumRound) >= 3) {
+  				//if this new, larger sum to round plus sum 
+  				//gonna add up to an odd number like 3, 5, etc add one more to it
+  				sumRound = sumRound + 1;
+ 				console.log(sumRound + "sumRound" + (sum + sumRound) + "sum + sumRound odd");
   				}
-  			}
-  			else if (Math.abs(sumRound) % 2 == 1 && sum >=3) {
-  				sum = sum + 1;
-  				console.log(sumRound + "sumRound" + (sum + sumRound) + "sum + sumRound % 2 == 1 &");
-  				//scoreBeets.push(sumRound);
-  			}
-  			
-  			else {
-  				console.log(sumRound + "sumRound" + (sum + sumRound) + "sum + sumRound elseeee");
-  				//scoreBeets.push(sumRound);
-  			}
+  	//add the time to the array to make it a full even measure count
   			scoreBeets.push(sumRound);
   		}
-  		return scoreBeets;
+  	//	return scoreBeets;
   	}
+  	return scoreBeets;
 };
 
 function mousePressed () {
@@ -130,7 +116,7 @@ function mousePressed () {
 }
 
 function notesReturn (len){
-	var notes = [], ranNotes = [12,11,9,7,4,2,0,-1];
+	var notes = [], ranNotes = [12,11,9,7,5,4,2,0,-1];
 	for (var i = 0; i < len; i++){
 		notes.push(ranNotes[floor(random(ranNotes.length))])
 	}
@@ -141,10 +127,14 @@ function NewScore() {
 	console.log("hiii")
 	score= Score([0,
 				function(){ 
-					var bR = wholeBeetsReturn(1, 12),
-					nR = notesReturn(bR.length);
+					var bR = wholeBeetsReturn(1, floor(random(1,6))),
+					nR = notesReturn(bR.length), bR2 = wholeBeetsReturn(1, floor(random(1,4))),
+					nR2 = notesReturn(bR2.length);
+
 					m.note.seq(nR, bR);
-					m2.note.seq([0,-5,0,-5], 1)
+					m2.note.seq(nR2, bR2);
+					console.log(bR + " ---- " + nR + " --- ");
+					console.log(bR2 + " ****** " + nR2 + " ******* ")
 					followLead = Follow (m);
     				followBackup = Follow (m2);
     				fols[0] = followLead;
@@ -152,14 +142,5 @@ function NewScore() {
     				go = true;
 					//songBus.amp(1)
   					//innerSongBus.amp = 0;
-  			}, measures(4),
-  				function(){
-  					//go =true;
-  					followBackup.remove();
-  					//l = Line(songBus.fx[1].feedback.value, 0, 1)
-  					//songBus.amp(l)
-  					//songBus.fx[1].wet = l
-  					//m.amp(l)
-  					//innerSongBus.amp = 1;
-  				}, measures(4)]).start().loop()
+  			}, measures(2)]).start().loop()
 }
