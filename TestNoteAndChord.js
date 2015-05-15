@@ -140,14 +140,13 @@ var Harmony = (function () {
 
   	var bassLineReturn = function() {
   		var scoreNotes = [],note, bassLineMeasures = [2, 4, 8], bunchOfNotes = [2,4,8,16],
-  		bLM = bassLineMeasures[floor(random(bassLineMeasures.length))];
+  		bLM = bassLineMeasures[floor(random(bassLineMeasures.length))], 
+  		bunchNote = bunchOfNotes[floor(random(bunchOfNotes.length))];
   		//create bass lines that work in cycles of 2, 4, 8, 16, 32
 		// for loop inside of for loop
 
 		for (var i = 0; i < bLM; i++){
-			note = vanillaNotes[floor(random(vanillaNotes.length))] - 12,
-			bunchNote = bunchOfNotes[floor(random(bunchOfNotes.length))];
-
+			note = vanillaNotes[floor(random(vanillaNotes.length))];
 			for (var j = 0; j < bunchNote; j++ ) {
 				scoreNotes.push(note);
 				console.log(i + j + ' n o t e . . ' + note)

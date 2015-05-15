@@ -12303,13 +12303,13 @@ module.exports = function( Gibber ) {
       waveform:'Sine',
       maxVoices:1, 
       useADSR:true, 
-      amp:.3,
-      cutoff: .45,
-      resonance: .4,
+      amp:.4,
+      cutoff: .65,
+      resonance: .6,
       octave:-2,
       octave2:-1,
-      octave3:1,
-      attack:.5, decay: 5, sustain:1, release:.5,
+      octave3:2,
+      attack:.5, decay: 5, sustain:1, release:.75,
       presetInit: function() { this.fx.add(Gibber.Audio.FX.Reverb({ preset:'small', wet:.75, dry:.35 })) }
     }
   }
