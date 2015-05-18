@@ -6,9 +6,9 @@ function setup () {
 	Clock.bpm(floor(random(75,95)))
 	songBus = Bus().fx.add( Schizo({chance:.65, pitchChance: 0, rate:ms(Clock.bpm.value/2), length:ms(Clock.bpm.value * 2)}), Reverb('large'))
 	drum = XOX('x*o*x*o-x*o*x*oox*o*x*o-x*o*xxoo', 1/8);
-	m = Synth('bleepEcho')
+	m = Synth('bleep')
 	m2 = Pluck()
-	drum.send(songBus, .25)
+	//drum.send(songBus, .25)
 	m.send(songBus, .45)
 	m2.send(songBus, 1)
 	songBus.amp(1);
@@ -23,8 +23,8 @@ function NewScore() {
 	console.log("hiii")
 	score= Score([0,
 		function(){ 
-			var bR = WholeBeetsReturn(1, floor(random(1,6))),
-			nR = NotesReturn(bR.length), bR2 = WholeBeetsReturn(.5, floor(random(1,4))),
+			var bR = WholeBeetsReturn(.5, floor(random(1,12))),
+			nR = NotesReturn(bR.length), bR2 = WholeBeetsReturn(.5, floor(random(1,16))),
 			nR2 = NotesReturn(bR2.length);
 			m.note.seq(nR, bR);
 			m2.note.seq(nR2, bR2);
@@ -33,12 +33,12 @@ function NewScore() {
 
 function WholeBeetsReturn(mul, len) {
 	//multiplier is to double, quadruple etc beat lengths
-	//len is how many beets you want returned
+	//len(gth) is how many beets you want returned
 	var scoreBeets = [], sum;
 	
   	for (var i = 0; i < len; i ++){
   		//grab some beets
-  		scoreBeets.push(beets[floor(random(1, beets.length))] * mul);	
+  		scoreBeets.push(beets[floor(random(beets.length))] * mul);	
   	}
 	//add contents of beets array
   	sum = scoreBeets.reduce(add, 0);
@@ -46,25 +46,21 @@ function WholeBeetsReturn(mul, len) {
   	if (sum %2 != 0) {
   	//sumRound is difference between sum and a whole set of measures
   		var sumRound;
-  		console.log ("odd");
   	// if sum will not round to 1, is short phrase
   		if (sum < .5){
-  			console.log("less than .5")
   			sumRound = .5 - sum;
-  			console.log(sumRound + "sumRound" + (sum + sumRound) + "sum + sumRound")
   			scoreBeets.push(sumRound);
   		}
   		else {
   	// if odd and >= 1,
-  	//don't just round but ceiling the amount to round up by by one for simplicity 
-  	//(no more negatives to deal with
+  	//don't just round but ceiling the amount up by by one for simplicity 
+  	//(no more negatives to deal with)
 			sumRound = Math.ceil(sum) - sum; 
   			if (Math.abs(sum + sumRound) % 2 == 1 && (sum + sumRound) >= 3) {
-  				//if this new, larger sum to round plus sum 
-  				//gonna add up to an odd number like 3, 5, etc add one more to it
+  				//if this new, larger sumround plus sum 
+  				//will add up to an odd number like 3, 5, etc add one more to it
   				sumRound = sumRound + 1;
- 				console.log(sumRound + "sumRound" + (sum + sumRound) + "sum + sumRound odd");
-  				}
+ 				}
   	//add the time to the array to make it a full even measure count
   			scoreBeets.push(sumRound);
   		}

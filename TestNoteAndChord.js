@@ -343,18 +343,33 @@ var Song = function (n, place) { //enclose song
 				  			syns[m][0].note.seq(nR, bV)
 					  ;}, 
 					  /// function for series of melodies
-				  		// newS = function () {
-				  		// 	var nR = Harmony.notesReturn(0, 4, 6), 
-				  		// 	bV = Harmony.beetsReturn(4, floor(random(2,4)));
-				  		// 	sS = Score ([0, 
-				  		// 		     function(){ 
-				  		// 		     first melody goes here
-				  		// 	}, measures (2),
-				  		// 			function() {
-				  		// 	      first/last x notes of nR from above wsyns[m][1]h beginning or ending swsyns[m][1]ched
-				  		// 	}, measures(2)
-				  		// 		]).start()
-				  		// 	}, 
+				  		newS = function () {
+				  			var rot = rotations[floor(random(rotations.length))], 
+				  			bV = Harmony.wholeBeetsReturn(rot, floor(random(1,8))), 
+				  			nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
+				  			sS = Score ([0, 
+				  				     function(){ 
+				  				     	console.log("first function")
+				  				     	syns[m][0].note.seq(nR, bV)
+				  				     //first melody goes here
+				  			}, measures (rot),
+				  					function() {
+				  						//nR2 is the original melody with components remixed
+				  						var nR2 = function (){
+				  							var inNotes = nR, coin = Math.round(Math.random()*2),
+				  							y = floor(nR.length/2) ;
+											for (i = (y * coin); i <(y*coin)+y; i++){
+				  								inNotes[i] = nR[floor(random(nR.length))];
+				  								console.log (inNotes[i] + "in score for");
+				  							}
+											return inNotes;
+				  						}
+				  						syns[m][0].note.seq(nR2, bV);
+				  						console.log("second functon score")
+				  			    //  first/last x notes of nR from above wsyns[m][1]h beginning or ending swsyns[m][1]ched
+				  			}, measures(rot)
+				  				]).start()
+				  			}, 
 					 	newF = function(){
 					 		console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
 					  		var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
@@ -373,7 +388,7 @@ var Song = function (n, place) { //enclose song
 					  		syns[m][0].note.seq.stop()
 					  ;};
 					}
-				   functions = [newM, newF, pm, sto]; 
+				   functions = [newM, newS, newF, pm, sto]; 
 				}
 				else if (syns[m][1] == 'pad'){ 
 						newM = function(){

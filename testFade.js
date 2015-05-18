@@ -9,10 +9,10 @@ function setup () {
 	colors = [newColor0, newColor1];
 	songBus = Bus().fx.add( Reverb('large'))
 	//drum = XOX('x*x*', 1/16);
-	drum = XOX('x*o*x*o-x*o*x*oox*o*x*o-x*o*xxoo', 1/8);
+	//drum = XOX('x*o*x*o-x*o*x*oox*o*x*o-x*o*xxoo', 1/8);
 	m = Synth('bleep')
 	
-	m2 = Synth('bleepEcho')
+	m2 = Synth('bleep')
 	
 	m.send(songBus, 1)
 	m2.send(songBus, 1)
@@ -83,7 +83,7 @@ var wholeBeetsReturn = function (mul, len) {
   	sum = scoreBeets.reduce(add, 0);
   	//if the sum is an odd number
   	if (sum %2 != 0) {
-  	//sumRound is difference between sum and a whole number
+  	//sumRound is difference between sum and a whole set of measures
   		var sumRound;
   		console.log ("odd");
   	// if sum will not round to 1, is short phrase
@@ -127,8 +127,8 @@ function NewScore() {
 	console.log("hiii")
 	score= Score([0,
 				function(){ 
-					var bR = wholeBeetsReturn(1, floor(random(1,6))),
-					nR = notesReturn(bR.length), bR2 = wholeBeetsReturn(1, floor(random(1,4))),
+					var bR = wholeBeetsReturn(.5, floor(random(1,6))),
+					nR = notesReturn(bR.length), bR2 = wholeBeetsReturn(.5, floor(random(1,4))),
 					nR2 = notesReturn(bR2.length);
 
 					m.note.seq(nR, bR);
