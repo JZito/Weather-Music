@@ -20,15 +20,21 @@ function add(a, b) {
 }
 
 function NewScore() {
-	console.log("hiii")
-	score= Score([0,
-		function(){ 
-			var bR = WholeBeetsReturn(.5, floor(random(1,12))),
+	var count;
+	a = Seq( function() { var bR = WholeBeetsReturn(.5, floor(random(1,12))),
 			nR = NotesReturn(bR.length), bR2 = WholeBeetsReturn(.5, floor(random(1,16))),
 			nR2 = NotesReturn(bR2.length);
 			m.note.seq(nR, bR);
 			m2.note.seq(nR2, bR2);
-		}, measures(4)]).start().loop()
+	console.log( count++ ) }, 4 ) // every four measures
+	// score= Score([0,
+	// 	// function(){ 
+	// 	// 	var bR = WholeBeetsReturn(.5, floor(random(1,12))),
+	// 	// 	nR = NotesReturn(bR.length), bR2 = WholeBeetsReturn(.5, floor(random(1,16))),
+	// 	// 	nR2 = NotesReturn(bR2.length);
+	// 	// 	m.note.seq(nR, bR);
+	// 	// 	m2.note.seq(nR2, bR2);
+	// 	// }, measures(4)]).start().loop()
 }
 
 function WholeBeetsReturn(mul, len) {

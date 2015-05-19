@@ -3,7 +3,7 @@
 var state, radiuses = [], go = false, col, currentSong, mouseHit = false, bgCol, values = [], 
 lerpVar, radius, a = 0, countdown = 140, ticker = 0, cubeGo = 2,
 vanillaNotes = [12,11,9,7,4,2,0], vanillaMeasures = [1,2,4,6,8,12,16], 
-beets = [1, 1/2, 1/4, 1/8,1/16, 1/32], beepEM = 67, rotations = [2,4,6,8], pieces = [],
+beets = [1, 1/2, 1/4, 1/8,1/16, 1/32], beepEM = 67, rotations = [2,4,6,8, 16], pieces = [],
 measureCount = 0, prevColor1, newColor1, prevColor6, newColor6, mainScore;
 // brass-- CLOUDY DAY TIME- brass only acceptable if octave is kept low 0  or lower. 
 // 
@@ -97,7 +97,7 @@ var Harmony = (function () {
   		var scoreNotes = [];
     	for (var i = 0; i < floor(random(lowRange,highRange)); i++) {
       		scoreNotes[i] = vanillaNotes[floor(random(0,vanillaNotes.length))] + oct;
-      		console.log(scoreNotes[i])
+      		console.log(scoreNotes[i] + "basic notes return")
     	}
 
     	return scoreNotes;
@@ -154,6 +154,20 @@ var Harmony = (function () {
 		  	}
   		}
   		return scoreNotes;
+  	};
+
+  	var rewriteMelodyReturn = function (p) {
+  		
+		var inNotes = [], coin = Math.round(Math.random()*2),
+		y = floor(p.length/2) ;
+		console.log (p.length + " nR length " + (y * coin) + " y + coin ");
+		inNotes = p.slice(0);
+		for (i = (y * coin); i <(y*coin)+y; i++){
+				inNotes[i] = vanillaNotes[floor(random(vanillaNotes.length))];
+				console.log (inNotes[i] + "in score for" + i);
+			}
+		return inNotes;
+				  						
   	};
 
   	var wholeBeetsReturn = function (mul, len) {
@@ -250,6 +264,7 @@ var Harmony = (function () {
     	notesReturn: notesReturn,
     	bassLineReturn: bassLineReturn,
     	melodyReturn: melodyReturn,
+    	rewriteMelodyReturn: rewriteMelodyReturn,
     	beetsReturn: beetsReturn,
     	wholeBeetsReturn: wholeBeetsReturn,
     	chordsReturn: chordsReturn
@@ -339,37 +354,22 @@ var Song = function (n, place) { //enclose song
 							console.log('lead newM' + syns[m][1] + syns[m][0]);
 							var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
-
 				  			syns[m][0].note.seq(nR, bV)
 					  ;}, 
 					  /// function for series of melodies
 				  		newS = function () {
-				  			var rot = rotations[floor(random(rotations.length))], 
-				  			bV = Harmony.wholeBeetsReturn(rot, floor(random(1,8))), 
-				  			nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
-				  			sS = Score ([0, 
-				  				     function(){ 
-				  				     	console.log("first function")
-				  				     	syns[m][0].note.seq(nR, bV)
-				  				     //first melody goes here
-				  			}, measures (rot),
-				  					function() {
-				  						//nR2 is the original melody with components remixed
-				  						var nR2 = function (){
-				  							var inNotes = nR, coin = Math.round(Math.random()*2),
-				  							y = floor(nR.length/2) ;
-											for (i = (y * coin); i <(y*coin)+y; i++){
-				  								inNotes[i] = nR[floor(random(nR.length))];
-				  								console.log (inNotes[i] + "in score for");
-				  							}
-											return inNotes;
-				  						}
-				  						syns[m][0].note.seq(nR2, bV);
-				  						console.log("second functon score")
-				  			    //  first/last x notes of nR from above wsyns[m][1]h beginning or ending swsyns[m][1]ched
-				  			}, measures(rot)
-				  				]).start()
-				  			}, 
+				  			var count = 0, rot = rotations[floor(random(rotations.length))], 
+				  			bV = Harmony.wholeBeetsReturn(.5, floor(random(1,8))), 
+				  			nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length),
+				  			nR2 = Harmony.rewriteMelodyReturn(nR);
+				  			s = Score([0,
+				  				function(){
+				  					syns[m][0].note.seq(nR, bV)
+				  				}, measures(rot),
+				  				function(){
+				  					syns[m][0].note.seq(nR2, bV)
+				  				}, measures(rot)]).start()
+				  		}, 
 					 	newF = function(){
 					 		console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
 					  		var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
@@ -388,7 +388,7 @@ var Song = function (n, place) { //enclose song
 					  		syns[m][0].note.seq.stop()
 					  ;};
 					}
-				   functions = [newM, newS, newF, pm, sto]; 
+				   functions = [newS, sto]; 
 				}
 				else if (syns[m][1] == 'pad'){ 
 						newM = function(){
