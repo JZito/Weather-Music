@@ -1890,7 +1890,7 @@ Gibberish.PWM = function() {
     name: 'pwm',
     properties : {
       frequency: 440,
-      amp: .15,
+      amp: .02,
       pulsewidth: .05,
       sr: Gibberish.context.sampleRate,
     },
@@ -5033,7 +5033,7 @@ Gibberish.FMSynth = function(properties) {
     sustainLevel: .5,
     releaseTrigger: 0,
     glide:    .15,
-    amp:		  .25,
+    amp:		  .15,
     channels: 2,
 	  pan:		  0,
   };
@@ -12173,9 +12173,9 @@ module.exports = function( Gibber ) {
     rhodes: { waveform:'Sine', maxVoices:4, attack:44, decay:1, 
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo(2, .2) ) },
     },
-    calvin: { waveform:'PWM',  maxVoices:4, pulsewidth:.25, out: .2, attack:Clock.maxMeasures, decay:1,
-    presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo({input : 0, frequency:2.5,
-      amp:.1}), Gibber.Audio.FX.Reverb('space') ) }
+    calvin: { waveform:'PWM',  maxVoices:4, pulsewidth:.25, amp: .025, out: .2, attack:Clock.maxMeasures, decay:1,
+    presetInit: function() { this.fx.add( Gibber.Audio.FX.Vibrato(random(3), random(1)), 
+      Gibber.Audio.FX.Reverb({preset:'large', wet:.5, dry:0}), Gibber.Audio.FX.Delay({wet:.55, dry:.15}))  }
     },
     warble: { waveform:'Sine', attack:Clock.maxMeasures,
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Vibrato(2), Gibber.Audio.FX.Delay( 1/6, .75 ) ) } 
@@ -12185,18 +12185,21 @@ module.exports = function( Gibber ) {
   Synths.Presets.Synth2 = {
     pad2: { waveform:'Saw', maxVoices:4, attack:1.5, decay:1/2, cutoff:.3, filterMult:.35, 
     resonance:1.5, 
-    amp:.2, 
+    amp:.4, 
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo({input : 0, frequency:2.5,
       amp:.5}), Gibber.Audio.FX.Reverb('space') ) }
     },
     pad4: { waveform:'Saw', maxVoices:4, attack:2, decay:2, cutoff:.3, filterMult:.35, 
     resonance:1.5, 
-    amp:.2,
+    amp:.4,
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Delay( 1/9, .55 ) ) }
     },
-    rainTri: {waveform:'Triangle', maxVoices:6, amp:.5, glide:.9, resonance:1, useADSR:true, 
+    rainTri: {waveform:'Triangle', maxVoices:6, amp:.4, glide:.9, resonance:1, useADSR:true, 
                                requireReleaseTrigger:false,
-                attack:4, decay:12, sustain:.1, release:2}     
+                attack:4, decay:12, sustain:.1, release:2},
+    triTest: {waveform:'Triangle', maxVoices:6, amp:.4, resonance:1, useADSR:true, 
+                               requireReleaseTrigger:true,
+                attack:1/1, decay:8/1, sustain:1/2, release:1/1}     
   }
   
   Synths.Presets.Mono = {
@@ -12291,26 +12294,31 @@ module.exports = function( Gibber ) {
     noise: {
       resonance:20,
       decay:1/2,
+      attack:1,
+      requireReleaseTrigger:false,
       cutoff:.3,
       glide:.99995,
       detune3:0,
       detune2:0,
       filterMult:0,
-      presetInit: function() { this.fx.add( Gibber.Audio.FX.Gain(.1), Gibber.Audio.FX.Delay(1/6,.35) ) }
+      presetInit: function() { this.fx.add( Gibber.Audio.FX.Gain(.1), Gibber.Audio.FX.Delay(1/6,.65) ) }
     },
 
     waveBass: {
       waveform:'Sine',
-      maxVoices:1, 
-      useADSR:true, 
-      amp:.4,
+      useADSR:false, 
+      amp:.2,
       cutoff: .65,
       resonance: .6,
       octave:-2,
       octave2:-1,
-      octave3:2,
+      octave3:1,
       attack:.5, decay: 5, sustain:1, release:.75,
-      presetInit: function() { this.fx.add(Gibber.Audio.FX.Reverb({ preset:'small', wet:.75, dry:.35 })) }
+     // presetInit: function() { this.fx.add(Gibber.Audio.FX.Reverb({ preset:'small', wet:.75, dry:.35 })) }
+    },
+
+    preTester: {
+
     }
   }
   
