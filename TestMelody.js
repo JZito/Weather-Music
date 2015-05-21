@@ -6,8 +6,8 @@ function setup () {
 	Clock.bpm(floor(random(75,95)))
 	songBus = Bus().fx.add( Schizo({chance:.65, pitchChance: 0, rate:ms(Clock.bpm.value/2), length:ms(Clock.bpm.value * 2)}), Reverb('large'))
 	drum = XOX('x*o*x*o-x*o*x*oox*o*x*o-x*o*xxoo', 1/8);
-	m = Synth('bleep')
-	m2 = Pluck()
+	m = Mono('semiHorn')
+	m2 = Synth('bleep')
 	//drum.send(songBus, .25)
 	m.send(songBus, .45)
 	m2.send(songBus, 1)

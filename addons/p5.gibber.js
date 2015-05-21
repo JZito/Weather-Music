@@ -1953,7 +1953,7 @@ Gibberish.Noise = function() {
   Gibberish.extend(this, {
     name:'noise',
     properties: {
-      amp:1,
+      amp:0,
     },
     
     callback : function(amp){ 
@@ -11936,6 +11936,7 @@ module.exports = function( Gibber ) {
     [ 'PolyKarplusStrong', 'Pluck' ],
   ],
   _mappingProperties = {
+    // MAPPING PROPERTIES FOR SYNTHS 
     Synth: {
       note: { min: 50, max: 3200, output: LOGARITHMIC, timescale: 'audio', doNotProxy:true },
       frequency: { min: 50, max: 3200, output: LOGARITHMIC, timescale: 'audio' },
@@ -12181,6 +12182,10 @@ module.exports = function( Gibber ) {
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Vibrato(2), Gibber.Audio.FX.Delay( 1/6, .75 ) ) } 
     },
   }
+
+  Synths.Presets.Noise = {
+    good: {amp:0}
+  }
   
   Synths.Presets.Synth2 = {
     pad2: { waveform:'Saw', maxVoices:4, attack:1.5, decay:1/2, cutoff:.3, filterMult:.35, 
@@ -12318,7 +12323,30 @@ module.exports = function( Gibber ) {
     },
 
     preTester: {
+      waveform:'Saw',
+      useADSR:true, 
+      amp:.2,
+      cutoff: .25,
+      resonance: 4,
+      attack:1/4, decay: 1/4, sustain:2/1, release:1/2,
+    },
 
+    semiHorn: {
+      waveform:'Sine',
+      maxVoices:4,
+      useADSR:true, 
+      amp:.2,
+      cutoff: .95,
+      resonance: 1,
+      octave:0,
+      octave2:-1,
+      octave3:1,
+      attack:1/64, decay: 1/1, sustain:4/1, release:1/1,
+      presetInit: function() {
+        this.bus = Gibber.Audio.Busses.Bus().fx.add( Gibber.Audio.FX.Delay(1/8,.75), Gibber.Audio.FX.LPF({ resonance:4 }) )
+        this.bus.fx[1].cutoff = Gibber.Audio.Core.Binops.Add(.25, Gibber.Audio.Oscillators.Sine(.1,.2)._ )
+        this.send( this.bus, .95 )
+      }
     }
   }
   
