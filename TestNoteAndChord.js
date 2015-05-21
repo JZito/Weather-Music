@@ -363,6 +363,14 @@ var Song = function (n, place) { //enclose song
 		    // use a circle ? for each follow... needs to be referenced from draw. call method from draw? how
 		    // will that work?
 			var scoreDetails = function(m, scoreType) {
+				// there's array scores... if scores[i] index of blah blah, do blah blah, else do blah blah?
+				//an additional array, if the rotations are brief, if there are less than x notes, classify as
+				// blah blah, if conditions are otherwise, clsassify it as blah blah bloo
+				// good for things like arp?? if afternoon or night, arp .. if more than two arps, no more arps
+				// if midnight no arp, if 6 am- noon one arp only... things like that?
+				//if pad exists twice, one be chords, one be slow lead for tensions
+				// if rhodes exists twice, have one return chords (intervals maybe), one return melody
+
 				  var functions = [], oct = [-12,-12,-12,0,0,0,12,12], steps = [], 
 				  newM, newS, newF, newC, pm, sto, beetsVar; 
 				  if (syns[m][1] == 'bass'){
@@ -392,7 +400,8 @@ var Song = function (n, place) { //enclose song
 				  }
 				 
 				  else if (syns[m][1] == 'lead') {
-				  	if (kindsAlreadyAdded.indexOf('lead') > -1) { 
+				  	if (!scores[m-1]) {
+				  		if (kindsAlreadyAdded.indexOf('lead') > -1) { 
 				  		//if lead already exists, use supportBeetsReturn
 				  		if (syns[m][1].pre == 'brass') {
 					  		newM = function() {
@@ -423,6 +432,7 @@ var Song = function (n, place) { //enclose song
 						  ;}, 
 						  /// function for series of melodies
 					  		newS = function () {
+					  			console.log("new s bro")
 					  			var count = 0, rots = [2,2,3,4,4,6], 
 					  			rot = rots[floor(random(rots.length))],
 					  			bV = Harmony.supportBeetsReturn(.5, floor(random(1,8))), 
@@ -453,10 +463,8 @@ var Song = function (n, place) { //enclose song
 						  		syns[m][0].note.seq.stop()
 						  ;};
 						}
-					   functions = [newM, newF, pm, newS, sto]; 
-
-
-				  	}
+				  	functions = [newS, sto]; 
+					} // if lead exists enclosure  
 				  	else {	
 					  	if (syns[m][1].pre == 'brass') {
 					  		newM = function() {
@@ -516,10 +524,18 @@ var Song = function (n, place) { //enclose song
 						    sto = function(){
 						  		syns[m][0].note.seq.stop()
 						  ;};
-						}
+						} // else not brass
+					} // else lead does not exist
 					   functions = [newS, sto]; 
+					} // if scores[i] does not exist
+					else if (scores[m-1]){
+						console.log("boo boo");
+						if (scores[m-1].indexOf(newS) > -1) {
+
+						console.log("scores i - 1")
 					}
-				}
+				} // elsse if syns is a lead enclosure
+			}
 				else if (syns[m][1] == 'pad'){ 
 						newM = function(){
 							var nR = Harmony.notesReturn(-12,2,4),
@@ -542,7 +558,6 @@ var Song = function (n, place) { //enclose song
 					  		syns[m][0].note.seq.stop()
 					  ;};
 				   functions = [newM, newC, pm, sto]; 
-
 				}
 				// else if (syns[m][1] == 'noise'){
 				// 	newN = function(){
@@ -738,6 +753,9 @@ var Song = function (n, place) { //enclose song
 								syns[i][0]._;
 								syns[i][0].connect(innerSongBus);
 								var ss = scoreDetails(i);
+								for (var j = 0; j < ss.length; j++){
+									//console.log(ss[j])
+								}
 								scores.push(ss);
 		  						inScore = Score(ss).start();
 		  					}
@@ -795,7 +813,7 @@ var Song = function (n, place) { //enclose song
 		  					llll.kill();
 		  					ll.kill();
 		  					lll.kill();
-		  				}, measures(10000)]).start();
+		  				}, measures(1)]).start();
 		  			}
 		  		};
 			})();//inner song enclosure

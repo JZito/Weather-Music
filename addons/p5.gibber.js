@@ -1890,7 +1890,7 @@ Gibberish.PWM = function() {
     name: 'pwm',
     properties : {
       frequency: 440,
-      amp: .02,
+      amp: -0.5,
       pulsewidth: .05,
       sr: Gibberish.context.sampleRate,
     },
@@ -12174,7 +12174,7 @@ module.exports = function( Gibber ) {
     rhodes: { waveform:'Sine', maxVoices:4, attack:44, decay:1, 
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo(2, .2) ) },
     },
-    calvin: { waveform:'PWM',  maxVoices:4, pulsewidth:.25, amp: .025, out: .2, attack:Clock.maxMeasures, decay:1,
+    calvin: { waveform:'PWM',  maxVoices:4, pulsewidth:.25, amp: .0025, out: .2, attack:Clock.maxMeasures, decay:1,
     presetInit: function() { this.fx.add( Gibber.Audio.FX.Vibrato(random(3), random(1)), 
       Gibber.Audio.FX.Reverb({preset:'large', wet:.5, dry:0}), Gibber.Audio.FX.Delay({wet:.55, dry:.15}))  }
     },
