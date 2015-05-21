@@ -12323,7 +12323,7 @@ module.exports = function( Gibber ) {
     },
 
     preTester: {
-      waveform:'Saw',
+      waveform:'Triangle',
       useADSR:true, 
       amp:.2,
       cutoff: .25,
@@ -12339,8 +12339,8 @@ module.exports = function( Gibber ) {
       cutoff: .95,
       resonance: 1,
       octave:0,
-      octave2:-1,
-      octave3:1,
+      octave2:0,
+      octave3:0,
       attack:1/64, decay: 1/1, sustain:4/1, release:1/1,
       presetInit: function() {
         this.bus = Gibber.Audio.Busses.Bus().fx.add( Gibber.Audio.FX.Delay(1/8,.75), Gibber.Audio.FX.LPF({ resonance:4 }) )
