@@ -2,7 +2,7 @@
 // 
 var state = 'noChange', tempDivP5, radiuses = [], go = false, col, currentSong, mouseHit = false, bgCol, values = [], 
 lerpVar, radius, a = 0, countdown = 140, ticker = 0, cubeGo = 2, str = "74",
-vanillaNotes = [12,11,9,7,4,2,0], vanillaMeasures = [1,2,4,6,8,12,16], 
+vanillaNotes = [7,4,2,0,-11,-9,-7], vanillaMeasures = [1,2,4,6,8,12,16], 
 beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
 //beets = [1, 1/2, 1/4, 1/8,1/16, 1/32], 
 beepEM = 67, rotations = [2,4,6,8, 16], pieces = [],
@@ -34,12 +34,13 @@ function CheckTheTime(time) //function check the time
     		ticker = 1;
     }
     //console.log(time);
-    if (time == 1 || time == 15 || time == 30 || time == 45) 
+    if (time == 4 || time == 15 || time == 30 || time == 45) 
     {
     	state = 'change';
     	//console.log('change');
     }
-    else if (time != 1 || time != 15 || time !=  30 || time != 45)
+  //  else if (time != 1 || time != 15 || time !=  30 || time != 45)
+    else
     {
     	state = 'noChange';
     }
@@ -346,7 +347,7 @@ var Song = function (n, place) { //enclose song
 		beepEM = floor(random(56,79));
 		Clock.bpm(beepEM);
 		var innerSong = (function () {
-			var inScore, arp, arps = [],score,  scores = [], syn, kindsAlreadyAdded = [], fols = [], busses = [], syns = [], m = 4, scorePhrases = floor(random(32,112)), innerSongBus,
+			var inScore, arp, arps = [],score,  mezhure, mezhures = [], mezhuresAlreadyAdded = [], scores = [], syn, kindsAlreadyAdded = [], fols = [], busses = [], syns = [], m = 4, scorePhrases = floor(random(32,112)), innerSongBus,
 			presets = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin'], bassWaveform = ['Saw','Sine','Triangle', 'Square'], 
 			presetLeadFMArray = ['bong', 'bong','clarinet', 'glockenspiel', 'glockenspiel', 'glockenspiel'],
 			presetLeadMonoArray = ['semiHorn', 'preTester'];
@@ -400,332 +401,182 @@ var Song = function (n, place) { //enclose song
 				  	 functions = [newM, newF, pm, sto];
 				  }
 				 
-				  else if (syns[m][1] == 'lead') {
+				else if (syns[m][1] == 'lead') {
 				  	if (!scores[m-1]) { 
-				  		if (kindsAlreadyAdded.indexOf('lead') > -1) { 
-				  		//if lead already exists, use supportBeetsReturn
-				  		if (syns[m][1].pre == 'brass') {
-					  		newM = function() {
-					  			console.log('brass lead newM' + syns[m][1] + syns[m][0])
-					  			var nR = Harmony.notesReturn(0, 1, 4);
-					  			bV = Harmony.beetsReturn(2, floor(random(1,3)));
-					  			syns[m][0].note.seq(nR, bV);
-					  		},
-					  		newF = function() {
-					  			console.log('brass lead newF' + syns[m][1] + syns[m][0])
-					  			var nR = Harmony.notesReturn(0, 1, 8);
-					  			bV = Harmony.beetsReturn(4, floor(random(2,4)));
-					  			syns[m][0].note.seq(nR, bV);
-					  		},
-					  		pm = function() {
-					  			var nR = Harmony.chordsReturn(floor(random(2,24)), 2);
-					  			bV = Harmony.beetsReturn(2, floor(random(1,3)));
-					  			syns[m][0].note.seq(nR, bV);
-					  		}
-						}
-					  	else {
+				  	  	arper = function(){
+				  			console.log("arper arper bb");
+				  			//var arpie = arps[m];
+				  			arpie = Arp([12,24,12,19], 1/12, 'down', 2)
+				  			var nR = Harmony.notesReturn(0,1,8),
+				  			bV = Harmony.beetsReturn(4, 1);
+				  			arpie.target = syns[m][0];
+				  			//arpie.chord.seq([12,11,7], 1);
+				  			//arpie.seq.start();
+				  			//syns[m][0].note.seq([12,12,12], 1/2)
 
-					  		arper = function(){
-					  			//var arpie = arps[m];
-					  			arpie = Arp([nR], 1/2, "up", 1);
-					  			arpie.target = syns [m][0]
-					  			console.log("arper arper gg");
-					  			var nR = Harmony.notesReturn(0,1,8),
-					  			bV = Harmony.beetsReturn(4, 1);
-					  			//arpie.target = syns[m][0];
-					  			//arpie.chord.seq( [12,11,9], [1,1,2] )
-					  			//syns[m][0].note.seq([12,11], 1/2)
-
-					  			//arpie.target(syns[m][0]);
-					  			//syns[m][0].note.seq([0,2,5], 1/32);
-
-					  		},
-					  		arperStop = function(){
-					  			//var arpie = arps[m];
-					  			//console.log("arp stop working")
-					  			arpie.seq.stop();
-					  		},
-
-							newM = function(){
-								console.log('lead newM' + syns[m][1] + syns[m][0]);
-								var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,4)));
-								var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
-					  			syns[m][0].note.seq(nR, bV)
-						  ;}, 
-						  /// function for series of melodies
-					  		newS = function () {
-					  			console.log("new s bro")
-					  			var count = 0, rots = [2,2,3,4,4,6], 
-					  			rot = rots[floor(random(rots.length))],
-					  			bV = Harmony.supportBeetsReturn(.5, floor(random(1,8))), 
-					  			nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length),
-					  			nR2 = Harmony.rewriteMelodyReturn(nR);
-					  			s = Score([0,
-					  				function(){
-					  					syns[m][0].note.seq(nR, bV)
-					  				}, measures(rot),
-					  				function(){
-					  					syns[m][0].note.seq(nR2, bV)
-					  				}, measures(rot)]).start().loop()
-					  		}, 
-						 	newF = function(){
-						 		var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,3)));
-								var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
-						  		syns[m][0].note.seq(nR, bV)
-					      ;}, 
-						    pm = function(){
-						    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
-						    	var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
-								
-						  		var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
-						  		
-						  		syns[m][0].note.seq(nR, bV)
-					      ;}, 
-						    sto = function(){
-						  		syns[m][0].note.seq.stop()
-						  ;};
-						}
-				  	functions = [arper, arperStop, sto]; 
-					} // if lead exists enclosure  
-				  	 else {	
-					  	if (syns[m][1].pre == 'brass') {
-					  		newM = function() {
-					  			console.log('brass lead newM' + syns[m][1] + syns[m][0])
-					  			var nR = Harmony.notesReturn(0, 1, 4);
-					  			bV = Harmony.beetsReturn(2, floor(random(1,3)));
-					  			syns[m][0].note.seq(nR, bV);
-					  		},
-					  		newF = function() {
-					  			console.log('brass lead newF' + syns[m][1] + syns[m][0])
-					  			var nR = Harmony.notesReturn(0, 1, 8);
-					  			bV = Harmony.beetsReturn(4, floor(random(2,4)));
-					  			syns[m][0].note.seq(nR, bV);
-					  		},
-					  		pm = function() {
-					  			var nR = Harmony.chordsReturn(floor(random(2,24)), 2);
-					  			bV = Harmony.beetsReturn(2, floor(random(1,3)));
-					  			syns[m][0].note.seq(nR, bV);
-					  		}
-						}
-					  	else {
-					  		arper = function(){
-					  			console.log("arper arper bb");
-					  			//var arpie = arps[m];
-					  			arpie = Arp([12,24,12,19], 1/12, 'down', 2)
-					  			var nR = Harmony.notesReturn(0,1,8),
-					  			bV = Harmony.beetsReturn(4, 1);
-					  			arpie.target = syns[m][0];
-					  			//arpie.chord.seq([12,11,7], 1);
-					  			//arpie.seq.start();
-					  			//syns[m][0].note.seq([12,12,12], 1/2)
-
-					  		},
-					  		arperStop = function(){
-					  			//var arpie = arps[m];
-					  			console.log("arp stop other")
-					  			arpie.seq.stop();
-					  		},
-					  		
-							newM = function(){
-								console.log('lead newM' + syns[m][1] + syns[m][0]);
-								var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
-								var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
-					  			syns[m][0].note.seq(nR, bV)
-						  ;}, 
-						  /// function for series of melodies
-					  		newS = function () {
-					  			var count = 0, rot = rotations[floor(random(rotations.length))], 
-					  			bV = Harmony.wholeBeetsReturn(.5, floor(random(1,16))), 
-					  			nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length),
-					  			nR2 = Harmony.rewriteMelodyReturn(nR);
-					  			s = Score([0,
-					  				function(){
-					  					syns[m][0].note.seq(nR, bV)
-					  				}, measures(rot),
-					  				function(){
-					  					syns[m][0].note.seq(nR2, bV)
-					  				}, measures(rot)]).start()
-					  		}, 
-						 	newF = function(){
-						 		console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
-						  		var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
-								var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
-						  		syns[m][0].note.seq(nR, bV)
-					      ;}, 
-						    pm = function(){
-						    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
-						    	var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
-								
-						  		var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
-						  		
-						  		syns[m][0].note.seq(nR, bV)
-					      ;}, 
-						    sto = function(){
-						  		syns[m][0].note.seq.stop()
-						  ;};
-						} // else not brass
-					} // else lead does not exist
-					   functions = [arper, arperStop, sto]; 
+				  		},
+				  		arperStop = function(){
+				  			//var arpie = arps[m];
+				  			console.log("arp stop other")
+				  			arpie.seq.stop();
+				  		},
+				  		
+						newM = function(){
+							console.log('lead newM' + syns[m][1] + syns[m][0]);
+							var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
+							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
+				  			syns[m][0].note.seq(nR, bV)
+					  ;}, 
+					  /// function for series of melodies
+				  		newS = function () {
+				  			var count = 0, rot = rotations[floor(random(rotations.length))], 
+				  			bV = Harmony.wholeBeetsReturn(.5, floor(random(1,16))), 
+				  			nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length),
+				  			nR2 = Harmony.rewriteMelodyReturn(nR);
+				  			s = Score([0,
+				  				function(){
+				  					syns[m][0].note.seq(nR, bV)
+				  				}, measures(rot),
+				  				function(){
+				  					syns[m][0].note.seq(nR2, bV)
+				  				}, measures(rot)]).start()
+				  		}, 
+					 	newF = function(){
+					 		console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
+					  		var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
+							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
+					  		syns[m][0].note.seq(nR, bV)
+				        ;}, 
+					    pm = function(){
+					    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
+					    	var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
+							var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
+					  		syns[m][0].note.seq(nR, bV)
+				        ;}, 
+					    sto = function(){
+					  		syns[m][0].note.seq.stop()
+					    ;};	
+					
+					functions = [arper, arperStop, pm, newF, newS, newM, sto]; 
 				}// if scores[i] does not exist
 				else {
 					if (kindsAlreadyAdded.indexOf('lead') > -1) { 
 				  		//if lead already exists, use supportBeetsReturn
-				  		if (syns[m][1].pre == 'brass') {
-					  		newM = function() {
-					  			console.log('brass lead newM' + syns[m][1] + syns[m][0])
-					  			var nR = Harmony.notesReturn(0, 1, 4);
-					  			bV = Harmony.beetsReturn(2, floor(random(1,3)));
-					  			syns[m][0].note.seq([-12.-12.-12.-11], bV);
-					  		},
-					  		newF = function() {
-					  			console.log('brass lead newF' + syns[m][1] + syns[m][0])
-					  			var nR = Harmony.notesReturn(0, 1, 8);
-					  			bV = Harmony.beetsReturn(4, floor(random(2,4)));
-					  			syns[m][0].note.seq(nR, bV);
-					  		},
-					  		pm = function() {
-					  			var nR = Harmony.chordsReturn(floor(random(2,24)), 2);
-					  			bV = Harmony.beetsReturn(2, floor(random(1,3)));
-					  			syns[m][0].note.seq(nR, bV);
-					  		}
-						}
-					  	else {
+				  	
+					  	rper = function(){
+				  			//var arpie = arps[0];
+				  			arpie = Arp([24,24], 1/12, 'down', 2)
+				  			console.log("arper arper gg");
+				  			var nR = Harmony.notesReturn(0,1,8),
+				  			bV = Harmony.beetsReturn(4, 1);
+				  			arpie.target = syns[m][0];
+				  			arpie.chord.seq([nR, nR], 2)
+				  			arpie.seq.speed = 1/32;
+				  			//syns[m][0].note.seq([-12,-12,-12], 1/32);
 
-					  		arper = function(){
-					  			//var arpie = arps[0];
-					  			arpie = Arp([12,12,24,-12,-12,-7], 1/12, 'down', 2)
-					  			console.log("arper arper gg");
-					  			var nR = Harmony.notesReturn(0,1,8),
-					  			bV = Harmony.beetsReturn(4, 1);
-					  			arpie.target = syns[m][0];
-					  			//arpie.chord.seq([7, 12, 7, 0], 2)
-					  			//syns[m][0].note.seq([-12,-12,-12], 1/32);
+				  		},
+				  		arperStop = function(){
+				  			//var arpie = arps[0];
+				  			console.log("arp stop working")
+				  			arpie.seq.stop();
+				  		},
 
-					  		},
-					  		arperStop = function(){
-					  			//var arpie = arps[0];
-					  			console.log("arp stop working")
-					  			arpie.seq.stop();
-					  		},
-
-							newM = function(){
-								console.log('lead newM' + syns[m][1] + syns[m][0]);
-								var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,4)));
-								var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
-					  			syns[m][0].note.seq(nR, bV)
-						  ;}, 
-						  /// function for series of melodies
-					  		newS = function () {
-					  			console.log("new s bro")
-					  			var count = 0, rots = [2,2,3,4,4,6], 
-					  			rot = rots[floor(random(rots.length))],
-					  			bV = Harmony.supportBeetsReturn(.5, floor(random(1,8))), 
-					  			nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length),
-					  			nR2 = Harmony.rewriteMelodyReturn(nR);
-					  			s = Score([0,
-					  				function(){
-					  					syns[m][0].note.seq(nR, bV)
-					  				}, measures(rot),
-					  				function(){
-					  					syns[m][0].note.seq(nR2, bV)
-					  				}, measures(rot)]).start().loop()
-					  		}, 
-						 	newF = function(){
-						 		var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,3)));
-								var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
-						  		syns[m][0].note.seq(nR, bV)
-					      ;}, 
-						    pm = function(){
-						    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
-						    	var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
-								
-						  		var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
-						  		
-						  		syns[m][0].note.seq(nR, bV)
-					      ;}, 
-						    sto = function(){
-						  		syns[m][0].note.seq.stop()
-						  ;};
-						}
-				  	functions = [arper, arperStop, sto]; 
-					} // if lead exists enclosure  
-				  	 else {	
-					  	if (syns[m][1].pre == 'brass') {
-					  		newM = function() {
-					  			console.log('brass lead newM' + syns[m][1] + syns[m][0])
-					  			var nR = Harmony.notesReturn(0, 1, 4);
-					  			bV = Harmony.beetsReturn(2, floor(random(1,3)));
-					  			syns[m][0].note.seq(nR, bV);
-					  		},
-					  		newF = function() {
-					  			console.log('brass lead newF' + syns[m][1] + syns[m][0])
-					  			var nR = Harmony.notesReturn(0, 1, 8);
-					  			bV = Harmony.beetsReturn(4, floor(random(2,4)));
-					  			syns[m][0].note.seq(nR, bV);
-					  		},
-					  		pm = function() {
-					  			var nR = Harmony.chordsReturn(floor(random(2,24)), 2);
-					  			bV = Harmony.beetsReturn(2, floor(random(1,3)));
-					  			syns[m][0].note.seq(nR, bV);
-					  		}
-						}
-					  	else {
-					  		arper = function(){
-					  			console.log("arper arper bb");
-					  			var nR = Harmony.notesReturn(0,1,8),
-					  			bV = Harmony.beetsReturn(4, 1);
-					  			//arp.target = syns[m][0];
-					  			syns[m][0].note.seq(nR, bV);
-					  			//syns[m][0].note.seq([12,12,12], 1/2)
-
-					  		},
-					  		arperStop = function(){
-					  			console.log("arp stop other")
-					  			arp.seq.stop();
-					  		},
+						newM = function(){
+							console.log('lead newM' + syns[m][1] + syns[m][0]);
+							var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,4)));
+							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
+				  			syns[m][0].note.seq(nR, bV)
+					  ;}, 
+					  /// function for series of melodies
+				  		newS = function () {
+				  			console.log("new s bro")
+				  			var count = 0, rots = [2,2,3,4,4,6], 
+				  			rot = rots[floor(random(rots.length))],
+				  			bV = Harmony.supportBeetsReturn(1, floor(random(1,8))), 
+				  			nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length),
+				  			nR2 = Harmony.rewriteMelodyReturn(nR);
+				  			s = Score([0,
+				  				function(){
+				  					syns[m][0].note.seq(nR, bV)
+				  				}, measures(rot),
+				  				function(){
+				  					syns[m][0].note.seq(nR2, bV)
+				  				}, measures(rot)]).start().loop()
+				  		}, 
+					 	newF = function(){
+					 		var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,3)));
+							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
+					  		syns[m][0].note.seq(nR, bV)
+				      ;}, 
+					    pm = function(){
+					    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
+					    	var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
+							
+					  		var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
 					  		
-							newM = function(){
-								console.log('lead newM' + syns[m][1] + syns[m][0]);
-								var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
-								var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
-					  			syns[m][0].note.seq(nR, bV)
-						  ;}, 
-						  /// function for series of melodies
-					  		newS = function () {
-					  			var count = 0, rot = rotations[floor(random(rotations.length))], 
-					  			bV = Harmony.wholeBeetsReturn(.5, floor(random(1,16))), 
-					  			nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length),
-					  			nR2 = Harmony.rewriteMelodyReturn(nR);
-					  			s = Score([0,
-					  				function(){
-					  					syns[m][0].note.seq(nR, bV)
-					  				}, measures(rot),
-					  				function(){
-					  					syns[m][0].note.seq(nR2, bV)
-					  				}, measures(rot)]).start()
-					  		}, 
-						 	newF = function(){
-						 		console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
-						  		var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
-								var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
-						  		syns[m][0].note.seq(nR, bV)
-					      ;}, 
-						    pm = function(){
-						    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
-						    	var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
-								
-						  		var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
-						  		
-						  		syns[m][0].note.seq(nR, bV)
-					      ;}, 
-						    sto = function(){
-						  		syns[m][0].note.seq.stop()
-						  ;};
-						} // else not brass
-					} // else lead does not exist
-					   functions = [arper, arperStop, sto]; 
+					  		syns[m][0].note.seq(nR, bV)
+				      ;}, 
+					    sto = function(){
+					  		syns[m][0].note.seq.stop()
+					  ;};
+				  	functions = [arper, arperStop, newM, newS, newF, sto]; 
+					} // if lead exists enclosure  
+				  	else {	
+					  	arper = function(){
+				  			console.log("arper arper bb");
+				  			var nR = Harmony.notesReturn(0,1,8),
+				  			bV = Harmony.beetsReturn(4, 1);
+				  			//arp.target = syns[m][0];
+				  			syns[m][0].note.seq(nR, bV);
+				  			//syns[m][0].note.seq([12,12,12], 1/2)
 
-				}
+				  		},
+				  		arperStop = function(){
+				  			console.log("arp stop other")
+				  			arp.seq.stop();
+				  		},
+				  		
+						newM = function(){
+							console.log('lead newM' + syns[m][1] + syns[m][0]);
+							var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
+							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
+				  			syns[m][0].note.seq(nR, bV)
+					  ;}, 
+					  /// function for series of melodies
+				  		newS = function () {
+				  			var count = 0, rot = rotations[floor(random(rotations.length))], 
+				  			bV = Harmony.wholeBeetsReturn(.5, floor(random(1,16))), 
+				  			nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length),
+				  			nR2 = Harmony.rewriteMelodyReturn(nR);
+				  			s = Score([0,
+				  				function(){
+				  					syns[m][0].note.seq(nR, bV)
+				  				}, measures(rot),
+				  				function(){
+				  					syns[m][0].note.seq(nR2, bV)
+				  				}, measures(rot)]).start()
+				  		}, 
+					 	newF = function(){
+					 		console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
+					  		var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
+							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
+					  		syns[m][0].note.seq(nR, bV)
+				      ;}, 
+					    pm = function(){
+					    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
+					    	var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
+							
+					  		var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
+					  		
+					  		syns[m][0].note.seq(nR, bV)
+				      ;}, 
+					    sto = function(){
+					  		syns[m][0].note.seq.stop()
+					  ;};
+				} // else lead does not exist
+				   functions = [arper, arperStop, newS, pm, newF, newM, sto]; 
+
+			}
 				// 	else if (scores[m-1]){
 				// 		console.log("boo boo");
 				// 		if (scores[m-1].indexOf(newS) > -1) {
@@ -769,6 +620,8 @@ var Song = function (n, place) { //enclose song
 
 				// 	functions = [newN, sto];
 				// }
+				//CREATE AN ARRAY FILLED WITH THE ROTATION COUNTS THEN SUM THE ARRAY
+				//
 				for (var i = 0; i < scorePhrases; i++){
 				    if (i == 0){
 				    	steps.push(0);
@@ -785,6 +638,7 @@ var Song = function (n, place) { //enclose song
 				    	steps.push(n);
 				    }
 				    else if (i == 2) {
+
 				    	steps.push(measures(1));
 				    }
 				    //prevent seq from hitting stop twice (but this is not accounting for all circumstances, must solve )
@@ -795,7 +649,9 @@ var Song = function (n, place) { //enclose song
 				    }
 				    else if ((i+2)%2==0 && i !=2 ) {
 				      //length of each step
-				    	steps.push(measures(vanillaMeasures[floor(random(vanillaMeasures.length))]));
+				      	var mezh = measures(vanillaMeasures[floor(random(vanillaMeasures.length))]);
+				    	steps.push(mezh);
+				    	mezhures.push(mezh);
 				    //  console.log(steps[i] + i);
 				    }
 				    
@@ -805,6 +661,7 @@ var Song = function (n, place) { //enclose song
 				    //  console.log(n + i + mm);
 				    }
 				  }
+				  mezhuresAlreadyAdded.push(mezhures)
 				  kindsAlreadyAdded.push(syns[m][1])
 				return steps;
 			};
@@ -871,14 +728,7 @@ var Song = function (n, place) { //enclose song
 					   else if (instrumentKind == Mono){
 					   		pre = presetLeadMonoArray[floor(random(presetLeadMonoArray.length))];
 					   		ampVar = .25
-
 					   }
-					   
-
-
-					   // else if (instrumentKind == Pluck){
-					   // 		pre = ''
-					   // }
 					}
 					else if (kind == 'pad') {
 						ampVar = .2
@@ -948,25 +798,12 @@ var Song = function (n, place) { //enclose song
 						function(){ 
 							//drum = XOX('x*x*', 1/16);
 							//drum.fadeIn(4, 1);
-							//ff = Synth('bleep')
-							// arp = Arp( [0, 2, 4], 1/16, 'updown', 2 );
-							// arp.seq.stop();
-							// arps.push(arp);
-							//a = Synth( 'bleep' )
-
-							//d.target = a
-							//d.chord.seq( [[12,11,7], [24,32,9],'g4m7'], [1,1,2] )
-	 						//arp.seq.stop();
 							for (var i = 0; i < syns.length; i++){
 								//assign each synth it's own score via scoredetails
 
 								syns[i][0]._;
 								syns[i][0].connect(innerSongBus);
 								var ss = scoreDetails(i);
-								// d = Arp( [-12,-12,-12], 1/24, 'updown', 1 )
-								// d.seq.stop();
-								// arps.push(d);
-								
 								scores.push(ss);
 		  						inScore = Score(ss).start();
 		  					}
@@ -1039,5 +876,18 @@ var Song = function (n, place) { //enclose song
 
 function add(a, b) {
 	return a + b;
+}
+
+ function closest (num, arr) {
+    var curr = arr[0];
+    var diff = Math.abs (num - curr);
+    for (var val = 0; val < arr.length; val++) {
+        var newdiff = Math.abs (num - arr[val]);
+        if (newdiff < diff) {
+            diff = newdiff;
+            curr = arr[val];
+        }
+    }
+    return curr;
 }
 

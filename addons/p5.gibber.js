@@ -10176,6 +10176,27 @@ module.exports = function( Gibber ) {
 			mix: 1,
 		},
 	};
+
+  FX.Presets.Delay = {
+    endless: {
+      feedback: .99,
+      time: 1/6,
+      dry: 0,
+      wet: 1
+    },
+    nightChill: {
+      time:1/9, 
+      feedback:.45, 
+      wet:1, 
+      dry:.11
+    },
+    wobbler: {
+      time: 1/3,
+      feedback:.6,
+      wet: 1,
+      dry:0
+    }
+  };
   
   FX.Presets.Reverb = {
   	space : {
