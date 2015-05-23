@@ -46,6 +46,7 @@ function CheckTheTime(time) //function check the time
     }
 
     if (state != previousState) {
+    	state = 'noChange';
     	console.log('state !=')
     	
     	if (ticker == 1){
