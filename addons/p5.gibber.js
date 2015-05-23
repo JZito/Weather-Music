@@ -10175,6 +10175,13 @@ module.exports = function( Gibber ) {
 			pitchChance: .5,
 			mix: 1,
 		},
+    pitchless: {
+      chance: .45,
+      reverseChance: .25,
+      pitchChance: 0,
+      mix: 1,
+      length: 1/2
+    }
 	};
 
   FX.Presets.Delay = {
@@ -10251,11 +10258,24 @@ module.exports = function( Gibber ) {
       dry: .45,
     }
   }
+
+  FX.Presets.Vibrato = {
+    light: {
+      rate:5, amount:.15, offset:125
+    },
+    warped: {
+      rate:5, amount:.95, offset:2500
+    }
+  }
   
   FX.Presets.Crush = {
     clean: {
       sampleRate:1,
-      bitDepth:16
+      bitDepth:20
+    },
+    lowSamp: {
+      sampleRate:.5,
+      bitDepth:23
     },
     dirty:{
       sampleRate:.25,
@@ -12197,7 +12217,7 @@ module.exports = function( Gibber ) {
     },
     calvin: { waveform:'PWM',  maxVoices:4, pulsewidth:.25, amp: .0025, out: .2, attack:Clock.maxMeasures, decay:1,
     presetInit: function() { this.fx.add( Gibber.Audio.FX.Vibrato(random(3), random(1)), 
-      Gibber.Audio.FX.Reverb({preset:'large', wet:.5, dry:0}), Gibber.Audio.FX.Delay({wet:.55, dry:.15}))  }
+      Gibber.Audio.FX.Reverb({preset:'large', wet:.25, dry:0}), Gibber.Audio.FX.Delay({wet:.25, dry:.05}))  }
     },
     warble: { waveform:'Sine', attack:Clock.maxMeasures,
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Vibrato(2), Gibber.Audio.FX.Delay( 1/6, .75 ) ) } 

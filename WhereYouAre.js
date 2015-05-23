@@ -8,6 +8,7 @@ function setup () {
 	Clock.bpm(floor(random(55,75)))
 	//songBus = Bus().fx.add( Reverb('large'))
 	drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
+	drum.fx.add(Crush('lowSamp'))
 	// m = Mono('semiHorn')
 	// m2 = Synth('bleep')
 	// m1 = Synth2('rainTri')
@@ -29,31 +30,44 @@ function add(a, b) {
 }
 
 function NewScore() {
-	var count = 0;
+	var count = 0, bussed = [];
 
 	a = Seq( function() { 
 		// array of objects to change, objects to stop and objcts to leave alone?
 		
-		syns[0][0].note.seq(nR,bR2);
+		//syns[0][0].note.seq(nR,bR2);
 		//syns[1][0].note.seq([12,12,12,12,11,11,11,11], 1/3)
 		for (i = 0; i < syns.length; i++){
+			var syn = syns[i][0];
 			Updater();
 		// 	console.log("effector");
 		// 	console.log ("for");
 		 	if (i == stopper) {
 				console.log ("stopper" + syns[i])
-				syns[i][0].seq.stop();
+				syn.seq.stop();
 		 	}
-		else if (i == effector) {
-			var k = busses[i];
-			console.log ("i effector")
-			syns[i][0].send(busses[i], 1)
-		// 	// 	syns[i][0].note.seq([12,12,12,12,11,11,11,11], 1/2)
+			else if (i == effector) {
+				if( bussed.indexOf(syn) > -1) {
+					var j = bussed.indexOf(syn), k = busses[j];
+					console.log(j + ' j' + k + ' k ')
+					// follow syn
+					console.log ("exists, remove" + k)
+					syn.send(k, 0)
+					delete bussed[j];
+				}
+				else {
+					var k = busses[i];
+					console.log ("add" + k)
+					syn.send(k, 1)
+					//follow k 
+					bussed[i] = syn;
+				}
+		// 	// 	syn.note.seq([12,12,12,12,11,11,11,11], 1/2)
 		// 	// 	console.log(efx[i][0])
-		 }
-		else {
+			 }
+			else {
 		// 		console.log("else")
-				syns[i][0].note.seq(nR, bR2);
+				syn.note.seq(nR, bR2);
 			}
 		}
 	console.log( count++ ) }, randomCount ) // every one measures
@@ -70,9 +84,7 @@ function Stopper () {
 function Updater () {
 	stopper = -1;
 	if (CoinReturn() == 1){
-		console.log('coinreturned 1');
 		if (CoinReturn()== 1){
-			console.log("coin returned 1 again!")
 			// can be wholebeetsreturn OR supportbeetsreturn OR something else, based on conditions
 			bR = WholeBeetsReturn(.25, floor(random(1,6)));
 			nR = NotesReturn(bR.length); 
@@ -80,9 +92,9 @@ function Updater () {
 		else {
 			
 			//a.seq.stop();
-			stopper = floor(random(2));
+			stopper = floor(random(syns.length));
 			effector = floor(random(syns.length));
-			console.log("should have stopped" + "effector" + effector)
+			//console.log("should have stopped" + "effector" + effector)
 		}
 	bR2 = WholeBeetsReturn(2, floor(random(1,8)));
 			nR2 = NotesReturn(bR2.length);
@@ -95,7 +107,6 @@ function Updater () {
 
 	}
 	randomCount = floor(random(1,3));
-	console.log("random count" + randomCount);
 }
 
 function WholeBeetsReturn(mul, len) {
@@ -146,6 +157,7 @@ function NotesReturn (len){
 
 
 function GroupSynths(q) {
+	var effectsTypes = ['delay', 'schizo', 'vibrato']
 	// opportunity to return different bus effects based on circumstance
 	// bass must be last entry in kinds
 	var kinds = ['pad', 'lead', 'bass'], synthKinds = [];
@@ -166,7 +178,8 @@ function GroupSynths(q) {
 			synth = new SynthCreate(i, k, 'oo');
 			synth.make(k);
 			synthKinds.push(k);
-			effect = EFXCreate(i, 'delay');
+			effect = new EFXCreate(i, effectsTypes[floor(random(effectsTypes.length))]);
+			effect.make()
 			console.log(synthKinds[i]);
 		}
 	};
@@ -176,7 +189,7 @@ function SynthCreate(name, kind, pre) {
 	var ampVar = .5, 
 	presetLeadFMArray = ['bong', 'bong','clarinet', 'glockenspiel', 'glockenspiel', 'glockenspiel'],
 	presetLeadMonoArray = ['semiHorn', 'preTester'],
-	presetLeadSynthArray = ['bleep', 'rhodes', 'warble', 'calvin'],
+	presetLeadSynthArray = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin'],
 	leadInstruments = [FM, Synth, Mono], padInstruments = [Synth2];
 	  // name - name object, kind - role of instrument (lead, pad etc), pre- preset,
 	  //reference item by spot in syns array... 
@@ -250,30 +263,47 @@ function SynthCreate(name, kind, pre) {
 }
 
 function EFXCreate(name, kind) {
+	console.log('efxcreate ' + name + kind)
 	
 	//var ampVar = .5, 
-	efX = [Delay, Tremolo, Vibrato];
+	var efX = [Delay, Schizo, Crush, Tremolo, Vibrato];
 	  // name - name object, kind - role of instrument (lead, pad etc), pre- preset,
 	  //reference item by spot in syns array... 
-	  presetDelayArray = ['endless', 'wobbler', 'nightChill']
+	  presetVibratoArray = ['light', 'warped'],
+	  presetCrushArray = ['clean', 'lowSamp', 'dirty'],
+	  presetDelayArray = ['endless', 'wobbler', 'nightChill'], 
+	  presetSchizoArray = ['sane', 'borderline', 'pitchless'];
 	this.name = name;
 	   
 	this.make = function() {
-	var efxKind, pre;
-	//if (kind == 'delay') {
-	   	pre = presetDelayArray[floor(random(presetDelayArray.length))];
+		var efxKind, pre;
+		if (kind == 'delay') {
+	   		pre = presetDelayArray[floor(random(presetDelayArray.length))];
 		//ampVar = .2
-		efxKind = efx[0];
-	name = efxKind(pre)
-	name.amp (ampVar)
+			efxKind = Delay;
+			//maybe push an array full of variables to declare post creation? 
+			//.time, .length, .blah blah custom stuff ?
+		}
+		else if (kind == 'schizo') {
+			pre = presetSchizoArray[floor(random(presetSchizoArray.length))]
+			efxKind = Schizo;
+		}
+		else if (kind == 'vibrato'){
+			pre = presetVibratoArray[floor(random(presetVibratoArray.length))]
+			efxKind = Vibrato;
+		}
+		name = efxKind(pre)
+		//name.time = [1/4,1/12,1/12,1/4,1/12,1/12];
+
 	
-	console.log(name + ' . ' + instrumentKind + ' . ' + pre + ' . ' + name)
+		console.log(name + ' . ' + efxKind + ' . ' + pre + ' . ' + name)
 	// if want to add fx, call fxObj = new FX(blah blah)
 	//fxObj.make();
 	//name.fx.add(fxObj);
-	b = Bus().fx.add (name)
-	busses.push(b);
+		b = Bus().fx.add (name)
+		console.log(b + ' b b b b ');
+		busses.push(b);
 	//name._;
 	    // pluck is very quiet
-	}
+		}
   }
