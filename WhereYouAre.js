@@ -28,7 +28,7 @@ function setup () {
 	// syns.push(m);
 	// syns.push(m2);
 	// syns.push(m1);
-	GroupSynths(5);
+	GroupSynths(4);
 	NewScore();
 
 }
@@ -90,7 +90,15 @@ function NewScore() {
 		fS = Follow (syn);
     	fols.push(fS);
 		Updater(syn, i);
+		//updater should be changer of music, 
+		//should also be an effects updater
+
+		//check where each follow is at and revise it as necessary
+		//there's a music update function as well as an effects update
+		//if the effects has updated, change it
+		//follow moves to the follow (fx[fx.length])
 	}
+	randomCount = floor(random(1,3));
 	console.log( count++ ) }, randomCount ) // every one measures
 }
 
@@ -103,64 +111,80 @@ function Stopper () {
 
 }
 function Updater (synth, place) {
+	var stop = false;
 	// stopper is value of synth to get stopped, calling it randomly right now
 	stopper = -1;
 	// flip a coin
 	if (CoinReturn() == 1){
 		if (CoinReturn()== 1){
+			console.log("hi")
 			// if coin is 1, still return notes
 			// can be wholebeetsreturn OR supportbeetsreturn OR something else, based on conditions
 			bR = Harmony.wholeBeetsReturn(.25, floor(random(1,6)));
-			nR = Harmony.notesReturn(0, bR.length, bR.length); 
+			nR = Harmony.melodyReturn(0, bR.length, bR.length); 
+			
 		}
 		else {
 			//if coin is 0, stop that randomly chosen sequences
 			//a.seq.stop();
-			stopper = floor(random(syns.length));
-			effector = floor(random(syns.length));
+			stop = true;
+			synth.seq.stop();
+			// stopper = floor(random(syns.length));
+			// effector = floor(random(syns.length));
 			//console.log("should have stopped" + "effector" + effector)
 		}
-		bR2 = Harmony.wholeBeetsReturn(2, floor(random(1,8)));
-		nR2 = Harmony.notesReturn(0, bR2.length, bR2.length);
-		effector = floor(random(syns.length));
-	}
-	else {
-		bR2 = Harmony.wholeBeetsReturn(2, floor(random(1,8)));
-		nR2 = Harmony.notesReturn(bR2.length);
-		effector = floor(random(syns.length));
+		// bR2 = Harmony.beetsReturn(2, floor(random(1,8)));
+		// nR2 = Harmony.notesReturn(0, bR2.length, bR2.length);
+		// effector = floor(random(syns.length));
 
 	}
-	randomCount = floor(random(1,3));
+	else {
+		bR = Harmony.wholeBeetsReturn(2, floor(random(1,8)));
+		nR = Harmony.melodyReturn(bR.length);
+		effector = floor(random(syns.length));
+		
+	}
+	if (stop){
+		synth.seq.stop();
+	}
+	else {
+		synth.note.seq(nR, bR)
+	}
 }
-if (i == stopper) {
-				syn.seq.stop();
-		 	}
-			else if (i == effector) {
-				if( bussed.indexOf(syn) > -1) {
-					// if the synth is already bussed,
-					// j is the place of synth in bussed
-					// might be able to just use i here
-					// 
-					var j = bussed.indexOf(syn), k = busses[j];
-					syn.send(k, 0)
-					fols[i] = Follow(syn);
-					delete bussed[j];
-				}
-				else {
-					//k is the bus at i
-					var k = busses[i];
-					// send synth to k
-					syn.send(k, 1)
-					// change this follow to the bus k
-					fols[i] = Follow(k);
-					// store the synth in the 'bussed' array
-					bussed[i] = syn;
-				}
-			}
-			else {
-		// 		console.log("else")
-				syn.note.seq(nR2, bR2);
-			}
+// if (i == stopper) {
+				
+// 		 	}
+
+////////// begin effects mixer and follow function /////////
+		// 	else if (i == effector) {
+		// 		if( bussed.indexOf(syn) > -1) {
+		// 			// if the synth is already bussed,
+		// 			// j is the place of synth in bussed
+		// 			// might be able to just use i here
+		// 			// 
+		// 			var j = bussed.indexOf(syn), k = busses[j];
+		// 			syn.send(k, 0)
+		// 			fols[i] = Follow(syn);
+		// 			delete bussed[j];
+		// 		}
+		// 		else {
+		// 			//k is the bus at i
+		// 			var k = busses[i];
+		// 			// send synth to k
+		// 			syn.send(k, 1)
+		// 			// change this follow to the bus k
+		// 			fols[i] = Follow(k);
+		// 			// store the synth in the 'bussed' array
+		// 			bussed[i] = syn;
+		// 		}
+		// 	}
+		// 	else {
+		// // 		console.log("else")
+		// 		syn.note.seq(nR2, bR2);
+		// 	}
+
+
+////////////// end of effects mixer function			// 
 
 // function WholeBeetsReturn(mul, len) {
 // 	//multiplier is to double, quadruple etc beat lengths
@@ -360,7 +384,7 @@ function EFXCreate(name, kind) {
 	}
 }
 
-var Harmony = (function () {
+Harmony = (function () {
 
   	var notesReturn = function (oct, lowRange, highRange) {
   		var scoreNotes = [];
@@ -433,10 +457,11 @@ var Harmony = (function () {
 		//console.log (p.length + " nR length " + (y * coin) + " y + coin ");
 		inNotes = p.slice(0);
 		for (i = (y * coin); i <(y*coin)+y; i++){
-			inNotes[i] = ranNotes[floor(random(ranNotes.length))];
+				inNotes[i] = ranNotes[floor(random(ranNotes.length))];
 				//console.log (inNotes[i] + "in score for" + i);
-		}
-		return inNotes;			  						
+			}
+		return inNotes;
+				  						
   	};
 
   	var wholeBeetsReturn = function (mul, len) {
@@ -551,16 +576,20 @@ var Harmony = (function () {
 								innerChord.push(o);
 							}
 						}
+
 						else if (n != chords[(i-1)] [j]) {
 							innerChord.push(n + oct[floor(random(oct.length))]);
 						}
 					}
 				}
+			
 			}
-			chords.push(innerChord);
+				chords.push(innerChord);
 		}
 		return chords;
+
   	}
+  
   	return {
     	notesReturn: notesReturn,
     	bassLineReturn: bassLineReturn,
@@ -573,3 +602,6 @@ var Harmony = (function () {
   	};
 
 })();
+
+
+
