@@ -9942,7 +9942,7 @@ module.exports = function( Gibber ) {
         timescale: 'audio',
       },
       time : {
-        min: 50, max: 88200, // TODO: Fix... problem with loading order, should be : Gibberish.context.sampleRate * 2,
+        min: 50, max: 44100, // TODO: Fix... problem with loading order, should be : Gibberish.context.sampleRate * 2,
         output: LINEAR,
         timescale: 'audio',
       },

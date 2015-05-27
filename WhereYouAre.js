@@ -1,7 +1,10 @@
 // sandbox
 var ranNotes = [12,11,9,7,5,4,2,0,-1],
 beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
-bR, nR, bR2, nR2, randomCount = 4, stopper, syns = [], busses = [], effector, fols= [];
+bR, nR, bR2, nR2, randomCount = 4, stopper, syns = [], busses = [], effector, fols= [],
+presetVibratoArray = ['light', 'warped'],presetCrushArray = ['clean', 'lowSamp', 'dirty'],
+presetDelayArray = ['endless', 'wobbler', 'nightChill'], 
+presetSchizoArray = ['sane', 'borderline', 'pitchless'];
 function setup () {
 	canvas = createCanvas( windowWidth, windowHeight );
 	newColor0 = color(247, 75, 43, 127);
@@ -28,7 +31,7 @@ function setup () {
 	// syns.push(m);
 	// syns.push(m2);
 	// syns.push(m1);
-	GroupSynths(4);
+	GroupSynths(2);
 	NewScore();
 
 }
@@ -82,39 +85,6 @@ function add(a, b) {
 	return a + b;
 }
 
-function NewScore() {
-	var count = 0;
-
-	for (k = 0; k < syns.length; k++ ) {
-		var f = k;
-		syns[f][0]._
-		syns[f][0].send(busses[k], 1);
-		f = Follow (busses[k]);
-		fols.push(f);
-	}
-	a = Seq( function() { 
-		//have a count to determine how many synth gets switched and which doesn't, not just length of array
-// array of objects to change, objects to stop and objcts to leave alone?
-	for (i = 0; i < syns.length; i++){
-		var syn = syns[i][0];
-		Updater(i);
-		//UpdaterTest(i);
-		//syn.note.seq(nR, bR);
-		console.log(syn + " syn " + i + " - i")
-		//EffectsUpdater(syn, i);
-		//syn.note.seq([12,12,11], [1/2,1/2,1/16])
-		//updater should be changer of music, 
-		//should also be an effects updater
-
-		//check where each follow is at and revise it as necessary
-		//there's a music update function as well as an effects update
-		//if the effects has updated, change it
-		//follow moves to the follow (fx[fx.length])
-	}
-	randomCount = floor(random(1,3));
-	console.log( count++ + randomCount) }, randomCount ) // every one measures
-}
-
 function CoinReturn() {
 	var coin = Math.round(Math.random()*2);
 	return coin;
@@ -164,8 +134,6 @@ function GroupSynths(q) {
 			//	b.fx.add (name)
 			}
 			busses.push(b);
-
-			console.log(synthKinds[i]);
 		}
 	};
 }
@@ -196,7 +164,7 @@ function SynthCreate(name, kind, pre) {
 	   			ampVar = .2
 	   		}
 	   		else if (pre == 'calvin') {
-	   			ampVar = .15
+	   			ampVar = .05
 	   		}
 	   		else {
 	   			ampVar = .5
@@ -233,8 +201,6 @@ function SynthCreate(name, kind, pre) {
 	
 	name = instrumentKind(pre)
 	name.amp (ampVar)
-	
-	console.log(name + ' . ' + instrumentKind + ' . ' + pre + ' . ' + name)
 	// if want to add fx, call fxObj = new FX(blah blah)
 	//fxObj.make();
 	//name.fx.add(fxObj);
@@ -249,10 +215,6 @@ function SynthCreate(name, kind, pre) {
 
 function EFXCreate(name, kind, buss) {
 	var efX = [Delay, Schizo, Crush, Tremolo, Vibrato];
-	presetVibratoArray = ['light', 'warped'],
-	presetCrushArray = ['clean', 'lowSamp', 'dirty'],
-	presetDelayArray = ['endless', 'wobbler', 'nightChill'], 
-	presetSchizoArray = ['sane', 'borderline', 'pitchless'];
 	this.name = name;
 	   
 	this.make = function() {
@@ -275,10 +237,6 @@ function EFXCreate(name, kind, buss) {
 		name = efxKind(pre)
 
 		buss.fx.add(name);
-		var valueToPush = new Array();
-			valueToPush[0] = name;
-			valueToPush[1] = kind;
-		syns.push(valueToPush);
 		//name.time = [1/4,1/12,1/12,1/4,1/12,1/12];
 
 	
@@ -290,6 +248,36 @@ function EFXCreate(name, kind, buss) {
 	//name._;
 	    // pluck is very quiet
 	}
+}
+
+function NewScore() {
+	var count = 0;
+
+	for (k = 0; k < syns.length; k++ ) {
+		var f = k;
+		syns[f][0]._
+		syns[f][0].send(busses[k], 1);
+		f = Follow (busses[k]);
+		fols.push(f);
+	}
+	a = Seq( function() { 
+		//have a count to determine how many synth gets switched and which doesn't, not just length of array
+// array of objects to change, objects to stop and objcts to leave alone?
+	for (i = 0; i < syns.length; i++){
+		var syn = syns[i][0];
+		Updater(i);
+		EffectsUpdater(i);
+		//syn.note.seq([12,12,11], [1/2,1/2,1/16])
+		//updater should be changer of music, 
+		//should also be an effects updater
+
+		//check where each follow is at and revise it as necessary
+		//there's a music update function as well as an effects update
+		//if the effects has updated, change it
+		//follow moves to the follow (fx[fx.length])
+	}
+	randomCount = floor(random(1,3));
+	console.log( count++ + randomCount) }, randomCount ) // every one measures
 }
 
 function UpdaterTest (p) {
@@ -336,13 +324,38 @@ function Updater (p) {
 }
 
 function EffectsUpdater (place) {
-	var clear = false, coin = CoinReturn(), theBus = busses[i];
-	//if (coin == 1){
-		var anotherCoin = CoinReturn();
+	var clear = false, coin = CoinReturn(), theBus = busses[place], anotherCoin = CoinReturn(),
+	boop =	floor(random(1, theBus.fx.length));
 	//	if (anotherCoin == 1) {
-			console.log("effects" + synth)
-			var effector = theBus.fx[floor(random(theBus.fx.length))];
-			console.log(effector);
+			//console.log("effects" + synth)
+			var effector = theBus.fx[boop];
+			if (effector){
+				// var effx = getKeys(effector);
+				// var oneEffx = getKeys(effx[floor(random(effx.length))]);	
+				 console.log(effector);
+				// console.log(oneEffx);
+				//this shit is not working, rethink this approach 
+				//come back to it tomorrow
+				if (effector.name == 'Schizo'){
+					console.log("it's a schizo")
+					var beep = presetSchizoArray[floor(random(presetSchizoArray.length))]
+					effector({preset:beep})
+				}
+				else if (effector.name == 'Delay'){
+					console.log("it's a delay");
+					var bip = presetDelayArray[floor(random(presetDelayArray.length))];
+					effector({preset:bip})
+				}
+				else if (effector.name == 'Vibrato') {
+					console.log ("it's a vibrato")
+					effector(presetVibratoArray[floor(random(presetVibratoArray.length))])
+				}
+
+
+			}
+			else if (!effector) {
+				console.log ("undefined bggiihh" + boop)
+			}
 			//change effects
 	//	}
 	//	else {
@@ -352,6 +365,14 @@ function EffectsUpdater (place) {
 	// else {
 		//modify existing effects
 	// }
+}
+
+var getKeys = function(obj){
+   var keys = [];
+   for(var key in obj){
+      keys.push(key);
+   }
+   return keys;
 }
 
 Harmony = (function () {
@@ -377,7 +398,6 @@ Harmony = (function () {
     			var uOrD = [-1,0,1];
     			if (ranNotes[lastPos + uOrD]){
     				scoreNotes[i] = ranNotes[lastPos + uOrD];
-    				console.log(scoreNotes[i])
     			}
     			else {
     				scoreNotes[i] = ranNotes[floor(random(ranNotes.length))] + oct;
@@ -389,11 +409,8 @@ Harmony = (function () {
       			lastPos = i;
       		}
     	}
-
     	return scoreNotes;
-    	    	//console.log(scoreNotes);
-    // public
-  	};
+   };
 
   	var beetsReturn = function (mul, len) {
   		var scoreBeets = [];
