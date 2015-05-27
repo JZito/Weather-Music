@@ -15,8 +15,8 @@ function setup () {
 	colors = [newColor0, newColor1, newColor2, newColor3, newColor4, newColor5];
 	Clock.bpm(floor(random(55,75)))
 	//songBus = Bus().fx.add( Reverb('large'))
-	// drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
-	// drum.fx.add(Crush('lowSamp'))
+	 drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
+	 drum.fx.add(Crush('lowSamp'))
 	// // m = Mono('semiHorn')
 	// m2 = Synth('bleep')
 	// m1 = Synth2('rainTri')
@@ -124,73 +124,7 @@ function Stopper () {
 
 }
 
-function UpdaterTest (p) {
-	var bR = Harmony.wholeBeetsReturn(.5, floor(random(1,6))),
-	nR = Harmony.melodyReturn(0, bR.length, bR.length),
-	synth = syns[p][0], coin = CoinReturn();
-	if (coin == 1){
-		console.log (p + 'coin is 1')
-		synth.note.seq([12,12,12,11], [1/12])
-	}
-	else if (coin == 0) {
-		synth.note.seq(nR, bR);
-	}
 
-}
-function Updater (p) {
-	//p is place, place in syns index/for loop
-	var stop = false, coin = CoinReturn(), synth = syns[p][0],
-	synthKind = syns[p][1];
-	// flip a coin
-	if (coin == 1){
-		console.log("coin 1")
-		var anotherCoin = CoinReturn();
-		if (anotherCoin == 1){
-			console.log("hi")
-			// if coin is 1, still return notes
-			// can be wholebeetsreturn OR supportbeetsreturn OR something else, based on conditions
-			bR = Harmony.wholeBeetsReturn(.25, floor(random(1,6)));
-			nR = Harmony.melodyReturn(0, bR.length, bR.length); 
-			console.log("another coin is 1" + bR + " " + nR)
-			
-		}
-		else if (anotherCoin == 0) {
-			console.log("stop true")
-			//if coin is 0, stop that randomly chosen sequences
-			stop = true;
-			//synth.note.seq.stop();
-		}
-	}
-	else if (coin ==0){
-		
-		bR = Harmony.wholeBeetsReturn(2, floor(random(1,8)));
-		nR = Harmony.melodyReturn(bR.length);
-		console.log("coin 0" + bR + nR)
-	}
-	if (stop){
-		synth.note.seq([12,7,12,7], [1/4,1/6,1/10]);
-	}
-	else {
-		synth.note.seq(nR, bR)
-	}
-}
-
-function EffectsUpdater (synth, place) {
-	var clear = false, coin = CoinReturn();
-	if (coin == 1){
-		var anotherCoin = CoinReturn();
-		if (anotherCoin == 1) {
-			console.log("effects" + synth)
-			//change effects
-		}
-		else {
-			//clear effects
-		}
-	}
-	else {
-		//modify existing effects
-	}
-}
 // if (i == stopper) {
 				
 // 		 	}
@@ -341,6 +275,10 @@ function EFXCreate(name, kind, buss) {
 		name = efxKind(pre)
 
 		buss.fx.add(name);
+		var valueToPush = new Array();
+			valueToPush[0] = name;
+			valueToPush[1] = kind;
+		syns.push(valueToPush);
 		//name.time = [1/4,1/12,1/12,1/4,1/12,1/12];
 
 	
@@ -352,6 +290,68 @@ function EFXCreate(name, kind, buss) {
 	//name._;
 	    // pluck is very quiet
 	}
+}
+
+function UpdaterTest (p) {
+	var bR = Harmony.wholeBeetsReturn(.5, floor(random(1,6))),
+	nR = Harmony.melodyReturn(0, bR.length, bR.length),
+	synth = syns[p][0], coin = CoinReturn();
+	if (coin == 1){
+		console.log (p + 'coin is 1')
+		synth.note.seq([12,12,12,11], [1/12])
+	}
+	else if (coin == 0) {
+		synth.note.seq(nR, bR);
+	}
+}
+
+function Updater (p) {
+	var nR, bR;
+	//p is place, place in syns index/for loop
+	var stop = false, coin = CoinReturn(), synth = syns[p][0],
+	synthKind = syns[p][1];
+	// flip a coin
+	if (coin == 1){
+		var anotherCoin = CoinReturn();
+		if (anotherCoin == 1){
+			bR = Harmony.wholeBeetsReturn(.25, floor(random(1,4)));
+			nR = Harmony.melodyReturn(-12, bR.length, bR.length);
+		}
+		else {
+			stop = true;
+		}
+	}
+	else if (coin ==0){
+		
+		bR = Harmony.wholeBeetsReturn(2, floor(random(1,8)));
+		nR = Harmony.melodyReturn(0, bR.length, bR.length);
+		console.log("coin 0" + bR + nR)
+	}
+	if (stop){
+		synth.note.seq.stop();
+	}
+	else if (!stop) {
+		synth.note.seq(nR, bR)
+	}
+}
+
+function EffectsUpdater (place) {
+	var clear = false, coin = CoinReturn(), theBus = busses[i];
+	//if (coin == 1){
+		var anotherCoin = CoinReturn();
+	//	if (anotherCoin == 1) {
+			console.log("effects" + synth)
+			var effector = theBus.fx[floor(random(theBus.fx.length))];
+			console.log(effector);
+			//change effects
+	//	}
+	//	else {
+			//clear effects
+	//	}
+	// }
+	// else {
+		//modify existing effects
+	// }
 }
 
 Harmony = (function () {
