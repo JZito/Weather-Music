@@ -15,9 +15,9 @@ function setup () {
 	colors = [newColor0, newColor1, newColor2, newColor3, newColor4, newColor5];
 	Clock.bpm(floor(random(55,75)))
 	//songBus = Bus().fx.add( Reverb('large'))
-	drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
-	drum.fx.add(Crush('lowSamp'))
-	// m = Mono('semiHorn')
+	// drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
+	// drum.fx.add(Crush('lowSamp'))
+	// // m = Mono('semiHorn')
 	// m2 = Synth('bleep')
 	// m1 = Synth2('rainTri')
 	// //drum.send(songBus, .25)
@@ -46,7 +46,8 @@ function draw () {
     fill(bgCol);
     rect(0, 0, width, height); 
 	for (var i = 0; i < fols.length; i++){
-		var value = fols[i].getValue() * mult[i], col = colors[i],
+		var gV = fols[i].getValue(), m = mult[i],
+		value = gV * m, col = colors[i],
 
 		//        if width greater than height, use wh * value, otherwise use ww2 * value
 	    radius = ( wh > ww2 ? ww2 * value: wh * value);
@@ -54,28 +55,28 @@ function draw () {
 	}
 }
 
- function CheckTheTime(time) //function check the time
- {
-    var previousState = state; 
-    if (time == 29) 
-    {
-      state = 'change'; 
-    }
-    else if (time == 59) 
-    {
-      state = 'change'; 
-    }
-    else if (time != 29 || time != 59) 
-    {
-     state = 'noChange'; 
-    }
-    if (state != previousState) //state != previousState
-    {
-     // call weather function
-     //loadJSON('http://api.openweathermap.org/data/2.5/weather?q=New%20York,NY&units=imperial', gotWeather);
-    print ("call weather change function")
-   }
- }
+ // function CheckTheTime(time) //function check the time
+ // {
+ //    var previousState = state; 
+ //    if (time == 29) 
+ //    {
+ //      state = 'change'; 
+ //    }
+ //    else if (time == 59) 
+ //    {
+ //      state = 'change'; 
+ //    }
+ //    else if (time != 29 || time != 59) 
+ //    {
+ //     state = 'noChange'; 
+ //    }
+ //    if (state != previousState) //state != previousState
+ //    {
+ //     // call weather function
+ //     //loadJSON('http://api.openweathermap.org/data/2.5/weather?q=New%20York,NY&units=imperial', gotWeather);
+ //    print ("call weather change function")
+ //   }
+ // }
 
 function add(a, b) {
 	return a + b;
@@ -83,14 +84,25 @@ function add(a, b) {
 
 function NewScore() {
 	var count = 0;
+
+	for (k = 0; k < syns.length; k++ ) {
+		var f = k;
+		syns[f][0]._
+		syns[f][0].send(busses[k], 1);
+		f = Follow (busses[k]);
+		fols.push(f);
+	}
 	a = Seq( function() { 
+		//have a count to determine how many synth gets switched and which doesn't, not just length of array
 // array of objects to change, objects to stop and objcts to leave alone?
 	for (i = 0; i < syns.length; i++){
 		var syn = syns[i][0];
-		fS = Follow (syn);
-    	fols.push(fS);
-		Updater(syn, i);
-		EffectsUpdater(syn, i);
+		Updater(i);
+		//UpdaterTest(i);
+		//syn.note.seq(nR, bR);
+		console.log(syn + " syn " + i + " - i")
+		//EffectsUpdater(syn, i);
+		//syn.note.seq([12,12,11], [1/2,1/2,1/16])
 		//updater should be changer of music, 
 		//should also be an effects updater
 
@@ -111,32 +123,52 @@ function CoinReturn() {
 function Stopper () {
 
 }
-function Updater (synth, place) {
-	var stop = false;
+
+function UpdaterTest (p) {
+	var bR = Harmony.wholeBeetsReturn(.5, floor(random(1,6))),
+	nR = Harmony.melodyReturn(0, bR.length, bR.length),
+	synth = syns[p][0], coin = CoinReturn();
+	if (coin == 1){
+		console.log (p + 'coin is 1')
+		synth.note.seq([12,12,12,11], [1/12])
+	}
+	else if (coin == 0) {
+		synth.note.seq(nR, bR);
+	}
+
+}
+function Updater (p) {
+	//p is place, place in syns index/for loop
+	var stop = false, coin = CoinReturn(), synth = syns[p][0],
+	synthKind = syns[p][1];
 	// flip a coin
-	if (CoinReturn() == 1){
-		if (CoinReturn() == 1){
+	if (coin == 1){
+		console.log("coin 1")
+		var anotherCoin = CoinReturn();
+		if (anotherCoin == 1){
 			console.log("hi")
 			// if coin is 1, still return notes
 			// can be wholebeetsreturn OR supportbeetsreturn OR something else, based on conditions
 			bR = Harmony.wholeBeetsReturn(.25, floor(random(1,6)));
 			nR = Harmony.melodyReturn(0, bR.length, bR.length); 
+			console.log("another coin is 1" + bR + " " + nR)
 			
 		}
-		else {
+		else if (anotherCoin == 0) {
+			console.log("stop true")
 			//if coin is 0, stop that randomly chosen sequences
 			stop = true;
-			synth.seq.stop();
+			//synth.note.seq.stop();
 		}
 	}
-	else {
+	else if (coin ==0){
+		
 		bR = Harmony.wholeBeetsReturn(2, floor(random(1,8)));
 		nR = Harmony.melodyReturn(bR.length);
-		effector = floor(random(syns.length));
-		
+		console.log("coin 0" + bR + nR)
 	}
 	if (stop){
-		synth.seq.stop();
+		synth.note.seq([12,7,12,7], [1/4,1/6,1/10]);
 	}
 	else {
 		synth.note.seq(nR, bR)
@@ -164,106 +196,41 @@ function EffectsUpdater (synth, place) {
 // 		 	}
 
 ////////// begin effects mixer and follow function /////////
-		// 	else if (i == effector) {
-		// 		if( bussed.indexOf(syn) > -1) {
-		// 			// if the synth is already bussed,
-		// 			// j is the place of synth in bussed
-		// 			// might be able to just use i here
-		// 			// 
-		// 			var j = bussed.indexOf(syn), k = busses[j];
-		// 			syn.send(k, 0)
-		// 			fols[i] = Follow(syn);
-		// 			delete bussed[j];
-		// 		}
-		// 		else {
-		// 			//k is the bus at i
-		// 			var k = busses[i];
-		// 			// send synth to k
-		// 			syn.send(k, 1)
-		// 			// change this follow to the bus k
-		// 			fols[i] = Follow(k);
-		// 			// store the synth in the 'bussed' array
-		// 			bussed[i] = syn;
-		// 		}
-		// 	}
-		// 	else {
-		// // 		console.log("else")
-		// 		syn.note.seq(nR2, bR2);
-		// 	}
+
 
 
 ////////////// end of effects mixer function			// 
 
-// function WholeBeetsReturn(mul, len) {
-// 	//multiplier is to double, quadruple etc beat lengths
-// 	//len(gth) is how many beets you want returned
-// 	var scoreBeets = [], sum;
-	
-//   	for (var i = 0; i < len; i ++){
-//   		//grab some beets
-//   		scoreBeets.push(beets[floor(random(beets.length))] * mul);	
-//   	}
-// 	//add contents of beets array
-//   	sum = scoreBeets.reduce(add, 0);
-//   	//if the sum is an odd number
-//   	if (sum %2 != 0) {
-//   	//sumRound is difference between sum and a whole set of measures
-//   		var sumRound;
-//   	// if sum will not round to 1, is short phrase
-//   		if (sum < .5){
-//   			sumRound = .5 - sum;
-//   			scoreBeets.push(sumRound);
-//   		}
-//   		else {
-//   	// if odd and >= 1,
-//   	//don't just round but ceiling the amount up by by one for simplicity 
-//   	//(no more negatives to deal with)
-// 			sumRound = Math.ceil(sum) - sum; 
-//   			if (Math.abs(sum + sumRound) % 2 == 1 && (sum + sumRound) >= 3) {
-//   				//if this new, larger sumround plus sum 
-//   				//will add up to an odd number like 3, 5, etc add one more to it
-//   				sumRound = sumRound + 1;
-//  				}
-//   	//add the time to the array to make it a full even measure count
-//   			scoreBeets.push(sumRound);
-//   		}
-//   	//	return scoreBeets;
-//   	}
-//   	return scoreBeets;
-// };
-
-// function NotesReturn (len){
-// 	var notes = [];
-// 	for (var i = 0; i < len; i++){
-// 		notes.push(ranNotes[floor(random(ranNotes.length))])
-// 	}
-// 	return notes;
-// };
-
 function GroupSynths(q) {
-	var effectsTypes = ['delay', 'schizo', 'vibrato']
+	var effectsTypes = ['delay', 'schizo', 'vibrato'],
 	// opportunity to return different bus effects based on circumstance
 	// bass must be last entry in kinds
-	var kinds = ['pad', 'lead', 'bass'], synthKinds = [];
+	kinds = ['pad', 'lead', 'bass'], synthKinds = [];
 	// q is number of instruments to create
 	for (var i = 0; i <= q; i++){
+		var b;
+		b = Bus();
 		// if one bass exists already
 		if (synthKinds.indexOf('bass') > -1) {
 			//var k = kinds[floor(random((kinds.length - 1)))];
 			var k = 'lead';
 			synth = new SynthCreate(i, k, 'oo');
-			synth.make(k);
+			synth.make();
 			synthKinds.push(k);
-			console.log(k + synthKinds[i]);
-
 		}
 		 else {
-			var k = 'lead';
+			var k = 'lead', fxAmount = floor(random(3));
 			synth = new SynthCreate(i, k, 'oo');
 			synth.make(k);
 			synthKinds.push(k);
-			effect = new EFXCreate(i, effectsTypes[floor(random(effectsTypes.length))]);
-			effect.make()
+			//create the effects bus for each synthesizer
+			for (var j = 0; j < fxAmount; j++){
+				effect = new EFXCreate(i, effectsTypes[floor(random(effectsTypes.length))], b);
+				effect.make()
+			//	b.fx.add (name)
+			}
+			busses.push(b);
+
 			console.log(synthKinds[i]);
 		}
 	};
@@ -346,17 +313,12 @@ function SynthCreate(name, kind, pre) {
   }
 }
 
-function EFXCreate(name, kind) {
-	console.log('efxcreate ' + name + kind)
-	
-	//var ampVar = .5, 
+function EFXCreate(name, kind, buss) {
 	var efX = [Delay, Schizo, Crush, Tremolo, Vibrato];
-	  // name - name object, kind - role of instrument (lead, pad etc), pre- preset,
-	  //reference item by spot in syns array... 
-	  presetVibratoArray = ['light', 'warped'],
-	  presetCrushArray = ['clean', 'lowSamp', 'dirty'],
-	  presetDelayArray = ['endless', 'wobbler', 'nightChill'], 
-	  presetSchizoArray = ['sane', 'borderline', 'pitchless'];
+	presetVibratoArray = ['light', 'warped'],
+	presetCrushArray = ['clean', 'lowSamp', 'dirty'],
+	presetDelayArray = ['endless', 'wobbler', 'nightChill'], 
+	presetSchizoArray = ['sane', 'borderline', 'pitchless'];
 	this.name = name;
 	   
 	this.make = function() {
@@ -377,16 +339,16 @@ function EFXCreate(name, kind) {
 			efxKind = Vibrato;
 		}
 		name = efxKind(pre)
+
+		buss.fx.add(name);
 		//name.time = [1/4,1/12,1/12,1/4,1/12,1/12];
 
 	
-		console.log(name + ' . ' + efxKind + ' . ' + pre + ' . ' + name)
 	// if want to add fx, call fxObj = new FX(blah blah)
 	//fxObj.make();
 	//name.fx.add(fxObj);
-		b = Bus().fx.add (name)
-		console.log(b + ' b b b b ');
-		busses.push(b);
+		
+		
 	//name._;
 	    // pluck is very quiet
 	}
