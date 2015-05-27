@@ -82,7 +82,7 @@ function add(a, b) {
 }
 
 function NewScore() {
-	var count = 0, bussed = [];
+	var count = 0;
 	a = Seq( function() { 
 // array of objects to change, objects to stop and objcts to leave alone?
 	for (i = 0; i < syns.length; i++){
@@ -90,6 +90,7 @@ function NewScore() {
 		fS = Follow (syn);
     	fols.push(fS);
 		Updater(syn, i);
+		EffectsUpdater(syn, i);
 		//updater should be changer of music, 
 		//should also be an effects updater
 
@@ -99,7 +100,7 @@ function NewScore() {
 		//follow moves to the follow (fx[fx.length])
 	}
 	randomCount = floor(random(1,3));
-	console.log( count++ ) }, randomCount ) // every one measures
+	console.log( count++ + randomCount) }, randomCount ) // every one measures
 }
 
 function CoinReturn() {
@@ -112,11 +113,9 @@ function Stopper () {
 }
 function Updater (synth, place) {
 	var stop = false;
-	// stopper is value of synth to get stopped, calling it randomly right now
-	stopper = -1;
 	// flip a coin
 	if (CoinReturn() == 1){
-		if (CoinReturn()== 1){
+		if (CoinReturn() == 1){
 			console.log("hi")
 			// if coin is 1, still return notes
 			// can be wholebeetsreturn OR supportbeetsreturn OR something else, based on conditions
@@ -126,17 +125,9 @@ function Updater (synth, place) {
 		}
 		else {
 			//if coin is 0, stop that randomly chosen sequences
-			//a.seq.stop();
 			stop = true;
 			synth.seq.stop();
-			// stopper = floor(random(syns.length));
-			// effector = floor(random(syns.length));
-			//console.log("should have stopped" + "effector" + effector)
 		}
-		// bR2 = Harmony.beetsReturn(2, floor(random(1,8)));
-		// nR2 = Harmony.notesReturn(0, bR2.length, bR2.length);
-		// effector = floor(random(syns.length));
-
 	}
 	else {
 		bR = Harmony.wholeBeetsReturn(2, floor(random(1,8)));
@@ -149,6 +140,23 @@ function Updater (synth, place) {
 	}
 	else {
 		synth.note.seq(nR, bR)
+	}
+}
+
+function EffectsUpdater (synth, place) {
+	var clear = false, coin = CoinReturn();
+	if (coin == 1){
+		var anotherCoin = CoinReturn();
+		if (anotherCoin == 1) {
+			console.log("effects" + synth)
+			//change effects
+		}
+		else {
+			//clear effects
+		}
+	}
+	else {
+		//modify existing effects
 	}
 }
 // if (i == stopper) {
