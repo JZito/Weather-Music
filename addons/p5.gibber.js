@@ -10267,6 +10267,14 @@ module.exports = function( Gibber ) {
       rate:5, amount:.95, offset:2500
     }
   }
+
+  // FX.Presets.LPF = {
+  //   rising: {
+  //     cutoff: Gibber.Audio.Core.Binops.Add(.25, Gibber.Audio.Oscillators.Sine(.1,.2)._),
+  //     resonance: 2
+  //   }
+
+  // }
   
   FX.Presets.Crush = {
     clean: {

@@ -3,8 +3,10 @@ var ranNotes = [12,11,9,7,5,4,2,0,-1],
 beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
 bR, nR, bR2, nR2, randomCount = 4, stopper, syns = [], busses = [], effector, fols= [],
 presetVibratoArray = ['light', 'warped'],presetCrushArray = ['clean', 'lowSamp', 'dirty'],
+effectsTypes = [],
 presetDelayArray = ['endless', 'wobbler', 'nightChill'], 
-presetSchizoArray = ['sane', 'borderline', 'pitchless'];
+presetSchizoArray = ['sane', 'borderline', 'pitchless'],
+presetLPFArray = ['rising'];
 function setup () {
 	canvas = createCanvas( windowWidth, windowHeight );
 	newColor0 = color(247, 75, 43, 127);
@@ -16,6 +18,7 @@ function setup () {
 	bgCol = color(255,14,14,255);
 	bgColA = color(175,14,14,255);
 	colors = [newColor0, newColor1, newColor2, newColor3, newColor4, newColor5];
+	effectsTypes = [LPF, Delay, Schizo, Vibrato];
 	Clock.bpm(floor(random(55,75)))
 	//songBus = Bus().fx.add( Reverb('large'))
 	 drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
@@ -106,7 +109,7 @@ function Stopper () {
 ////////////// end of effects mixer function			// 
 
 function GroupSynths(q) {
-	var effectsTypes = ['delay', 'schizo', 'vibrato'],
+	
 	// opportunity to return different bus effects based on circumstance
 	// bass must be last entry in kinds
 	kinds = ['pad', 'lead', 'bass'], synthKinds = [];
@@ -129,7 +132,8 @@ function GroupSynths(q) {
 			synthKinds.push(k);
 			//create the effects bus for each synthesizer
 			for (var j = 0; j < fxAmount; j++){
-				effect = new EFXCreate(i, effectsTypes[floor(random(effectsTypes.length))], b);
+				var e = floor(random(effectsTypes.length))
+				effect = new EFXCreate(i, e, b);
 				effect.make()
 			//	b.fx.add (name)
 			}
@@ -213,27 +217,36 @@ function SynthCreate(name, kind, pre) {
   }
 }
 
-function EFXCreate(name, kind, buss) {
-	var efX = [Delay, Schizo, Crush, Tremolo, Vibrato];
+function EFXCreate(name, place, buss) {
+	//var efX = [LPF, Delay, Schizo, Crush, Tremolo, Vibrato];
 	this.name = name;
 	   
 	this.make = function() {
-		var efxKind, pre;
-		if (kind == 'delay') {
-	   		pre = presetDelayArray[floor(random(presetDelayArray.length))];
-		//ampVar = .2
-			efxKind = Delay;
-			//maybe push an array full of variables to declare post creation? 
-			//.time, .length, .blah blah custom stuff ?
-		}
-		else if (kind == 'schizo') {
-			pre = presetSchizoArray[floor(random(presetSchizoArray.length))]
-			efxKind = Schizo;
-		}
-		else if (kind == 'vibrato'){
-			pre = presetVibratoArray[floor(random(presetVibratoArray.length))]
-			efxKind = Vibrato;
-		}
+		var efxKind, pre, efxID;
+		
+		//convert string to object name
+		efxKind =  effectsTypes[place];
+		efxID = "preset" + effectsTypes[place].name.toString()+ "Array";
+		console.log(efxID);
+		// if (kind == 'delay') {
+	 //   		pre = presetDelayArray[floor(random(presetDelayArray.length))];
+		// //ampVar = .2
+		// 	//efxKind = Delay;
+		// 	//maybe push an array full of variables to declare post creation? 
+		// 	//.time, .length, .blah blah custom stuff ?
+		// }
+		// else if (kind == 'schizo') {
+		// 	pre = presetSchizoArray[floor(random(presetSchizoArray.length))];
+		// //	efxKind = Schizo;
+		// }
+		// else if (kind == 'vibrato'){
+		// 	pre = presetVibratoArray[floor(random(presetVibratoArray.length))];
+		// //	efxKind = Vibrato;
+		// }
+		// else if (kind == 'lpf'){
+		// 	pre = presetLPFArray[floor(random(presetLPFArray.length))];
+		// //	efxKind = LPF;
+		// }
 		name = efxKind(pre)
 
 		buss.fx.add(name);
@@ -325,31 +338,49 @@ function Updater (p) {
 
 function EffectsUpdater (place) {
 	var clear = false, coin = CoinReturn(), theBus = busses[place], anotherCoin = CoinReturn(),
-	boop =	floor(random(1, theBus.fx.length));
+	boop =	floor(random(theBus.fx.length));
 	//	if (anotherCoin == 1) {
 			//console.log("effects" + synth)
 			var effector = theBus.fx[boop];
 			if (effector){
-				// var effx = getKeys(effector);
-				// var oneEffx = getKeys(effx[floor(random(effx.length))]);	
-				 console.log(effector);
+
+				 console.log(effector.name);
+				console.log(listAllProperties(effector));
+				// if effector.name is indexof effects,
+				//take effector and choose one of its matching properties arrays
+				// if 
+				//for some, up to all, of the properties to change
+				//differentiate between specific properties and range properties
+				//easiest way to do range is add a sine
+				//
+				if (effector.name == 'LPF')
+				{
+					//var rLPFProp = [cutoff[0,1], resonance[0,5] ];
+				}
+
 				// console.log(oneEffx);
 				//this shit is not working, rethink this approach 
 				//come back to it tomorrow
 				if (effector.name == 'Schizo'){
 					console.log("it's a schizo")
-					var beep = presetSchizoArray[floor(random(presetSchizoArray.length))]
-					effector({preset:beep})
+					var beep = presetSchizoArray[floor(random(presetSchizoArray.length))];
+				//	pre = 
+				//	effector({preset:beep})
 				}
-				else if (effector.name == 'Delay'){
-					console.log("it's a delay");
-					var bip = presetDelayArray[floor(random(presetDelayArray.length))];
-					effector({preset:bip})
-				}
-				else if (effector.name == 'Vibrato') {
-					console.log ("it's a vibrato")
-					effector(presetVibratoArray[floor(random(presetVibratoArray.length))])
-				}
+				// else if (effector.name == 'Delay'){
+				// 	console.log("it's a delay");
+				// 	var bip = propertiesDelayArray[floor(random(propertiesDelayArray.length))];
+				// 	//delay properties plus range
+				// 	//feedback
+				// 	//sub array, min and max
+				// 	//time
+				// 	//sub array, min and max
+				// 	effector({preset:bip})
+				// }
+				// else if (effector.name == 'Vibrato') {
+				// 	console.log ("it's a vibrato")
+				// 	effector(propertiesVibratoArray[floor(random(propertiesVibratoArray.length))])
+				// }
 
 
 			}
@@ -365,14 +396,6 @@ function EffectsUpdater (place) {
 	// else {
 		//modify existing effects
 	// }
-}
-
-var getKeys = function(obj){
-   var keys = [];
-   for(var key in obj){
-      keys.push(key);
-   }
-   return keys;
 }
 
 Harmony = (function () {
@@ -589,6 +612,17 @@ Harmony = (function () {
   	};
 
 })();
+
+function listAllProperties(o){     
+	var objectToInspect;     
+	var result = [];
+	
+	for(objectToInspect = o; objectToInspect !== null; objectToInspect = Object.getPrototypeOf(objectToInspect)){  
+		result = result.concat(Object.getOwnPropertyNames(objectToInspect));  
+	}
+	
+	return result; 
+}
 
 
 
