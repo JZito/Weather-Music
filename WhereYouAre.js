@@ -1,7 +1,8 @@
 // sandbox
 var ranNotes = [12,11,9,7,5,4,2,0,-1],
 beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
-bR, nR, bR2, nR2, randomCount = 4, stopper, syns = [], busses = [], effector, fols= [];
+bR, nR, bR2, nR2, randomCount = 4, stopper, syns = [], busses = [], effector, fols= [],
+effectsTypes = [], effectsProperties = [];
 function setup () {
 	canvas = createCanvas( windowWidth, windowHeight );
 	newColor0 = color(247, 75, 43, 127);
@@ -13,7 +14,13 @@ function setup () {
 	bgCol = color(255,14,14,255);
 	bgColA = color(175,14,14,255);
 	colors = [newColor0, newColor1, newColor2, newColor3, newColor4, newColor5];
-	Clock.bpm(floor(random(55,75)))
+	Clock.bpm(floor(random(55,75)));
+	effectsTypes = [ [LPF, 'rising']  , [Delay, 'endless', 'wobbler', 'nightChill'],
+	[Schizo, 'sane', 'borderline', 'pitchless'], [Vibrato, 'light', 'warped']];
+	effectsProperties = [ ['LPF', ['cutoff',0,1], ['resonance', 0,5] ]  , ['Delay', ['time',0,1], ['feedback', 0,5]],
+	['Schizo', ['chance', 0,1], ['reverseChance',0,1], ['pitchChance', 0,1], ['mix',0, 1],
+      ['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,20], ['offset',25,2500 ], ['amount', 25,300]]];
+	//can set it up so if only two numbers, treat it as range, otherwise, treat it as multi option specific picker
 	//songBus = Bus().fx.add( Reverb('large'))
 	 drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
 	 drum.fx.add(Crush('lowSamp'))
@@ -103,9 +110,7 @@ function Stopper () {
 ////////////// end of effects mixer function			// 
 
 function GroupSynths(q) {
-	var effectsTypes = [ [LPF, 'rising']  , [Delay, 'endless', 'wobbler', 'nightChill'],
-	[Schizo, 'sane', 'borderline', 'pitchless'], [Vibrato, 'light', 'warped']],
-	effectsTypesStrings = ['LPF', 'Delay', 'Schizo', 'Vibrato'],
+	var 
 	// opportunity to return different bus effects based on circumstance
 	// bass must be last entry in kinds
 	kinds = ['pad', 'lead', 'bass'], synthKinds = [];
@@ -222,45 +227,10 @@ function EFXCreate(name, kind, kindPre, buss) {
 	   
 	this.make = function() {
 		var efxKind, pre;
-		//console.log(efxID + " efxID " + kind + " kind " + efxID[floor(random(efxID.length))] + " efx id array");
-		efxKind = kind
-		//console.log(kindPre)
+		efxKind = kind;
 		pre = kindPre;
-		//pre = efxID[floor(random(efxID.length))];
-		//console.log(testThing)
-
-		// if (kind == 'delay') {
-	 //   		pre = presetDelayArray[floor(random(presetDelayArray.length))];
-		// //ampVar = .2
-		// 	efxKind = Delay;
-		// 	//maybe push an array full of variables to declare post creation? 
-		// 	//.time, .length, .blah blah custom stuff ?
-		// }
-		// else if (kind == 'schizo') {
-		// 	pre = presetSchizoArray[floor(random(presetSchizoArray.length))];
-		// 	efxKind = Schizo;
-		// }
-		// else if (kind == 'vibrato'){
-		// 	pre = presetVibratoArray[floor(random(presetVibratoArray.length))];
-		// 	efxKind = Vibrato;
-		// }
-		// else if (kind == 'lpf'){
-		// 	pre = presetVibratoArray[floor(random(presetLPFArray.length))];
-		// 	efxKind = LPF;
-		// }
 		name = efxKind(pre)
-
 		buss.fx.add(name);
-		//name.time = [1/4,1/12,1/12,1/4,1/12,1/12];
-
-	
-	// if want to add fx, call fxObj = new FX(blah blah)
-	//fxObj.make();
-	//name.fx.add(fxObj);
-		
-		
-	//name._;
-	    // pluck is very quiet
 	}
 }
 
@@ -337,6 +307,16 @@ function Updater (p) {
 	}
 }
 
+function isItemInArray(array, item) {
+    for (var i = 0; i < array.length; i++) {
+        // This if statement depends on the format of your array
+        if (array[i][0] == item[0] && array[i][1] == item[1]) {
+            return true;   // Found it
+        }
+    }
+    return false;   // Not found
+}
+
 function EffectsUpdater (place) {
 	var clear = false, coin = CoinReturn(), theBus = busses[place], anotherCoin = CoinReturn(),
 	boop =	floor(random(theBus.fx.length));
@@ -344,9 +324,38 @@ function EffectsUpdater (place) {
 			//console.log("effects" + synth)
 			var effector = theBus.fx[boop];
 			if (effector){
+				var index, n = effector.name;
+				for (var i = 0; i < effectsProperties.length; i++) {
+					console.log(n + " name " + effectsProperties[i][0] +" properties")
+  				if (effectsProperties[i][0] == n) {
+				    index = i;
+				    break;
+				  }
+				}
+				var g = floor(random(1,effectsProperties[index].length)),
+				u = effectsProperties[index][0],
+				t = effectsProperties[index][g][0];
+				if (effectsProperties[index][g].length <= 2){
+					q = random(effectsProperties[index][g][1],effectsProperties[index][g][2]) ;
+				}
+				else if (effectsProperties[index][g].length >= 3) {
+					console.log("it's a long one");
+					q = effectsProperties[index][g][floor(random(1,effectsProperties[index][g].length))];
 
-				 console.log(effector.name);
-				console.log(listAllProperties(effector));
+				}
+				console.log(u + " " + t + " " + q + "  ");
+
+				effector.t =q;
+				console.log(effector.t + " u.t")
+
+
+				console.log("hi it worked " + index + " index")
+				// if(effectsProperties[].indexOf(effector){
+				//  console.log(effector.name);
+				//  console.log("hi yes, it exists")
+				// }
+
+				//console.log(listAllProperties(effector));
 				// if effector.name is indexof effects,
 				//take effector and choose one of its matching properties arrays
 				// if 
@@ -356,32 +365,12 @@ function EffectsUpdater (place) {
 				//
 				if (effector.name == 'LPF')
 				{
-					//var rLPFProp = [cutoff[0,1], resonance[0,5] ];
+				//	var rLPFProp = ['cutoff',[0,1], 'resonance',[0,5] ];
 				}
-
-				// console.log(oneEffx);
-				//this shit is not working, rethink this approach 
-				//come back to it tomorrow
 				if (effector.name == 'Schizo'){
 					console.log("it's a schizo")
-					// var beep = presetSchizoArray[floor(random(presetSchizoArray.length))];
-				//	pre = 
-				//	effector({preset:beep})
 				}
-				// else if (effector.name == 'Delay'){
-				// 	console.log("it's a delay");
-				// 	var bip = propertiesDelayArray[floor(random(propertiesDelayArray.length))];
-				// 	//delay properties plus range
-				// 	//feedback
-				// 	//sub array, min and max
-				// 	//time
-				// 	//sub array, min and max
-				// 	effector({preset:bip})
-				// }
-				// else if (effector.name == 'Vibrato') {
-				// 	console.log ("it's a vibrato")
-				// 	effector(propertiesVibratoArray[floor(random(propertiesVibratoArray.length))])
-				// }
+
 
 
 			}
