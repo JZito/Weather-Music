@@ -1,12 +1,7 @@
 // sandbox
 var ranNotes = [12,11,9,7,5,4,2,0,-1],
 beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
-bR, nR, bR2, nR2, randomCount = 4, stopper, syns = [], busses = [], effector, fols= [],
-presetVibratoArray = ['light', 'warped'],presetCrushArray = ['clean', 'lowSamp', 'dirty'],
-effectsTypes = [],
-presetDelayArray = ['endless', 'wobbler', 'nightChill'], 
-presetSchizoArray = ['sane', 'borderline', 'pitchless'],
-presetLPFArray = ['rising'];
+bR, nR, bR2, nR2, randomCount = 4, stopper, syns = [], busses = [], effector, fols= [];
 function setup () {
 	canvas = createCanvas( windowWidth, windowHeight );
 	newColor0 = color(247, 75, 43, 127);
@@ -18,7 +13,6 @@ function setup () {
 	bgCol = color(255,14,14,255);
 	bgColA = color(175,14,14,255);
 	colors = [newColor0, newColor1, newColor2, newColor3, newColor4, newColor5];
-	effectsTypes = [LPF, Delay, Schizo, Vibrato];
 	Clock.bpm(floor(random(55,75)))
 	//songBus = Bus().fx.add( Reverb('large'))
 	 drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
@@ -109,7 +103,9 @@ function Stopper () {
 ////////////// end of effects mixer function			// 
 
 function GroupSynths(q) {
-	
+	var effectsTypes = [ [LPF, 'rising']  , [Delay, 'endless', 'wobbler', 'nightChill'],
+	[Schizo, 'sane', 'borderline', 'pitchless'], [Vibrato, 'light', 'warped']],
+	effectsTypesStrings = ['LPF', 'Delay', 'Schizo', 'Vibrato'],
 	// opportunity to return different bus effects based on circumstance
 	// bass must be last entry in kinds
 	kinds = ['pad', 'lead', 'bass'], synthKinds = [];
@@ -121,19 +117,20 @@ function GroupSynths(q) {
 		if (synthKinds.indexOf('bass') > -1) {
 			//var k = kinds[floor(random((kinds.length - 1)))];
 			var k = 'lead';
-			synth = new SynthCreate(i, k, 'oo');
+			synth = new SynthCreate(i, k);
 			synth.make();
 			synthKinds.push(k);
 		}
 		 else {
 			var k = 'lead', fxAmount = floor(random(3));
-			synth = new SynthCreate(i, k, 'oo');
+			synth = new SynthCreate(i, k);
 			synth.make(k);
 			synthKinds.push(k);
 			//create the effects bus for each synthesizer
 			for (var j = 0; j < fxAmount; j++){
-				var e = floor(random(effectsTypes.length))
-				effect = new EFXCreate(i, e, b);
+				var e = floor(random(effectsTypes.length));
+				//console.log (e + "e");
+				effect = new EFXCreate(i, effectsTypes[e][0], effectsTypes[e][floor(random(1,effectsTypes[e].length))], b);
 				effect.make()
 			//	b.fx.add (name)
 			}
@@ -142,7 +139,7 @@ function GroupSynths(q) {
 	};
 }
 
-function SynthCreate(name, kind, pre) {
+function SynthCreate(name, kind) {
 	var ampVar = .5, 
 	presetLeadFMArray = ['bong', 'bong','clarinet', 'glockenspiel', 'glockenspiel', 'glockenspiel'],
 	presetLeadMonoArray = ['semiHorn', 'preTester'],
@@ -217,35 +214,39 @@ function SynthCreate(name, kind, pre) {
   }
 }
 
-function EFXCreate(name, place, buss) {
-	//var efX = [LPF, Delay, Schizo, Crush, Tremolo, Vibrato];
+function EFXCreate(name, kind, kindPre, buss) {
+// 	var efX = [presetLPFArray = ['rising'], presetDelayArray = , 
+// presetSchizoArray = , presetVibratoArray = ,
+//  presetCrushArray = ['clean', 'lowSamp', 'dirty']], pre;
 	this.name = name;
 	   
 	this.make = function() {
-		var efxKind, pre, efxID;
-		
-		//convert string to object name
-		efxKind =  effectsTypes[place];
-		efxID = "preset" + effectsTypes[place].name.toString()+ "Array";
-		console.log(efxID);
+		var efxKind, pre;
+		//console.log(efxID + " efxID " + kind + " kind " + efxID[floor(random(efxID.length))] + " efx id array");
+		efxKind = kind
+		//console.log(kindPre)
+		pre = kindPre;
+		//pre = efxID[floor(random(efxID.length))];
+		//console.log(testThing)
+
 		// if (kind == 'delay') {
 	 //   		pre = presetDelayArray[floor(random(presetDelayArray.length))];
 		// //ampVar = .2
-		// 	//efxKind = Delay;
+		// 	efxKind = Delay;
 		// 	//maybe push an array full of variables to declare post creation? 
 		// 	//.time, .length, .blah blah custom stuff ?
 		// }
 		// else if (kind == 'schizo') {
 		// 	pre = presetSchizoArray[floor(random(presetSchizoArray.length))];
-		// //	efxKind = Schizo;
+		// 	efxKind = Schizo;
 		// }
 		// else if (kind == 'vibrato'){
 		// 	pre = presetVibratoArray[floor(random(presetVibratoArray.length))];
-		// //	efxKind = Vibrato;
+		// 	efxKind = Vibrato;
 		// }
 		// else if (kind == 'lpf'){
-		// 	pre = presetLPFArray[floor(random(presetLPFArray.length))];
-		// //	efxKind = LPF;
+		// 	pre = presetVibratoArray[floor(random(presetLPFArray.length))];
+		// 	efxKind = LPF;
 		// }
 		name = efxKind(pre)
 
@@ -363,7 +364,7 @@ function EffectsUpdater (place) {
 				//come back to it tomorrow
 				if (effector.name == 'Schizo'){
 					console.log("it's a schizo")
-					var beep = presetSchizoArray[floor(random(presetSchizoArray.length))];
+					// var beep = presetSchizoArray[floor(random(presetSchizoArray.length))];
 				//	pre = 
 				//	effector({preset:beep})
 				}

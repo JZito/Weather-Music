@@ -10268,13 +10268,20 @@ module.exports = function( Gibber ) {
     }
   }
 
-  // FX.Presets.LPF = {
-  //   rising: {
-  //     cutoff: Gibber.Audio.Core.Binops.Add(.25, Gibber.Audio.Oscillators.Sine(.1,.2)._),
-  //     resonance: 2
-  //   }
+  FX.Presets.LPF = {
+    rising: {presetInit : function() { 
+        //this.fx.add( Delay(1/4, .35), Reverb() ) 
+        this.lfo = Gibber.Audio.Oscillators.Sine( .234375 )._
+        
+        this.lfo.amp = .075
+        this.lfo.frequency = 2
+        
+        this.cutoff = this.lfo
+      },
+      resonance: 2
+    }
 
-  // }
+  }
   
   FX.Presets.Crush = {
     clean: {
@@ -12282,8 +12289,7 @@ module.exports = function( Gibber ) {
         this.detune2 = this.lfo
       },
   		attack: Clock.maxMeasures,
-  		decay:1,
-  		cutoff:.2,
+  		decay:1
   	},
   	bass : { 
       attack: Clock.maxMeasures,
