@@ -1,7 +1,7 @@
 // sandbox
-var ranNotes = [12,11,9,7,5,4,2,0,-1], count = 0,
+var ranNotes = [12,11,9,7,5,4,2,0,-1], noteLog = [ ],
 beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
-bR, nR, bR2, nR2, randomCount = 4, stopper, syns = [], busses = [], effector, fols= [],
+bR, nR, bR2, nR2, randomCount = 4, stopper, syns = [], busses = [], currentSeqs = [], effector, fols= [],
 effectsTypes = [], effectsProperties = [];
 function setup () {
 	canvas = createCanvas( windowWidth, windowHeight );
@@ -43,8 +43,8 @@ function setup () {
 
 }
 
-function CoolSquare(w, h, r, c, v){
-	rectMode(CENTER)
+function CoolSquare(w, h, r, c, v, t){
+	h = wh / t;
 	fill(c);
 	strokeWeight(v);
 	rect(w, h, r, h);
@@ -61,7 +61,7 @@ function draw () {
 
 		//        if width greater than height, use wh * value, otherwise use ww2 * value
 	    radius = ( wh > ww2 ? ww2 * value: wh * value);
-		CoolSquare(ww2, wh, radius, col, value  );
+		CoolSquare(ww2, wh, radius, col, value, i  );
 	}
 }
 
@@ -94,7 +94,6 @@ function add(a, b) {
 
 function CoinReturn() {
 	var coin = Math.round(Math.random()*1.5);
-	console.log(coin + "coin")
 	return coin;
 }
 
@@ -239,7 +238,9 @@ function EFXCreate(name, kind, kindPre, buss) {
 }
 
 function NewScore() {
+	var count = 0;
 	for (k = 0; k < syns.length; k++ ) {
+		//assign each synth to its respective follow for visual representation
 		var f = k;
 		syns[f][0]._
 		syns[f][0].send(busses[k], 1);
@@ -247,11 +248,12 @@ function NewScore() {
 		fols.push(f);
 	}
 	a = Seq( function() { 
+		console.log(count + "count at beginning")
 		//have a count to determine how many synth gets switched and which doesn't, not just length of array
 // array of objects to change, objects to stop and objcts to leave alone?
 	for (i = 0; i < syns.length; i++){
 		var syn = syns[i][0];
-		Updater(i);
+		Updater(i, count);
 		EffectsUpdater(i);
 		//syn.note.seq([12,12,11], [1/2,1/2,1/16])
 		//updater should be changer of music, 
@@ -262,46 +264,56 @@ function NewScore() {
 		//if the effects has updated, change it
 		//follow moves to the follow (fx[fx.length])
 	}
+	noteLog.push(currentSeqs)
 	randomCount = 4;
 	console.log( count++ + " count " + randomCount) }, randomCount ) // every one measures
 }
 
 function UpdaterTest (p) {
-	var bR = Harmony.wholeBeetsReturn(.5, floor(random(1,6))),
+	var nRbR=[], bR = Harmony.wholeBeetsReturn(.5, floor(random(1,6))),
 	nR = Harmony.melodyReturn(0, bR.length, bR.length),
 	synth = syns[p][0], coin = CoinReturn();
 	if (coin == 1){
-		console.log (p + 'coin is 1')
-		synth.note.seq([12,12,12,11], [1/12])
+		synth.note.seq(nR,bR)
 	}
 	else if (coin == 0) {
-		synth.note.seq(nR, bR);
+		//synth.note.seq(nR, bR);
 	}
 }
 
-function Updater (p) {
+//synth count notes beats
+//
+
+function Updater (p, c) {
 	var nR, bR;
 	//p is place, place in syns index/for loop
+	// c is count
 	var stop = false, ignore = false, coin = CoinReturn(), synth = syns[p][0],
 	synthKind = syns[p][1];
 	// flip a coin
-	console.log(p + " . .  "+ coin)
+	//console.log(p + " . .  "+ coin)
 	if (coin == 1){
 		var anotherCoin = CoinReturn();
 		if (anotherCoin == 1){
-			ignore = true;
-			console.log("another coin 1")
-			 bR = synth.note.seq.durations;
-			nR = synth.note.seq.notes;
-			 console.log (bR + " br " + nR + " nr " )
-			// //just keep it going
+			if (c == 0) {
+				bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
+				nR = Harmony.melodyReturn(0, bR.length, bR.length);
+			}
+			else if (c >= 1){
+				ignore = true;
+				nR = noteLog[c -1 ][p][0];
+				bR =noteLog[c - 1][p][1];
+				console.log ("ignore " + nR + bR);
+			// new entry is previous entry
+			//array [bloo][blah] = array [ bloo-1][blah]
+			}
 		}
-		else if (count == 0) {
+		else if (c == 0) {
 			bR = Harmony.wholeBeetsReturn(4, floor(random(1,8)));
 		nR = Harmony.melodyReturn(0, bR.length, bR.length);
 
 		}
-		else if (count == 0 || count ==1 ) {
+		else if (c >=1 ) {
 			stop = true;
 		}
 	}
@@ -318,6 +330,21 @@ function Updater (p) {
 	else if (!stop && !ignore) {
 		synth.note.seq(nR, bR)
 	}
+	//array now
+	//count is the i position, setting the point in the top array
+	//bottom array includes everything else, 0 will always be synth
+	//1 will aways be nR array, 2 will always be bR array
+	var combo = [];
+	combo[0] = nR;
+	combo[1] = bR;
+	console.log(c + " " + ". " + " " + p + " " + " " + combo + " " + " combo");
+	var currentSeqsToPush = [];
+	currentSeqsToPush[0] = p;
+	currentSeqsToPush[1] = combo;
+	currentSeqs[p] = currentSeqsToPush;
+	console.log(c + "c" + p + " name " + nR + "nr" + bR + "br")
+	//noteLog[c].push([synth.name, nR, bR])
+	//console.log(noteLog[c][p][0] + " notelog c p 0 ")
 
 }
 
@@ -335,42 +362,36 @@ function EffectsUpdater (place) {
 	var clear = false, coin = CoinReturn(), theBus = busses[place], anotherCoin = CoinReturn(),
 	boop =	floor(random(theBus.fx.length));
 	//	if (anotherCoin == 1) {
-		console.log(boop + "boop")
 			var effector = theBus.fx[boop];
 			if (effector){
 				var index, n = effector.name;
 				//get the place of the effector.name in the presets/properties array
 				for (var i = 0; i < effectsProperties.length; i++) {
-					console.log(n + " name " + effectsProperties[i][0] +" properties")
-  				if (effectsProperties[i][0] == n) {
-				    index = i;
-				    break;
-				  }
+					if (effectsProperties[i][0] == n) {
+				    	index = i;
+				    	break;
+				  	}	
 				}
 				// get random number length of the effects properties of this particular effect
 				var g = floor(random(1,effectsProperties[index].length)),
 				// it is the property to change
 				low = effectsProperties[index][g][1], high = effectsProperties[index][g][2];
-					console.log(low + "low " + high + "high" + effectsProperties[index][g][0] + "name");
 				it = effectsProperties[index][g][0];
 				// if this only has two entries (min, max ((plus its name at [0]))
 				if (effectsProperties[index][g].length <= 3){
-					console.log("it's shorter")
 					q = random(low, high) ;
 				}
 				//if it has more than two, it's probably specific/time based so choose a specific entry
 				else if (effectsProperties[index][g].length >= 4) {
-					console.log("it's a long one");
 					q = effectsProperties[index][g][4];
 				//	q = random(effectsProperties[index][g][1],effectsProperties[index][g][2]) ;
 
 				}
 				effector.it =q;
 				fols[place] = Follow(busses[place]);
-				console.log(effector.it + " u.t")
 			}
 			else if (!effector) {
-				console.log ("undefineddd bggiihh" + boop)
+				console.log ("no effector     " + boop)
 			}
 			//change effects
 	//	}
