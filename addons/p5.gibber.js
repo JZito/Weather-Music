@@ -10186,9 +10186,9 @@ module.exports = function( Gibber ) {
 
   FX.Presets.Delay = {
     endless: {
-      feedback: .99,
+      feedback: .95,
       time: 1/6,
-      dry: 0,
+      dry: 0.01,
       wet: 1
     },
     nightChill: {
@@ -10201,7 +10201,7 @@ module.exports = function( Gibber ) {
       time: 1/3,
       feedback:.6,
       wet: 1,
-      dry:0
+      dry:.4
     }
   };
   
