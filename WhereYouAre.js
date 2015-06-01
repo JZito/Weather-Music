@@ -1,10 +1,11 @@
 // sandbox
 var ranNotes = [12,11,9,7,5,4,2,0,-1], noteLog = [ ],
 beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
-bR, nR, bR2, nR2, randomCount = 4, stopper, syns = [], busses = [], currentSeqs = [], effector, fols= [],
+bR, nR, bR2, nR2, bw, columns, space, randomCount = 4, stopper, syns = [], busses = [], currentSeqs = [], effector, fols= [],
 effectsTypes = [], effectsProperties = [];
 function setup () {
 	canvas = createCanvas( windowWidth, windowHeight );
+	console.log("windowWidth" + windowWidth + " window height" + windowHeight)
 	newColor0 = color(247, 75, 43, 127);
 	newColor1 = color (200, 38, 8, 127);
 	newColor2 = color(255, 214, 147, 127);
@@ -24,35 +25,31 @@ function setup () {
 	//songBus = Bus().fx.add( Reverb('large'))
 	 drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
 	 drum.fx.add(Crush('lowSamp'))
-	// // m = Mono('semiHorn')
-	// m2 = Synth('bleep')
-	// m1 = Synth2('rainTri')
-	// //drum.send(songBus, .25)
-	// m.send(songBus, .45)
-	// m2.send(songBus, 1)
-	// songBus.amp(1);
- 
-	// syns.push(m);
-	// syns.push(m2);
-	// syns.push(m1);
-	GroupSynths(2);
+	GroupSynths(4);
 	NewScore();
-	mult = [10,20,14,16];
+	mult = [200,200,200,200,2,2,2];
 	ww2 = windowWidth; 
 	wh = windowHeight / 2;
+	bw = 150;
+	columns = Math.floor(windowWidth / bw);
+	//space = (windowWidth - (bw * columns)) / columns;
+	console.log(windowWidth + "w" + columns + "columns" + bw + " bw " + (bw*columns) + " bw * columns");
 
 }
 
+
+
+
 function CoolSquare(w, h, r, c, v, t){
-	h = wh / t;
+	rectMode(RADIUS);
 	fill(c);
 	strokeWeight(v);
-	rect(w, h, r, h);
+	rect(bw*(t*2), h, (200 + (v * 5)), (200 - (v * 5) ), 50, 50, 100, 100)
 }
 
 function draw () {
 	//var ;
-		noStroke();
+	noStroke();
     fill(bgCol);
     rect(0, 0, width, height); 
 	for (var i = 0; i < fols.length; i++){
@@ -60,9 +57,30 @@ function draw () {
 		value = gV * m, col = colors[i],
 
 		//        if width greater than height, use wh * value, otherwise use ww2 * value
-	    radius = ( wh > ww2 ? ww2 * value: wh * value);
+	    radius = ( ww2 > wh ? wh * value: ww2 * value);
 		CoolSquare(ww2, wh, radius, col, value, i  );
 	}
+}
+
+function keyPressed()
+{
+  // R key
+  if(key == 'R' || key == 'r')
+  {
+   	console.log("R")
+  }
+ 
+  // G key
+  if(key == 'G' || key == 'g')
+  {
+    console.log("G")
+  }
+  
+  // B key
+  if(key == 'B' || key == 'b')
+  {
+    console.log("B")
+  }
 }
 
  // function CheckTheTime(time) //function check the time
@@ -255,14 +273,6 @@ function NewScore() {
 		var syn = syns[i][0];
 		Updater(i, count);
 		EffectsUpdater(i);
-		//syn.note.seq([12,12,11], [1/2,1/2,1/16])
-		//updater should be changer of music, 
-		//should also be an effects updater
-
-		//check where each follow is at and revise it as necessary
-		//there's a music update function as well as an effects update
-		//if the effects has updated, change it
-		//follow moves to the follow (fx[fx.length])
 	}
 	noteLog.push(currentSeqs)
 	randomCount = 4;
@@ -300,16 +310,25 @@ function Updater (p, c) {
 				nR = Harmony.melodyReturn(0, bR.length, bR.length);
 			}
 			else if (c >= 1){
-				ignore = true;
-				nR = noteLog[c -1 ][p][0];
-				bR =noteLog[c - 1][p][1];
+				if (!noteLog[c-1][p][0]){
+					console.log("it  is undefined ");
+					bR = Harmony.wholeBeetsReturn(1, floor(random(3,12)));
+					nR = Harmony.melodyReturn(12, bR.length, bR.length);
+				}
+				else {
+					console.log("it is defined");
+					ignore = true;
+					nR = noteLog[c -1 ][p][0];
+					bR =noteLog[c - 1][p][1];
+				}
+				
 				console.log ("ignore " + nR + bR);
 			// new entry is previous entry
 			//array [bloo][blah] = array [ bloo-1][blah]
 			}
 		}
 		else if (c == 0) {
-			bR = Harmony.wholeBeetsReturn(4, floor(random(1,8)));
+			bR = Harmony.wholeBeetsReturn(2, floor(random(1,8)));
 		nR = Harmony.melodyReturn(0, bR.length, bR.length);
 
 		}
@@ -342,7 +361,7 @@ function Updater (p, c) {
 	currentSeqsToPush[0] = p;
 	currentSeqsToPush[1] = combo;
 	currentSeqs[p] = currentSeqsToPush;
-	console.log(c + "c" + p + " name " + nR + "nr" + bR + "br")
+	//console.log(c + "c" + p + " name " + nR + "nr" + bR + "br")
 	//noteLog[c].push([synth.name, nR, bR])
 	//console.log(noteLog[c][p][0] + " notelog c p 0 ")
 
