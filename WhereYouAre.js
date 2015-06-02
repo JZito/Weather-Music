@@ -20,11 +20,11 @@ function setup () {
 	[Schizo, 'sane', 'borderline', 'pitchless'], [Vibrato, 'light', 'warped']];
 	effectsProperties = [ ['LPF', ['cutoff',0,1], ['resonance', 0,5] ]  , ['Delay', ['time',0,1], ['feedback', 0,5]],
 	['Schizo', ['chance', 0,1], ['reverseChance',0,1], ['pitchChance', 0,1], ['mix',0, 1],
-      ['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,20], ['offset',25,2500 ], ['amount', 25,300]]];
+    ['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,20], ['offset',25,2500 ], ['amount', 25,300]]];
 	//can set it up so if only two numbers, treat it as range, otherwise, treat it as multi option specific picker
 	//songBus = Bus().fx.add( Reverb('large'))
-	 drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
-	 drum.fx.add(Crush('lowSamp'))
+	drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
+	drum.fx.add(Crush('lowSamp'))
 	GroupSynths(4);
 	NewScore();
 	mult = [200,200,200,200,2,2,2];
@@ -36,9 +36,6 @@ function setup () {
 	console.log(windowWidth + "w" + columns + "columns" + bw + " bw " + (bw*columns) + " bw * columns");
 
 }
-
-
-
 
 function CoolSquare(w, h, r, c, v, t){
 	rectMode(RADIUS);
@@ -62,50 +59,6 @@ function draw () {
 	}
 }
 
-function keyPressed()
-{
-  // R key
-  if(key == 'R' || key == 'r')
-  {
-   	console.log("R")
-  }
- 
-  // G key
-  if(key == 'G' || key == 'g')
-  {
-    console.log("G")
-  }
-  
-  // B key
-  if(key == 'B' || key == 'b')
-  {
-    console.log("B")
-  }
-}
-
- // function CheckTheTime(time) //function check the time
- // {
- //    var previousState = state; 
- //    if (time == 29) 
- //    {
- //      state = 'change'; 
- //    }
- //    else if (time == 59) 
- //    {
- //      state = 'change'; 
- //    }
- //    else if (time != 29 || time != 59) 
- //    {
- //     state = 'noChange'; 
- //    }
- //    if (state != previousState) //state != previousState
- //    {
- //     // call weather function
- //     //loadJSON('http://api.openweathermap.org/data/2.5/weather?q=New%20York,NY&units=imperial', gotWeather);
- //    print ("call weather change function")
- //   }
- // }
-
 function add(a, b) {
 	return a + b;
 }
@@ -119,30 +72,18 @@ function Stopper () {
 
 }
 
-
-// if (i == stopper) {
-				
-// 		 	}
-
-////////// begin effects mixer and follow function /////////
-
-
-
-////////////// end of effects mixer function			// 
-
 function GroupSynths(q) {
-	var 
-	// opportunity to return different bus effects based on circumstance
+	
 	// bass must be last entry in kinds
-	kinds = ['pad', 'lead', 'bass'], synthKinds = [];
+	var kinds = ['pad', 'lead', 'bass'], synthKinds = [];
 	// q is number of instruments to create
 	for (var i = 0; i <= q; i++){
 		var b;
 		b = Bus();
 		// if one bass exists already
 		if (synthKinds.indexOf('bass') > -1) {
-			//var k = kinds[floor(random((kinds.length - 1)))];
-			var k = 'lead';
+			var k = kinds[floor(random((kinds.length - 1)))];
+			//var k = 'lead';
 			synth = new SynthCreate(i, k);
 			synth.make();
 			synthKinds.push(k);
