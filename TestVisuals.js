@@ -37,7 +37,7 @@ function setup() {
       //dataWatcher = new UncontextDataWatcher(sketch);
       pixelDensity = 1;
       canvas = createCanvas(windowWidth, windowHeight);
-      colorMode(HSB, 100);
+      //colorMode(HSB, 100);
       background(0);
       //window.gibber = _this.gibber;
       Clock.bpm = 80;
@@ -85,7 +85,7 @@ function GroupSynths(q) {
 
 function SynthCreate(name, kind) {
   var ampVar = .5, 
-  presetLeadFMArray = ['bong', 'bong','clarinet', 'glockenspiel', 'glockenspiel', 'glockenspiel'],
+  presetLeadFMArray = ['bong', 'bong','glockenspiel', 'glockenspiel', 'glockenspiel'],
   presetLeadMonoArray = ['semiHorn', 'preTester'],
   presetLeadSynthArray = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin'],
   leadInstruments = [FM, Synth, Mono], padInstruments = [Synth2];
@@ -181,32 +181,32 @@ function draw() {
       //   return;
       // }
       noStroke();
-      fill(225, 100, 20, fillValue);
+     fill(130, 176, 208, 255);
       rect(0, 0,windowWidth, windowHeight);
       _ref = tracks;
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         track = _ref[i];
         switch (i) {
           case 0:
-            xOffsets[i] += data.d;
+            xOffsets[i] += 1;
             break;
           case 1:
-            xOffsets[i] += data.e;
+            xOffsets[i] += 2;
             break;
           case 2:
-            xOffsets[i] += data.f;
+            xOffsets[i] += 3;
             break;
           case 3:
-            xOffsets[i] += data.b[1];
+            xOffsets[i] += 4;
         }
-        xOffsets[i] += tracks[i].instrument.frequency / 10;
-        hues[i] += tracks[i].follow.getValue() / 10;
-        if (hues[i] > 100) {
-          hues[i] %= 100;
-        }
+        xOffsets[i] += tracks[i].instrument.frequency / 100;
+        hues[i] += tracks[i].follow.getValue() * 10;
+        // if (hues[i] > 100) {
+        //   hues[i] %= 100;
+        // }
       }
-      stroke(0, 255, 255, 20);
-      blendMode(SCREEN);
+      stroke(130, 176, 200, 20);
+      //blendMode(SCREEN);
       ref1 = tracks;
       _results = [];
       for (i = _j = 0, _len1 = ref1.length; _j < _len1; i = ++_j) {
@@ -233,16 +233,16 @@ function draw() {
 
  function renderSynth (amp, offset, hue, freq) {
       var ellipse1Size, ellipse2Size, i, lineCount, lineLength, radius, tDegrees, theta, varianceFromCenter, x1, x2, x3, y1, y2, y3, _i, _ref, _results;
-      stroke(255, 50, hue, 255);
+      //stroke(247, 200 , hue, 255);
       lineCount =floor(random(1,6));
       lineLength = amp;
-      radius = ~~(amp * windowHeight);
+      radius = ~~(amp * windowWidth);
       varianceFromCenter = amp;
       ellipse1Size = (offset >> 5) * (1);
       ellipse2Size = (offset >> 12) * (1);
       _results = [];
       for (i = 0; 0 <= lineCount-1 ? i <= lineCount-1  : _i >= lineCount-1 ; i = 0 <= lineCount-1  ? ++i : --i) {
-        stroke(255, 50, hue, 255);
+        stroke(255, 100, 100, 255);
         //fill(hue, 45, 45, 125);
         noFill();
         theta = (i * 360 / lineCount) + offset;
@@ -255,18 +255,23 @@ function draw() {
 
         line(x1, y1, x2, y2);
         rectMode(CENTER)
-        if (data.c) {
+       // if (data.c) {
           //noStroke();
-          fill(255, 100, 60, hue);
+          fill(205, 100, 60, 155);
           // change if rainy, lines descending
           ellipse(x1, y1, ellipse1Size, ellipse1Size);
-          _results.push(ellipse(x2, y2, ellipse2Size, ellipse2Size));
-         // if (ellipse1Size)
-         console.log(x1 + " " + " x1 " + y1 +" " + " y1 " + ellipse1Size + " " + " e1size " + ellipse2Size + " " + " e2size " )
-        } 
-        else {
-          _results.push(void 0);
+          if (ellipse1Size <= 200){
+          _results.push(rect(x2, y2, ellipse2Size, ellipse2Size));
+          console.log(x1 + " " + " x1 " + y1 +" " + " y1 " + ellipse1Size + " " + " e1size " + ellipse2Size + " " + " e2size " )
         }
+         // if (ellipse1Size)
+         
+      //  } 
+         else {
+         //  _results.push(void 0);
+            ellipse1Size= 0;
+                     console.log("yooooo")
+                              }
       }
       return _results;
     };
