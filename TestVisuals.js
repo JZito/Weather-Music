@@ -186,27 +186,27 @@ function draw() {
       _ref = tracks;
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         track = _ref[i];
-        switch (i) {
-          case 0:
-            xOffsets[i] += 1;
-            break;
-          case 1:
-            xOffsets[i] += 2;
-            break;
-          case 2:
-            xOffsets[i] += 3;
-            break;
-          case 3:
-            xOffsets[i] += 4;
-        }
-        xOffsets[i] += tracks[i].instrument.frequency / 100;
-        hues[i] += tracks[i].follow.getValue() * 10;
+        // switch (i) {
+        //   case 0:
+        //     xOffsets[i] += .01;
+        //     break;
+        //   case 1:
+        //     xOffsets[i] += 5;
+        //     break;
+        //   case 2:
+        //     xOffsets[i] -= 10;
+        //     break;
+        //   case 3:
+        //     xOffsets[i] += 1;
+        // }
+        xOffsets[i] += tracks[i].instrument.frequency / 10;
+        hues[i] += tracks[i].follow.getValue() / 100;
         // if (hues[i] > 100) {
         //   hues[i] %= 100;
         // }
       }
-      stroke(130, 176, 200, 20);
-      //blendMode(SCREEN);
+      stroke(0, 0, 100, 200);
+      blendMode(SOFT_LIGHT);
       ref1 = tracks;
       _results = [];
       for (i = _j = 0, _len1 = ref1.length; _j < _len1; i = ++_j) {
@@ -232,20 +232,23 @@ function draw() {
 //     };
 
  function renderSynth (amp, offset, hue, freq) {
-      var ellipse1Size, ellipse2Size, i, lineCount, lineLength, radius, tDegrees, theta, varianceFromCenter, x1, x2, x3, y1, y2, y3, _i, _ref, _results;
+      var ellipse1Size, ellipse2Size, i, lineCount, lineLength, radius, tDegrees, theta, x1, x2, x3, y1, y2, y3, _i, _ref, _results;
       //stroke(247, 200 , hue, 255);
       lineCount =floor(random(1,6));
-      lineLength = amp;
-      radius = ~~(amp * windowWidth);
-      varianceFromCenter = amp;
-      ellipse1Size = (offset >> 5) * (1);
+      lineLength = amp * freq;
+      //radius = ~~(amp * windowWidth);
+      radius = (20);
+      //varianceFromCenter = amp;
+      //varianceFromCenter = 2;
+      ellipse1Size = (amp * 500);
       ellipse2Size = (offset >> 12) * (1);
       _results = [];
       for (i = 0; 0 <= lineCount-1 ? i <= lineCount-1  : _i >= lineCount-1 ; i = 0 <= lineCount-1  ? ++i : --i) {
-        stroke(255, 100, 100, 255);
-        //fill(hue, 45, 45, 125);
+        stroke(hue, 100, 100, 255);
+        fill(hue, 45, 45, 125);
         noFill();
-        theta = (i * 360 / lineCount) + offset;
+        theta = (i * 360 / lineCount) + 2000;
+        console.log(i + " i " + offset + " offset " + " " + " " + theta + " theta");
         tDegrees = theta / 90 * Math.PI;
         x1 = middleX + (radius + 5 + lineLength) * Math.cos(tDegrees);
         y1 = middleY + (radius + 5 + lineLength) * Math.sin(tDegrees);
@@ -254,14 +257,14 @@ function draw() {
         //x4 = middleX +(radius - 5) + Math.cos
 
         line(x1, y1, x2, y2);
-        rectMode(CENTER)
+       // rectMode(CENTER)
        // if (data.c) {
-          //noStroke();
+         // noStroke();
           fill(205, 100, 60, 155);
           // change if rainy, lines descending
           ellipse(x1, y1, ellipse1Size, ellipse1Size);
           if (ellipse1Size <= 200){
-          _results.push(rect(x2, y2, ellipse2Size, ellipse2Size));
+          _results.push(ellipse(x2, y2, ellipse1Size, ellipse1Size));
           console.log(x1 + " " + " x1 " + y1 +" " + " y1 " + ellipse1Size + " " + " e1size " + ellipse2Size + " " + " e2size " )
         }
          // if (ellipse1Size)

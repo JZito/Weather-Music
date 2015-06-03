@@ -1,7 +1,7 @@
 // sandbox
 var ranNotes = [12,11,9,7,5,4,2,0,-1], noteLog = [ ],
 beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
-bR, nR, bR2, nR2, bw, columns, space, randomCount = 4, stopper, syns = [], busses = [], currentSeqs = [], effector, fols= [],
+bR, nR, bR2, nR2, sunny = true, bw, columns, space, randomCount = 4, stopper, syns = [], busses = [], currentSeqs = [], effector, fols= [],
 effectsTypes = [], effectsProperties = [];
 function setup () {
 	canvas = createCanvas( windowWidth, windowHeight );
@@ -71,6 +71,89 @@ function CoinReturn() {
 function Stopper () {
 
 }
+
+function draw() {
+      var hue, i, offsetX, track, v, _i, _j, _len, _len1, _ref, _ref1, _results;
+      if (lastBeat === 4 && gibber.Clock.currentBeat === 1) {
+        sketch.onBarChange();
+        if (barIndex % 4 === 0) {
+          sketch.onPhraseChange();
+        }
+      }
+      lastBeat = gibber.Clock.currentBeat;
+      if (!visualizer) {
+        return;
+      }
+      sketch.noStroke();
+      sketch.fill(0, 0, 0, fillValue);
+      sketch.rect(0, 0, windowWidth, windowHeight);
+      _ref = tracks;
+      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+        track = _ref[i];
+        switch (i) {
+          case 0:
+            xOffsets[i] += data.d;
+            break;
+          case 1:
+            xOffsets[i] += data.e;
+            break;
+          case 2:
+            xOffsets[i] += data.f;
+            break;
+          case 3:
+            xOffsets[i] += data.b[1];
+        }
+        xOffsets[i] += tracks[i].instrument.frequency / 10;
+        hues[i] += tracks[i].follow.getValue() / 10;
+        if (hues[i] > 100) {
+          hues[i] %= 100;
+        }
+      }
+      sketch.stroke(0, 0, 100, 20);
+      sketch.blendMode(sketch.SCREEN);
+      _ref1 = tracks;
+      _results = [];
+      for (i = _j = 0, _len1 = _ref1.length; _j < _len1; i = ++_j) {
+        track = _ref1[i];
+        v = Math.max(0, track.follow.getValue());
+        offsetX = xOffsets[i];
+        hue = hues[i];
+        _results.push(sketch.renderSynth(v, offsetX, hue, track.instrument.frequency));
+      }
+      return _results;
+    };
+  })(this);
+function renderSynth(amp, offset, hue, freq) {
+      var ellipse1Size, ellipse2Size, i, lineCount, lineLength, radius, tDegrees, theta, varianceFromCenter, x1, x2, y1, y2, _i, _ref, _results;
+      sketch.stroke(hue, 100, 50, 255);
+      lineCount = 4 + ~~(data.d * 28);
+      lineLength = amp * freq;
+      radius = ~~(amp * windowWidth);
+      varianceFromCenter = amp * 5;
+      ellipse1Size = (offset >> 7) * (1 + data.e);
+      ellipse2Size = (offset >> 12) * data.a[1];
+      _results = [];
+      for (i = = 0, ref = lineCount - 1; 0 <= ref ? _i <= ref : i >= ref; i = 0 <= ref ? ++_i : --_i) {
+        stroke(hue, 100, 50, 255);
+        noFill();
+        theta = (i * 360 / lineCount) + offset;
+        tDegrees = theta / 180 * Math.PI;
+        x1 = middleX + (radius + 5 + lineLength) * Math.cos(tDegrees);
+        y1 = middleY + (radius + 5 + lineLength) * Math.sin(tDegrees);
+        x2 = middleX + (radius + 5) * Math.cos(tDegrees);
+        y2 = middleY + (radius + 5) * Math.sin(tDegrees);
+        line(x1, y1, x2, y2);
+        if (sunny) {
+          noStroke();
+          fill(hue, 100, 50, 6);
+          ellipse(x1, y1, ellipse1Size, ellipse1Size);
+          results.push(ellipse(x2, y2, ellipse2Size, ellipse2Size));
+        } else {
+          results.push(void 0);
+        }
+      }
+      return results;
+    };
 
 function GroupSynths(q) {
 	
