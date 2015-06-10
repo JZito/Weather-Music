@@ -661,9 +661,9 @@ var Song = function (n, place) { //enclose song
 				    	steps.push(n);
 				    //  console.log(n + i + mm);
 				    }
-				  }
-				  mezhuresAlreadyAdded.push(mezhures)
-				  kindsAlreadyAdded.push(syns[m][1])
+				}
+				mezhuresAlreadyAdded.push(mezhures)
+				kindsAlreadyAdded.push(syns[m][1])
 				return steps;
 			};
 

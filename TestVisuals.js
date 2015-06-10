@@ -240,12 +240,12 @@ function draw() {
       radius = (20);
       //varianceFromCenter = amp;
       //varianceFromCenter = 2;
-      ellipse1Size = (amp * 500);
+      ellipse1Size = (offset >> 5) * 1;
       ellipse2Size = (offset >> 12) * (1);
       _results = [];
       for (i = 0; 0 <= lineCount-1 ? i <= lineCount-1  : _i >= lineCount-1 ; i = 0 <= lineCount-1  ? ++i : --i) {
         stroke(hue, 100, 100, 255);
-        fill(hue, 45, 45, 125);
+        //fill(hue, 45, 45, 125);
         noFill();
         theta = (i * 360 / lineCount) + 2000;
         console.log(i + " i " + offset + " offset " + " " + " " + theta + " theta");
@@ -262,9 +262,9 @@ function draw() {
          // noStroke();
           fill(205, 100, 60, 155);
           // change if rainy, lines descending
-          ellipse(x1, y1, ellipse1Size, ellipse1Size);
+          ellipse(x1, y1, ellipse2Size, ellipse2Size);
           if (ellipse1Size <= 200){
-          _results.push(ellipse(x2, y2, ellipse1Size, ellipse1Size));
+          _results.push(polygon(windowWidth/2, windowHeight/ 4, ellipse1Size, ellipse1Size));
           console.log(x1 + " " + " x1 " + y1 +" " + " y1 " + ellipse1Size + " " + " e1size " + ellipse2Size + " " + " e2size " )
         }
          // if (ellipse1Size)
