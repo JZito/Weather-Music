@@ -3,6 +3,7 @@ var ranNotes = [12,11,9,7,5,4,2,0,-1], noteLog = [ ],
 beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
 bR, nR, bR2, nR2, sunny = true, bw, columns, space, randomCount = 4, stopper, 
 tracks = [], syns = [], busses = [], currentSeqs = [], effector, fols= [],
+day, cloudy, rainy,
 effectsTypes = [], effectsProperties = [];
   xOffsets = [0, 0, 0, 0];
   hues = [20, 50, 70, 194 / 255];
@@ -51,18 +52,12 @@ function setup () {
     ['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,20], ['offset',25,2500 ], ['amount', 25,300]]];
 	//can set it up so if only two numbers, treat it as range, otherwise, treat it as multi option specific picker
 	//songBus = Bus().fx.add( Reverb('large'))
-	drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
-	drum.fx.add(Crush('lowSamp'))
+	// drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
+	// drum.fx.add(Crush('lowSamp'))
+	RandomWeather();
 	GroupSynths(3);
 	NewScore();
 	mult = [200,200,200,200,2,2,2];
-	ww2 = windowWidth; 
-	wh = windowHeight / 2;
-	bw = 150;
-	columns = Math.floor(windowWidth / bw);
-	//space = (windowWidth - (bw * columns)) / columns;
-	console.log(windowWidth + "w" + columns + "columns" + bw + " bw " + (bw*columns) + " bw * columns");
-
 }
 
 function CoolSquare(w, h, r, c, v, t){
@@ -118,7 +113,7 @@ function draw() {
       ref = tracks;
       for (i = 0, len = ref.length; i < len; ++i) {
         track = ref[i];
-       // console.log(data.d)
+      // console.log(data.d)
         // switch (i) {
         //   case 0:
         //     xOffsets[i] += data.d;
@@ -133,12 +128,12 @@ function draw() {
         //     xOffsets[i] += data.b[1];
         //     break;
         //   case 4:
-        //   	xOffsets[i] += 
+        //   	xOffsets[i] += data.b[1];
         // }
         xOffsets[i] += tracks[i].instrument.frequency  / 10;
-        console.log(xOffsets[i] + " " + i + " i ");
+      //  console.log(xOffsets[i] + " " + i + " i ");
         hues[i] += tracks[i].follow.getValue() / 10;
-        console.log(hues[i]);
+      //  console.log(hues[i]);
         if (hues[i] > 100) {
         	//set ceiling of hues, over 100 loops back to 1
           hues[i] %= 100;
@@ -159,6 +154,16 @@ function draw() {
       return results;
     };
 
+ function RandomWeather() {
+ 	// temperature = floor(random(33,75));
+ 	// temperatureC = floor((temperature  -  32)  *  5/9);
+ 	day = floor(random(0,2));
+ 	//night = 1;
+ 	rainy = floor(random(0,2));
+ 	//rainy = 0;
+ 	//cloudy = 1;
+ 	cloudy = floor(random(0,2));
+ }
 
 function renderSynth(amp, offset, hue, freq) {
       var ellipse1Size, ellipse2Size, i, lineCount, lineLength, radius, tDegrees, theta, varianceFromCenter, x1, x2, y1, y2, _i, ref, results;
@@ -209,7 +214,7 @@ function GroupSynths(q) {
 			synthKinds.push(k);
 		}
 		 else {
-			var k = 'lead', fxAmount = floor(random(3));
+			var k = kinds[floor(random(kinds.length))], fxAmount = floor(random(3));
 			synth = new SynthCreate(i, k);
 			synth.make(k);
 			synthKinds.push(k);
@@ -231,6 +236,8 @@ function SynthCreate(name, kind) {
 	presetLeadFMArray = ['bong', 'bong','clarinet', 'glockenspiel', 'glockenspiel', 'glockenspiel'],
 	presetLeadMonoArray = ['semiHorn', 'preTester'],
 	presetLeadSynthArray = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin'],
+	padPresets = ['cascade', 'calvin'],
+	pad2Presets = ['triTest'],
 	leadInstruments = [FM, Synth, Mono], padInstruments = [Synth2];
 	  // name - name object, kind - role of instrument (lead, pad etc), pre- preset,
 	  //reference item by spot in syns array... 
@@ -290,6 +297,7 @@ function SynthCreate(name, kind) {
 	name = instrumentKind(pre)
 	name.amp (ampVar)
 	foll = Follow(name)
+	console.log(name + " name " + kind + " kind " + pre + " pre ")
 	// if want to add fx, call fxObj = new FX(blah blah)
 	//fxObj.make();
 	//name.fx.add(fxObj);
@@ -370,87 +378,120 @@ function Updater (p, c) {
 	synthKind = syns[p][1];
 	// flip a coin
 	//console.log(p + " . .  "+ coin)
-	if (coin == 1){
+	
 	if (synthKind == 'lead') {
+		console.log(p + " " + synthKind + " lead ")
+		if (coin == 1){
+			var anotherCoin = CoinReturn();
+			if (anotherCoin == 1){
+				if (c == 0) {
+					bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
+					nR = Harmony.melodyReturn(0, bR.length, bR.length);
+				}
+				else if (c >= 1){
+					if (!noteLog[c-1][p][0]){
+						console.log("it  is undefined ");
+						bR = Harmony.wholeBeetsReturn(1, floor(random(3,12)));
+						nR = Harmony.melodyReturn(12, bR.length, bR.length);
+					}
+					else {
+						// new entry is just previous entry
+						console.log("it is defined");
+						ignore = true;
+						nR = noteLog[c -1 ][p][0];
+						bR =noteLog[c - 1][p][1];
+					}
+				}
+			}
+			else if (c == 0) {
+				bR = Harmony.wholeBeetsReturn(2, floor(random(1,8)));
+			nR = Harmony.melodyReturn(0, bR.length, bR.length);
+
+			}
+			else if (c >=1 ) {
+				stop = true;
+			}
+		}
+		else if (coin ==0){	
+			bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
+			nR = Harmony.melodyReturn(0, bR.length, bR.length);
+		}
+	}
 		//if sunny
 
 		//if cloudy
 
 		//if rainy
-	}
+	
 	else if (synthKind == 'bass') {
 	//	newM = function() {
 		if (day) {
 			//console.log('bass line' + syns[m][1] + syns[m][0]);
-			if (clearSky) {
-				nR = Harmony.bassLineReturn();
-				bV = Harmony.beetsReturn(2, floor(random(1,2)));
-				//syns[m][0].note.seq(nR, bV);
-			}
-			else if (cloudy) {
+			
+			if (cloudy) {
 				nR = Harmony.notesReturn(0, 1, 8);
-  				bV = Harmony.beetsReturn(4, floor(random(2,4)));
+  				bR = Harmony.beetsReturn(4, floor(random(2,4)));
 			}
 			else if (rainy) {
 				nR = Harmony.notesReturn(floor(random(2,4)), 2);
-  				bV = Harmony.beetsReturn(2, floor(random(1,3)));
+  				bR = Harmony.beetsReturn(2, floor(random(1,3)));
+			}
+			else if (!rainy && !cloudy) {
+				nR = Harmony.bassLineReturn();
+				bR = Harmony.beetsReturn(2, floor(random(1,2)));
+				//syns[m][0].note.seq(nR, bR);
 			}
 		}
 		else if (!day) {
-			if (clearSky) {
-				nR = Harmony.bassLineReturn();
-				bV = Harmony.beetsReturn(2, floor(random(1,2)));
-				//syns[m][0].note.seq(nR, bV);
-			}
-			else if (cloudy) {
+			
+			if (cloudy) {
 				nR = Harmony.notesReturn(0, 1, 8);
-  				bV = Harmony.beetsReturn(4, floor(random(2,4)));
+  				bR = Harmony.beetsReturn(4, floor(random(2,4)));
 			}
 			else if (rainy) {
 				nR = Harmony.notesReturn(floor(random(2,4)), 2);
-  				bV = Harmony.beetsReturn(2, floor(random(1,3)));
+  				bR = Harmony.beetsReturn(2, floor(random(1,3)));
+			}
+			else if (!rainy && !cloudy) {
+				nR = Harmony.bassLineReturn();
+				bR = Harmony.beetsReturn(2, floor(random(1,2)));
+				//syns[m][0].note.seq(nR, bR);
 			}
 		}
 	}
 	else if (synthKind == 'pad') {
-
+		if (day) {
+			if (cloudy) {
+				nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
+				bR = Harmony.beetsReturn(4, floor(random(1,4)));
+			}
+			else if (rainy) {
+				nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
+				bR = Harmony.beetsReturn(4, floor(random(1,4)));
+			}
+			else if (!rainy && !cloudy) {
+				nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
+				bR = Harmony.beetsReturn(4, floor(random(1,4)));
+			}
+		}
+		else if (!day) {
+			if (cloudy) {
+				nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
+				bR = Harmony.beetsReturn(4, floor(random(1,4)));
+			}
+			else if (rainy){
+				nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
+				bR = Harmony.beetsReturn(4, floor(random(1,4)));
+			}
+			else if (!rainy && !cloudy) {
+				nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
+				bR = Harmony.beetsReturn(4, floor(random(1,4)));
+			}
+		}
 	}
 
 		//oif kind lead
-		var anotherCoin = CoinReturn();
-		if (anotherCoin == 1){
-			if (c == 0) {
-				bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
-				nR = Harmony.melodyReturn(0, bR.length, bR.length);
-			}
-			else if (c >= 1){
-				if (!noteLog[c-1][p][0]){
-					console.log("it  is undefined ");
-					bR = Harmony.wholeBeetsReturn(1, floor(random(3,12)));
-					nR = Harmony.melodyReturn(12, bR.length, bR.length);
-				}
-				else {
-					// new entry is just previous entry
-					console.log("it is defined");
-					ignore = true;
-					nR = noteLog[c -1 ][p][0];
-					bR =noteLog[c - 1][p][1];
-				}
-			}
-		}
-		else if (c == 0) {
-			bR = Harmony.wholeBeetsReturn(2, floor(random(1,8)));
-		nR = Harmony.melodyReturn(0, bR.length, bR.length);
 
-		}
-		else if (c >=1 ) {
-			stop = true;
-		}
-	}
-	else if (coin ==0){	
-		bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
-		nR = Harmony.melodyReturn(0, bR.length, bR.length);
-	}
 	if (stop){
 		synth.note.seq.stop();
 	}
