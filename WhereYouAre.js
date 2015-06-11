@@ -3,7 +3,7 @@ var ranNotes = [12,11,9,7,5,4,2,0,-1], noteLog = [ ],
 beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
 bR, nR, bR2, nR2, sunny = true, bw, columns, space, randomCount = 4, stopper, 
 tracks = [], syns = [], busses = [], currentSeqs = [], effector, fols= [],
-day, cloudy, rainy,
+day = true, cloudy = false, rainy = false,
 effectsTypes = [], effectsProperties = [];
   xOffsets = [0, 0, 0, 0];
   hues = [20, 50, 70, 194 / 255];
@@ -46,16 +46,16 @@ function setup () {
 	colors = [newColor0, newColor1, newColor2, newColor3, newColor4, newColor5];
 	Clock.bpm(floor(random(55,75)));
 	effectsTypes = [ [LPF, 'rising']  , [Delay, 'endless', 'wobbler', 'nightChill'],
-	[Schizo, 'sane', 'borderline', 'pitchless'], [Vibrato, 'light', 'warped']];
+	[Schizo, 'sane', 'borderline', 'pitchless'], [Vibrato, 'light']];
 	effectsProperties = [ ['LPF', ['cutoff',0,1], ['resonance', 0,5] ]  , ['Delay', ['time',0,1], ['feedback', 0,5]],
 	['Schizo', ['chance', 0,1], ['reverseChance',0,1], ['pitchChance', 0,1], ['mix',0, 1],
-    ['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,20], ['offset',25,2500 ], ['amount', 25,300]]];
+    ['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,5], ['offset',25,1250 ], ['amount', 25,100]]];
 	//can set it up so if only two numbers, treat it as range, otherwise, treat it as multi option specific picker
 	//songBus = Bus().fx.add( Reverb('large'))
 	// drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
 	// drum.fx.add(Crush('lowSamp'))
 	RandomWeather();
-	GroupSynths(3);
+	GroupSynths(1);
 	NewScore();
 	mult = [200,200,200,200,2,2,2];
 }
@@ -134,13 +134,13 @@ function draw() {
       //  console.log(xOffsets[i] + " " + i + " i ");
         hues[i] += tracks[i].follow.getValue() / 10;
       //  console.log(hues[i]);
-        if (hues[i] > 100) {
+        if (hues[i] > 200) {
         	//set ceiling of hues, over 100 loops back to 1
           hues[i] %= 100;
         }
       }
       stroke(0, 0, 100, 20);
-      blendMode(LIGHTEST);
+      //blendMode(LIGHTEST);
       ref1 = tracks;
       results = [];
       ref1L = ref1.length;
@@ -170,7 +170,7 @@ function renderSynth(amp, offset, hue, freq) {
       stroke(hue, 100, 50, 255);
       lineCount = 4 + ~~(data.d * 28);
       lineLength = amp * freq;
-      radius = ~~(amp * windowWidth);
+      radius = (amp * windowWidth);
       varianceFromCenter = amp * 5;
       ellipse1Size = (offset >> 7) * (1 + data.e);
       ellipse2Size = (offset >> 12) * data.a[1];
@@ -200,26 +200,28 @@ function renderSynth(amp, offset, hue, freq) {
 function GroupSynths(q) {
 	
 	// bass must be last entry in kinds
-	var kinds = ['pad', 'lead', 'bass'], synthKinds = [];
+	var kinds = ['pad', 'lead', 'bass'], synthKinds = [],
+	kindsLength = kinds.length;
 	// q is number of instruments to create
 	for (var i = 0; i <= q; i++){
 		var b;
 		b = Bus();
 		// if one bass exists already
 		if (synthKinds.indexOf('bass') > -1) {
-			var k = kinds[floor(random((kinds.length - 1)))];
-			//var k = 'lead';
+			var k = kinds[floor(random((kindsLength -1)))];
 			synth = new SynthCreate(i, k);
 			synth.make();
 			synthKinds.push(k);
 		}
 		 else {
-			var k = kinds[floor(random(kinds.length))], fxAmount = floor(random(3));
+			var k = 'pad', fxAmount = floor(random(1,3));
 			synth = new SynthCreate(i, k);
-			synth.make(k);
+			synth.make();
 			synthKinds.push(k);
 			//create the effects for bus for each synthesizer, fxamount is number of effects to add
-			for (var j = 0; j < fxAmount; j++){
+			
+		}
+		for (var j = 0; j < fxAmount; j++){
 				var e = floor(random(effectsTypes.length));
 				
 				effect = new EFXCreate(i, effectsTypes[e][0], effectsTypes[e][floor(random(1,effectsTypes[e].length))], b);
@@ -227,7 +229,7 @@ function GroupSynths(q) {
 			//	b.fx.add (name)
 			}
 			busses.push(b);
-		}
+			console.log(b + " b ")
 	};
 }
 
@@ -297,7 +299,7 @@ function SynthCreate(name, kind) {
 	name = instrumentKind(pre)
 	name.amp (ampVar)
 	foll = Follow(name)
-	console.log(name + " name " + kind + " kind " + pre + " pre ")
+	console.log(name + " name " + kind + " kind " + instrumentKind + " instrumentKind " + pre + " pre " + foll + " foll")
 	// if want to add fx, call fxObj = new FX(blah blah)
 	//fxObj.make();
 	//name.fx.add(fxObj);
@@ -348,11 +350,12 @@ function NewScore() {
 	for (i = 0; i < s; i++){
 		//var syn = syns[i][0];
 		Updater(i, count);
-		EffectsUpdater(i);
+		//EffectsUpdater(i);
 	}
 	noteLog.push(currentSeqs)
 	randomCount = 4;
-	console.log( count++ + " count " + randomCount) }, randomCount ) // every one measures
+	count++;
+	console.log( count + " count " + randomCount) }, randomCount ) // every one measures
 }
 
 function UpdaterTest (p) {
@@ -374,7 +377,7 @@ function Updater (p, c) {
 	var nR, bR;
 	//p is place, place in syns index/for loop
 	// c is count
-	var stop = false, ignore = false, coin = CoinReturn(), synth = syns[p][0],
+	var stop = false, chord = false, ignore = false, coin = CoinReturn(), synth = syns[p][0],
 	synthKind = syns[p][1];
 	// flip a coin
 	//console.log(p + " . .  "+ coin)
@@ -385,14 +388,16 @@ function Updater (p, c) {
 			var anotherCoin = CoinReturn();
 			if (anotherCoin == 1){
 				if (c == 0) {
+					console.log("CHRODS!!!!")
 					bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
-					nR = Harmony.melodyReturn(0, bR.length, bR.length);
+					nR = Harmony.notesReturn(floor(random(2,4)), floor(random(1,3)))
 				}
 				else if (c >= 1){
 					if (!noteLog[c-1][p][0]){
 						console.log("it  is undefined ");
 						bR = Harmony.wholeBeetsReturn(1, floor(random(3,12)));
-						nR = Harmony.melodyReturn(12, bR.length, bR.length);
+						bRL = bR.length;
+						nR = Harmony.melodyReturn(12, bRL, bRL);
 					}
 					else {
 						// new entry is just previous entry
@@ -405,8 +410,8 @@ function Updater (p, c) {
 			}
 			else if (c == 0) {
 				bR = Harmony.wholeBeetsReturn(2, floor(random(1,8)));
-			nR = Harmony.melodyReturn(0, bR.length, bR.length);
-
+				bRL = bR.length;
+				nR = Harmony.melodyReturn(0, bRL, bRL);
 			}
 			else if (c >=1 ) {
 				stop = true;
@@ -414,7 +419,8 @@ function Updater (p, c) {
 		}
 		else if (coin ==0){	
 			bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
-			nR = Harmony.melodyReturn(0, bR.length, bR.length);
+			bRL = bR.length;
+			nR = Harmony.melodyReturn(0, bRL, bRL);
 		}
 	}
 		//if sunny
@@ -461,31 +467,36 @@ function Updater (p, c) {
 	}
 	else if (synthKind == 'pad') {
 		if (day) {
+			console.log("day");
+			chord = true;
 			if (cloudy) {
-				nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
-				bR = Harmony.beetsReturn(4, floor(random(1,4)));
+				console.log("cloudy")
+				bR = Harmony.beetsReturn(4, floor(random(1,3)));
+					nR = Harmony.chordsReturn(floor(random(2,4)), floor(random(1,3)))
 			}
 			else if (rainy) {
-				nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
-				bR = Harmony.beetsReturn(4, floor(random(1,4)));
+				console.log("rainy")
+				bR = Harmony.beetsReturn(4, floor(random(1,3)));
+					nR = Harmony.chordsReturn(floor(random(2,4)), floor(random(1,3)))
 			}
 			else if (!rainy && !cloudy) {
-				nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
-				bR = Harmony.beetsReturn(4, floor(random(1,4)));
+				console.log("not rainy or cloudy")
+				bR = Harmony.beetsReturn(.5, floor(random(1,8)));
+			nR = Harmony.chordsReturn(0, bR.length, bR.length);
 			}
 		}
 		else if (!day) {
 			if (cloudy) {
-				nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
-				bR = Harmony.beetsReturn(4, floor(random(1,4)));
+				bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
+			nR = Harmony.melodyReturn(0, bR.length, bR.length);
 			}
 			else if (rainy){
-				nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
-				bR = Harmony.beetsReturn(4, floor(random(1,4)));
+				bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
+			nR = Harmony.melodyReturn(0, bR.length, bR.length);
 			}
 			else if (!rainy && !cloudy) {
-				nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
-				bR = Harmony.beetsReturn(4, floor(random(1,4)));
+				bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
+			nR = Harmony.melodyReturn(0, bR.length, bR.length);
 			}
 		}
 	}
@@ -497,6 +508,9 @@ function Updater (p, c) {
 	}
 	else if (ignore) {
 		console.log("ignore")	
+	}
+	else if (chord){
+		synth.chord.seq(nR, bR);
 	}
 	else if (!stop && !ignore) {
 		synth.note.seq(nR, bR)
@@ -725,7 +739,9 @@ Harmony = (function () {
 // chordsreturn might need a type argument to specify behavior. it is product horrible frequencies with
 // one of the synths right now
   	var chordsReturn = function (c, cLength) {
-  		var chords = [], oct = [-12,-12,-12,0,0,0,12,12], pedalPoint = ranNotes[floor(random(ranNotes.length))];
+  		var chords = [], oct = [-12,-12,-12,0,0,0,12,12], 
+  		ranLength = ranNotes.length, octLength = oct.length,
+  		pedalPoint = ranNotes[floor(random(ranLength))];
 		for (var i = 0; i < c; i++){
 			var innerChord= [];
 			if (i == 0){
@@ -735,8 +751,8 @@ Harmony = (function () {
 						innerChord.push(pedalPoint)
 					}
 					else if (j >= 1){
-						var n = ranNotes[floor(random(ranNotes.length))];
-						innerChord.push(n + oct[floor(random(oct.length))]);
+						var n = ranNotes[floor(random(ranLength))];
+						innerChord.push(n + oct[floor(random(octLength))]);
 					}
 				}
 			}
@@ -748,14 +764,14 @@ Harmony = (function () {
 						innerChord.push(pedalPoint)
 					}
 					else if (j >= 1) {
-						var n = ranNotes[floor(random(ranNotes.length))];
+						var n = ranNotes[floor(random(ranLength))];
 						//if this note is the same as the note in the same spot of the last chord
 						if (n == chords[(i - 1)][j]) {
 							//o is new note
 							var o = n - 1;
 							//if new note o is in key
 							if (ranNotes.indexOf(o) >= 0){
-								innerChord.push(o + oct[floor(random(oct.length))]);
+								innerChord.push(o + oct[floor(random(octLength))]);
 							}
 							//else if new note o is not in key, move it down one more step
 							else if (ranNotes.indexOf(o) == -1){
@@ -765,13 +781,12 @@ Harmony = (function () {
 						}
 
 						else if (n != chords[(i-1)] [j]) {
-							innerChord.push(n + oct[floor(random(oct.length))]);
+							innerChord.push(n + oct[floor(random(octLength))]);
 						}
 					}
 				}
-			
 			}
-				chords.push(innerChord);
+			chords.push(innerChord);
 		}
 		return chords;
 
