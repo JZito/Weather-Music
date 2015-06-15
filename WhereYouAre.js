@@ -55,9 +55,10 @@ function setup () {
 	// drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
 	// drum.fx.add(Crush('lowSamp'))
 	RandomWeather();
-	GroupSynths(1);
+	GroupSynths(3);
 	NewScore();
 	mult = [200,200,200,200,2,2,2];
+
 }
 
 function CoolSquare(w, h, r, c, v, t){
@@ -97,6 +98,7 @@ function Stopper () {
 
 function draw() {
       var hue, i, offsetX, track, v, j, len, len1, ref, ref1, results;
+
       // if (lastBeat === 4 && gibber.Clock.currentBeat === 1) {
       //   sketch.onBarChange();
       //   if (barIndex % 4 === 0) {
@@ -108,8 +110,9 @@ function draw() {
       //   return;
       // }
       noStroke();
-      fill(fillValue, 50, 200, 255);
+      fill(255);
       rect(0, 0, windowWidth, windowHeight);
+      
       ref = tracks;
       for (i = 0, len = ref.length; i < len; ++i) {
         track = ref[i];
@@ -134,12 +137,12 @@ function draw() {
       //  console.log(xOffsets[i] + " " + i + " i ");
         hues[i] += tracks[i].follow.getValue() / 10;
       //  console.log(hues[i]);
-        if (hues[i] > 200) {
-        	//set ceiling of hues, over 100 loops back to 1
-          hues[i] %= 100;
-        }
+         if (hues[i] < 100) {
+         	//set ceiling of hues, over 100 loops back to 1
+           hues[i] = 100;
+         }
       }
-      stroke(0, 0, 100, 20);
+      stroke(200, 200, 100, 200);
       //blendMode(LIGHTEST);
       ref1 = tracks;
       results = [];
@@ -168,16 +171,17 @@ function draw() {
 function renderSynth(amp, offset, hue, freq) {
       var ellipse1Size, ellipse2Size, i, lineCount, lineLength, radius, tDegrees, theta, varianceFromCenter, x1, x2, y1, y2, _i, ref, results;
       stroke(hue, 100, 50, 255);
-      lineCount = 4 + ~~(data.d * 28);
+      lineCount = 25;
       lineLength = amp * freq;
       radius = (amp * windowWidth);
       varianceFromCenter = amp * 5;
-      ellipse1Size = (offset >> 7) * (1 + data.e);
+      ellipse1Size = (amp * (windowWidth / 16));
       ellipse2Size = (offset >> 12) * data.a[1];
       results = [];
       for (i = _i = 0, _ref = lineCount - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-        stroke(255, hue, 50, 255);
+        stroke(0, 0, 50, hue);
         noFill();
+        //blendMode(LIGHTEST);
         theta = (i * 360 / lineCount) + offset;
         tDegrees = theta / 180 * Math.PI;
         x1 = middleX + (radius + 5 + lineLength) * Math.cos(tDegrees);
@@ -186,8 +190,9 @@ function renderSynth(amp, offset, hue, freq) {
         y2 = middleY + (radius + 5) * Math.sin(tDegrees);
         line(x1, y1, x2, y2);
         if (sunny) {
+        	//circles at tip of lines
           noStroke();
-          fill(255, hue, 50, 6);
+          //fill(0, 0, 50, hue);
           ellipse(x1, y1, ellipse1Size, ellipse1Size);
           results.push(ellipse(x2, y2, ellipse2Size, ellipse2Size));
         } else {
@@ -214,7 +219,7 @@ function GroupSynths(q) {
 			synthKinds.push(k);
 		}
 		 else {
-			var k = 'pad', fxAmount = floor(random(1,3));
+			var k = kinds[floor(random(kindsLength))], fxAmount = floor(random(1,3));
 			synth = new SynthCreate(i, k);
 			synth.make();
 			synthKinds.push(k);
@@ -253,18 +258,18 @@ function SynthCreate(name, kind) {
 	   		//pre =  'brass'
 	   		pre = presetLeadFMArray[floor(random(presetLeadFMArray.length))];
 
-	   		ampVar = .2
+	   		//ampVar = .2
 	   }
 	  else if (instrumentKind == Synth){
 	   		pre = presetLeadSynthArray[floor(random(presetLeadSynthArray.length))];
 	   		if (pre == 'cascade' || pre == 'warble') {
-	   			ampVar = .2
+	   		//	ampVar = .2
 	   		}
 	   		else if (pre == 'calvin') {
-	   			ampVar = .05
+	   		//	ampVar = .05
 	   		}
 	   		else {
-	   			ampVar = .5
+	   		//	ampVar = .5
 	   		}
 	   }
 	   else if (instrumentKind == Mono){
@@ -279,16 +284,16 @@ function SynthCreate(name, kind) {
 			instrumentKind = Synth;
 			pre = padPresets[floor(random(padPresets.length))]
 			if (pre == 'cascade' || pre == 'warble' || pre == 'calvin') {
-	   			ampVar = .1
+	   		//	ampVar = .1
 	   		}
 	   		else {
-	   			ampVar = .4
+	   		//	ampVar = .4
 	   		}
 		}
 		else {
 			instrumentKind = Synth2;
 	    	pre = pad2Presets[floor(random(pad2Presets.length))]
-	    	ampVar = .4	
+	    	//fampVar = .4	
 		};
 	}
 	else if (kind == 'bass'){
