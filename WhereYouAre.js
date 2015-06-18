@@ -193,15 +193,15 @@ function renderSynth(amp, offset, hue, freq) {
 	      ellipse2Size = (offset >> 1) * data.a[1];
 	      results = [];
 	      for (i = _i = 0, _ref = lineCount - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-	        stroke(0, hue, 50, 255);
+	        stroke(0, 0, 0, hue);
 	        noFill();
 	        //blendMode(LIGHTEST);
 	         theta = (i * 360 / lineCount) + offset;
 	         tDegrees = theta / 180 * Math.PI;
-	        x1 = middleX ;
-	        y1 = middleY ;
-	        x2 = middleX / (radius ) * Math.cos(tDegrees);
-	        y2 = middleY / (radius) * Math.sin(tDegrees);
+	        x1 = windowWidth / (i * (amp * 1000)) ;
+	        y1 = windowHeight / (i *(amp * 2000)) ;
+	        x2 = windowWidth * (radius ) * Math.cos(tDegrees);
+	        y2 = windowHeight * (radius) * Math.sin(tDegrees);
 	        line(x1, y1, x2, y2);
 	        //if (sunny) {
 	        	//circles at tip of lines
