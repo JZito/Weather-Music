@@ -10158,15 +10158,15 @@ module.exports = function( Gibber ) {
   
   FX.Presets.Schizo = {
 		sane: {
-			chance: .1,
-			reverseChance: 0,
-			pitchChance: .5,
+			chance: .05,
+			reverseChance: 0.25,
+			pitchChance: 0,
 			mix:.5,
 		},
 		borderline: {
 			chance: .1,		
-			pitchChance: .25,
-			reverseChance: .5,
+			pitchChance: 0,
+			reverseChance: .75,
 			mix: 1,
 		},
 		paranoid: {
@@ -12221,7 +12221,7 @@ module.exports = function( Gibber ) {
   	short:  { attack: 44, decay: 1/16, },
   	bleep:  { waveform:'Sine', attack:44, decay:1/16 },
     bleepEcho: { waveform:'Sine', attack:44, decay:1/16, presetInit:function() { this.fx.add( Delay(1/6,.85 ) ) } },
-    cascade: { waveform:'Sine', maxVoices:4, amp: .08, attack:Clock.maxMeasures, decay:Clock.beats(1/32),
+    cascade: { waveform:'Sine', maxVoices:4, amp: .15, attack:Clock.maxMeasures, decay:Clock.beats(1/32),
       presetInit: function() { 
         this.fx.add( Gibber.Audio.FX.Delay(1/9,.2), Gibber.Audio.FX.Flanger() )
         this.pan = Sine( .25, 1 )._
@@ -12230,7 +12230,7 @@ module.exports = function( Gibber ) {
     rhodes: { waveform:'Sine', maxVoices:4, attack:44, decay:1, 
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo(2, .2) ) },
     },
-    calvin: { waveform:'PWM',  maxVoices:4, pulsewidth:.25, amp: .0025, out: .2, attack:Clock.maxMeasures, decay:1,
+    calvin: { waveform:'PWM',  maxVoices:4, pulsewidth:.25, amp: .055, out: .2, attack:Clock.maxMeasures, decay:1,
     presetInit: function() { this.fx.add( Gibber.Audio.FX.Vibrato(random(3), random(1)), 
       Gibber.Audio.FX.Reverb({preset:'large', wet:.25, dry:0}), Gibber.Audio.FX.Delay({wet:.25, dry:.05}))  }
     },
@@ -12258,7 +12258,7 @@ module.exports = function( Gibber ) {
     rainTri: {waveform:'Triangle', maxVoices:6, amp:.4, glide:.9, resonance:1, useADSR:true, 
                                requireReleaseTrigger:false,
                 attack:4, decay:12, sustain:.1, release:2},
-    triTest: {waveform:'Triangle', maxVoices:6, amp:.4, resonance:1, useADSR:true, 
+    triTest: {waveform:'Triangle', maxVoices:6, amp:1, resonance:1, useADSR:true, 
                                requireReleaseTrigger:true,
                 attack:1/1, decay:8/1, sustain:1/2, release:1/1}     
   }

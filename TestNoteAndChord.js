@@ -65,7 +65,7 @@ function CheckTheTime(time) //function check the time
 function NewSong(t) {
 	song = new Song('ho', t);
 	song.make();
-	pieces[t].groupSynths(floor(random(2,5)));
+	pieces[t].groupSynths(1);
 	pieces[t].scoreCreate();
 };
 
@@ -598,7 +598,7 @@ var Song = function (n, place) { //enclose song
 					 		console.log('chords' + syns[m][1] + syns[m][0])
 					  		nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
 					  		bV = Harmony.beetsReturn(4, floor(random(1,4)));
-					  		syns[m][0].chord.seq(cR, bV)
+					  		syns[m][0].chord.seq(nR, bV)
 				      ;}, 
 					    pm = function(){
 					  		var nR = [0,0,0,0,-1,-1,-1,-1], 
@@ -680,7 +680,7 @@ var Song = function (n, place) { //enclose song
 						// if one bass exists already
 						if (synthKinds.indexOf('bass') > -1) {
 							//var k = kinds[floor(random((kinds.length - 1)))];
-							var k = 'lead';
+							var k = 'pad';
 							synth = new innerSong.synthCreate(i, k, 'oo');
 							synth.make(k);
 							synthKinds.push(k);
@@ -688,7 +688,7 @@ var Song = function (n, place) { //enclose song
 
 						}
 						 else {
-							var k = 'lead';
+							var k = 'pad';
 							synth = new innerSong.synthCreate(i, k, 'oo');
 							synth.make(k);
 							synthKinds.push(k);

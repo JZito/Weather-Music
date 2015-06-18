@@ -33,8 +33,8 @@ effectsTypes = [], effectsProperties = [];
 function setup () {
 	canvas = createCanvas( windowWidth, windowHeight );
 	console.log("windowWidth" + windowWidth + " window height" + windowHeight)
-	middleX = windowWidth >> 1;
-    middleY = windowHeight >> 1;
+	middleX = windowWidth / 2;
+    middleY = windowHeight / 2;
 	// newColor0 = color(247, 75, 43, 127);
 	// newColor1 = color (200, 38, 8, 127);
 	// newColor2 = color(255, 214, 147, 127);
@@ -127,7 +127,7 @@ function draw() {
            hues[i] = 100;
          }
     }
-    stroke(200, 200, 100, 200);
+    stroke(200, 200, 100, hue);
     //blendMode(LIGHTEST);
     ref1 = tracks;
    // results = [];
@@ -146,8 +146,8 @@ function RandomWeather() {
  	// temperature = floor(random(33,75));
  	// temperatureC = floor((temperature  -  32)  *  5/9);
  	day = floor(random(0,2));
- 	//night = 1;
- 	rainy = floor(random(0,2));
+ 	//day = 1;
+ 	 rainy = floor(random(0,2));
  	//rainy = 0;
  	//cloudy = 1;
  	cloudy = floor(random(0,2));
@@ -196,22 +196,22 @@ function renderSynth(amp, offset, hue, freq) {
 	        stroke(0, hue, 50, 255);
 	        noFill();
 	        //blendMode(LIGHTEST);
-	        theta = (i * 360 / lineCount) + offset;
-	        tDegrees = theta / 180 * Math.PI;
-	        x1 = middleX + (radius + 5 + lineLength) * Math.cos(tDegrees);
-	        y1 = middleY + (radius + 5 + lineLength) * Math.sin(tDegrees);
-	        x2 = middleX + (radius + 5) * Math.cos(tDegrees);
-	        y2 = middleY + (radius + 5) * Math.sin(tDegrees);
+	         theta = (i * 360 / lineCount) + offset;
+	         tDegrees = theta / 180 * Math.PI;
+	        x1 = middleX ;
+	        y1 = middleY ;
+	        x2 = middleX / (radius ) * Math.cos(tDegrees);
+	        y2 = middleY / (radius) * Math.sin(tDegrees);
 	        line(x1, y1, x2, y2);
-	        if (sunny) {
+	        //if (sunny) {
 	        	//circles at tip of lines
 	          noStroke();
 	          //fill(0, 0, 50, hue);
-	          ellipse(x1, y1, ellipse1Size, ellipse1Size);
+	          rect(x1, y1, ellipse1Size, ellipse1Size);
 	          results.push(ellipse(x2, y2, ellipse2Size, ellipse2Size));
-	        } else {
-	          results.push(void 0);
-	        }
+	        // } else {
+	        //   results.push(void 0);
+	        // }
 	      }
 	      return results;
 
@@ -226,10 +226,10 @@ function renderSynth(amp, offset, hue, freq) {
 	        //blendMode(LIGHTEST);
 	        theta = (i * 360 / lineCount) + offset;
 	        tDegrees = theta / 180 * Math.PI;
-	        x1 = middleX + (radius + 5 + lineLength) * Math.cos(tDegrees);
-	        y1 = middleY + (radius + 5 + lineLength) * Math.sin(tDegrees);
-	        x2 = middleX + (radius + 5) * Math.cos(tDegrees);
-	        y2 = middleY + (radius + 5) * Math.sin(tDegrees);
+	        x1 = middleX + (radius * lineLength) * Math.cos(tDegrees);
+	        y1 = middleY + (radius * lineLength) * Math.sin(tDegrees);
+	        x2 = middleX + (radius / 25) * Math.cos(tDegrees);
+	        y2 = middleY + (radius / 25) * Math.sin(tDegrees);
 	        line(x1, y1, x2, y2);
 	        if (sunny) {
 	        	//circles at tip of lines
@@ -262,7 +262,9 @@ function GroupSynths(q) {
 			synthKinds.push(k);
 		}
 		 else {
-			var k = kinds[floor(random(kindsLength))], fxAmount = floor(random(1,3));
+			//var k = kinds[floor(random(kindsLength))],
+			var k = 'pad',
+			fxAmount = floor(random(1,3));
 			synth = new SynthCreate(i, k);
 			synth.make();
 			synthKinds.push(k);
@@ -321,7 +323,7 @@ function SynthCreate(name, kind) {
 	   }
 	}
 	else if (kind == 'pad') {
-		ampVar = .2
+		ampVar = .5
 		var coin = Math.round(Math.random()*2);
 		if (coin == 1) {
 			instrumentKind = Synth;
@@ -527,10 +529,11 @@ function Updater (p, c) {
 			else if (!rainy && !cloudy) {
 				
 				bR = Harmony.beetsReturn(1, floor(random(1,8)));
-			nR = Harmony.chordsReturn(4, bR.length);
+			nR = Harmony.chordsReturn(4, floor(random(2,4)));
 			}
 		}
 		else if (!day) {
+			chord = false;
 			if (cloudy) {
 				bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
 			nR = Harmony.melodyReturn(0, bR.length, bR.length);
