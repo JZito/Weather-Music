@@ -35,20 +35,20 @@ function setup () {
 	console.log("windowWidth" + windowWidth + " window height" + windowHeight)
 	middleX = windowWidth >> 1;
     middleY = windowHeight >> 1;
-	newColor0 = color(247, 75, 43, 127);
-	newColor1 = color (200, 38, 8, 127);
-	newColor2 = color(255, 214, 147, 127);
-	newColor3 = color (247, 169, 43, 127);
-	newColor4 = color(247, 218, 43, 127);
-	newColor5 = color (14, 168, 70, 127);
-	bgCol = color(100,14,14,255);
-	bgColA = color(175,14,14,255);
-	colors = [newColor0, newColor1, newColor2, newColor3, newColor4, newColor5];
+	// newColor0 = color(247, 75, 43, 127);
+	// newColor1 = color (200, 38, 8, 127);
+	// newColor2 = color(255, 214, 147, 127);
+	// newColor3 = color (247, 169, 43, 127);
+	// newColor4 = color(247, 218, 43, 127);
+	// newColor5 = color (14, 168, 70, 127);
+	// bgCol = color(100,14,14,255);
+	// bgColA = color(175,14,14,255);
+	// colors = [newColor0, newColor1, newColor2, newColor3, newColor4, newColor5];
 	Clock.bpm(floor(random(55,75)));
 	effectsTypes = [ [LPF, 'rising']  , [Delay, 'endless', 'wobbler', 'nightChill'],
 	[Schizo, 'sane', 'borderline', 'pitchless'], [Vibrato, 'light']];
 	effectsProperties = [ ['LPF', ['cutoff',0,1], ['resonance', 0,5] ]  , ['Delay', ['time',0,1], ['feedback', 0,5]],
-	['Schizo', ['chance', 0,1], ['reverseChance',0,1], ['pitchChance', 0,1], ['mix',0, 1],
+	['Schizo', ['chance', 0,1], ['reverseChance',0,1], ['mix',0, 1],
     ['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,5], ['offset',25,1250 ], ['amount', 25,100]]];
 	//can set it up so if only two numbers, treat it as range, otherwise, treat it as multi option specific picker
 	//songBus = Bus().fx.add( Reverb('large'))
@@ -61,43 +61,44 @@ function setup () {
 
 }
 
-function CoolSquare(w, h, r, c, v, t){
-	rectMode(RADIUS);
-	fill(c);
-	strokeWeight(v);
-	rect(bw*(t*2), h, (200 + (v * 5)), (200 - (v * 5) ), 50, 50, 100, 100)
-}
-
-// function draw () {
-// 	//var ;
-// 	noStroke();
-//     fill(bgCol);
-//     rect(0, 0, width, height); 
-// 	for (var i = 0; i < fols.length; i++){
-// 		var gV = fols[i].getValue(), m = mult[i],
-// 		value = gV * m, col = colors[i],
-
-// 		//        if width greater than height, use wh * value, otherwise use ww2 * value
-// 	    radius = ( ww2 > wh ? wh * value: ww2 * value);
-// 		CoolSquare(ww2, wh, radius, col, value, i  );
-// 	}
+// function CoolSquare(w, h, r, c, v, t){
+// 	rectMode(RADIUS);
+// 	fill(c);
+// 	strokeWeight(v);
+// 	rect(bw*(t*2), h, (200 + (v * 5)), (200 - (v * 5) ), 50, 50, 100, 100)
 // }
 
+// // function draw () {
+// // 	//var ;
+// // 	noStroke();
+// //     fill(bgCol);
+// //     rect(0, 0, width, height); 
+// // 	for (var i = 0; i < fols.length; i++){
+// // 		var gV = fols[i].getValue(), m = mult[i],
+// // 		value = gV * m, col = colors[i],
+
+// // 		//        if width greater than height, use wh * value, otherwise use ww2 * value
+// // 	    radius = ( ww2 > wh ? wh * value: ww2 * value);
+// // 		CoolSquare(ww2, wh, radius, col, value, i  );
+// // 	}
+// // }
+
 function add(a, b) {
-	return a + b;
+ 	return a + b;
 }
 
 function CoinReturn() {
-	var coin = Math.round(Math.random()*1.5);
-	return coin;
-}
+ 	var coin = Math.round(Math.random()*1.5);
+ 	return coin;
+ }
 
-function Stopper () {
+// function Stopper () {
 
-}
+// }
 
 function draw() {
-      var hue, i, offsetX, track, v, j, len, len1, ref, ref1, results;
+      var hue, i, offsetX, track, v, j, len, len1, ref, ref1; 
+      //results;
 
       // if (lastBeat === 4 && gibber.Clock.currentBeat === 1) {
       //   sketch.onBarChange();
@@ -109,6 +110,7 @@ function draw() {
       // if (!visualizer) {
       //   return;
       // }
+      // background and clear old lines
       noStroke();
       fill(255);
       rect(0, 0, windowWidth, windowHeight);
@@ -116,48 +118,31 @@ function draw() {
       ref = tracks;
       for (i = 0, len = ref.length; i < len; ++i) {
         track = ref[i];
-      // console.log(data.d)
-        // switch (i) {
-        //   case 0:
-        //     xOffsets[i] += data.d;
-        //     break;
-        //   case 1:
-        //     xOffsets[i] += data.e;
-        //     break;
-        //   case 2:
-        //     xOffsets[i] += data.f;
-        //     break;
-        //   case 3:
-        //     xOffsets[i] += data.b[1];
-        //     break;
-        //   case 4:
-        //   	xOffsets[i] += data.b[1];
-        // }
-        xOffsets[i] += tracks[i].instrument.frequency  / 10;
+        xOffsets[i] += tracks[i].instrument.frequency / 1000  ;
       //  console.log(xOffsets[i] + " " + i + " i ");
-        hues[i] += tracks[i].follow.getValue() / 10;
+        hues[i] += tracks[i].follow.getValue() / 1000;
       //  console.log(hues[i]);
          if (hues[i] < 100) {
          	//set ceiling of hues, over 100 loops back to 1
            hues[i] = 100;
          }
-      }
-      stroke(200, 200, 100, 200);
-      //blendMode(LIGHTEST);
-      ref1 = tracks;
-      results = [];
-      ref1L = ref1.length;
-      for ( j = 0, len1 = ref1L; j < len1; ++j) {
+    }
+    stroke(200, 200, 100, 200);
+    //blendMode(LIGHTEST);
+    ref1 = tracks;
+   // results = [];
+    ref1L = ref1.length;
+    for ( j = 0, len1 = ref1L; j < len1; ++j) {
         track = ref1[j];
         v = Math.max(0, track.follow.getValue());
         offsetX = xOffsets[j];
         hue = hues[j];
-        results.push(renderSynth(v, offsetX, hue, track.instrument.frequency));
-      }
-      return results;
-    };
+        renderSynth(v, offsetX, hue, track.instrument.frequency);
+    }
+   // return results;
+};
 
- function RandomWeather() {
+function RandomWeather() {
  	// temperature = floor(random(33,75));
  	// temperatureC = floor((temperature  -  32)  *  5/9);
  	day = floor(random(0,2));
@@ -166,6 +151,7 @@ function draw() {
  	//rainy = 0;
  	//cloudy = 1;
  	cloudy = floor(random(0,2));
+ 	console.log(day + " day " + rainy + "rainy" + cloudy + "cloudy")
  }
 
 function renderSynth(amp, offset, hue, freq) {
@@ -175,31 +161,88 @@ function renderSynth(amp, offset, hue, freq) {
       lineLength = amp * freq;
       radius = (amp * windowWidth);
       varianceFromCenter = amp * 5;
-      ellipse1Size = (amp * (windowWidth / 16));
-      ellipse2Size = (offset >> 12) * data.a[1];
-      results = [];
-      for (i = _i = 0, _ref = lineCount - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-        stroke(0, 0, 50, hue);
-        noFill();
-        //blendMode(LIGHTEST);
-        theta = (i * 360 / lineCount) + offset;
-        tDegrees = theta / 180 * Math.PI;
-        x1 = middleX + (radius + 5 + lineLength) * Math.cos(tDegrees);
-        y1 = middleY + (radius + 5 + lineLength) * Math.sin(tDegrees);
-        x2 = middleX + (radius + 5) * Math.cos(tDegrees);
-        y2 = middleY + (radius + 5) * Math.sin(tDegrees);
-        line(x1, y1, x2, y2);
-        if (sunny) {
-        	//circles at tip of lines
-          noStroke();
-          //fill(0, 0, 50, hue);
-          ellipse(x1, y1, ellipse1Size, ellipse1Size);
-          results.push(ellipse(x2, y2, ellipse2Size, ellipse2Size));
-        } else {
-          results.push(void 0);
-        }
+      if (rainy) {
+      	ellipse1Size = (amp * (windowWidth * 100));
+	    //  ellipse2Size = (offset >> 2) * 2;
+	    lineLength = amp * (windowWidth * 10);
+	      results = [];
+	      for (i = _i = 0, _ref = lineCount - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+	        stroke(0, 0, 50, hue);
+	        noFill();
+	        //blendMode(LIGHTEST);
+	        theta = (i * 45 / lineCount) + offset;
+	        tDegrees = theta / 45 * Math.PI;
+	        x1 = windowWidth / 2;
+	        y1 = windowHeight / 2;
+	        x2 = middleX + (radius + 5 * lineLength) * Math.cos(tDegrees);
+	        y2 = middleY + (radius + 5 * lineLength) * Math.sin(tDegrees);
+	        line(x1, y1, x2, y2);
+	        
+	        	//circles at tip of lines
+	          noStroke();
+	          //fill(0, 0, 50, hue);
+	          rect(x1, y1, ellipse1Size, ellipse1Size);
+	          results.push(ellipse(x2, y2, ellipse2Size, ellipse2Size));
+	        
+	      }
+	      return results;
+
       }
-      return results;
+      else if (cloudy) {
+      	ellipse1Size = (amp * (windowWidth * 20));
+	      ellipse2Size = (offset >> 1) * data.a[1];
+	      results = [];
+	      for (i = _i = 0, _ref = lineCount - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+	        stroke(0, hue, 50, 255);
+	        noFill();
+	        //blendMode(LIGHTEST);
+	        theta = (i * 360 / lineCount) + offset;
+	        tDegrees = theta / 180 * Math.PI;
+	        x1 = middleX + (radius + 5 + lineLength) * Math.cos(tDegrees);
+	        y1 = middleY + (radius + 5 + lineLength) * Math.sin(tDegrees);
+	        x2 = middleX + (radius + 5) * Math.cos(tDegrees);
+	        y2 = middleY + (radius + 5) * Math.sin(tDegrees);
+	        line(x1, y1, x2, y2);
+	        if (sunny) {
+	        	//circles at tip of lines
+	          noStroke();
+	          //fill(0, 0, 50, hue);
+	          ellipse(x1, y1, ellipse1Size, ellipse1Size);
+	          results.push(ellipse(x2, y2, ellipse2Size, ellipse2Size));
+	        } else {
+	          results.push(void 0);
+	        }
+	      }
+	      return results;
+
+      }
+      else if (!rainy || !cloudy) {
+      	  ellipse1Size = (amp * (windowWidth / 16));
+	      ellipse2Size = (offset >> 12) * data.a[1];
+	      results = [];
+	      for (i = _i = 0, _ref = lineCount - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+	        stroke(0, 0, 50, hue);
+	        noFill();
+	        //blendMode(LIGHTEST);
+	        theta = (i * 360 / lineCount) + offset;
+	        tDegrees = theta / 180 * Math.PI;
+	        x1 = middleX + (radius + 5 + lineLength) * Math.cos(tDegrees);
+	        y1 = middleY + (radius + 5 + lineLength) * Math.sin(tDegrees);
+	        x2 = middleX + (radius + 5) * Math.cos(tDegrees);
+	        y2 = middleY + (radius + 5) * Math.sin(tDegrees);
+	        line(x1, y1, x2, y2);
+	        if (sunny) {
+	        	//circles at tip of lines
+	          noStroke();
+	          //fill(0, 0, 50, hue);
+	          ellipse(x1, y1, ellipse1Size, ellipse1Size);
+	          results.push(ellipse(x2, y2, ellipse2Size, ellipse2Size));
+	        } else {
+	          results.push(void 0);
+	        }
+	      }
+	      return results;
+  		}
     };
 
 function GroupSynths(q) {
@@ -393,7 +436,6 @@ function Updater (p, c) {
 			var anotherCoin = CoinReturn();
 			if (anotherCoin == 1){
 				if (c == 0) {
-					console.log("CHRODS!!!!")
 					bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
 					nR = Harmony.notesReturn(floor(random(2,4)), floor(random(1,3)))
 				}
@@ -448,8 +490,8 @@ function Updater (p, c) {
   				bR = Harmony.beetsReturn(2, floor(random(1,3)));
 			}
 			else if (!rainy && !cloudy) {
-				nR = Harmony.bassLineReturn();
-				bR = Harmony.beetsReturn(2, floor(random(1,2)));
+				bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
+				nR = Harmony.notesReturn(floor(random(2,4)), floor(random(1,3)))
 				//syns[m][0].note.seq(nR, bR);
 			}
 		}
@@ -464,30 +506,28 @@ function Updater (p, c) {
   				bR = Harmony.beetsReturn(2, floor(random(1,3)));
 			}
 			else if (!rainy && !cloudy) {
-				nR = Harmony.bassLineReturn();
-				bR = Harmony.beetsReturn(2, floor(random(1,2)));
+				bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
+				nR = Harmony.notesReturn(floor(random(2,4)), floor(random(1,3)))
 				//syns[m][0].note.seq(nR, bR);
 			}
 		}
 	}
 	else if (synthKind == 'pad') {
 		if (day) {
-			console.log("day");
 			chord = true;
 			if (cloudy) {
-				console.log("cloudy")
+				
 				bR = Harmony.beetsReturn(4, floor(random(1,3)));
 					nR = Harmony.chordsReturn(floor(random(2,4)), floor(random(1,3)))
 			}
 			else if (rainy) {
-				console.log("rainy")
 				bR = Harmony.beetsReturn(4, floor(random(1,3)));
 					nR = Harmony.chordsReturn(floor(random(2,4)), floor(random(1,3)))
 			}
 			else if (!rainy && !cloudy) {
-				console.log("not rainy or cloudy")
-				bR = Harmony.beetsReturn(.5, floor(random(1,8)));
-			nR = Harmony.chordsReturn(0, bR.length, bR.length);
+				
+				bR = Harmony.beetsReturn(1, floor(random(1,8)));
+			nR = Harmony.chordsReturn(4, bR.length);
 			}
 		}
 		else if (!day) {
@@ -515,9 +555,10 @@ function Updater (p, c) {
 		console.log("ignore")	
 	}
 	else if (chord){
+		console.log("chords chosen" + nR + " . " + bR);
 		synth.chord.seq(nR, bR);
 	}
-	else if (!stop && !ignore) {
+	else if (!stop && !ignore && !chord) {
 		synth.note.seq(nR, bR)
 	}
 	//array now
@@ -527,7 +568,6 @@ function Updater (p, c) {
 	var combo = [];
 	combo[0] = nR;
 	combo[1] = bR;
-	console.log(c + " " + ". " + " " + p + " " + " " + combo + " " + " combo");
 	var currentSeqsToPush = [];
 	currentSeqsToPush[0] = p;
 	currentSeqsToPush[1] = combo;
@@ -792,6 +832,7 @@ Harmony = (function () {
 				}
 			}
 			chords.push(innerChord);
+			console.log(innerChord + "innerchord")
 		}
 		return chords;
 

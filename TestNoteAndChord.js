@@ -596,7 +596,7 @@ var Song = function (n, place) { //enclose song
 					  ;}, 
 					 	newC = function(){
 					 		console.log('chords' + syns[m][1] + syns[m][0])
-					  		var cR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
+					  		nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
 					  		bV = Harmony.beetsReturn(4, floor(random(1,4)));
 					  		syns[m][0].chord.seq(cR, bV)
 				      ;}, 
