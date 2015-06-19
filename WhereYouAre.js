@@ -156,12 +156,12 @@ function RandomWeather() {
 
 function renderSynth(amp, offset, hue, freq) {
       var ellipse1Size, ellipse2Size, i, lineCount, lineLength, radius, tDegrees, theta, varianceFromCenter, x1, x2, y1, y2, _i, ref, results;
-      stroke(hue, 100, 50, 255);
+      stroke(0, 100, 50, 255);
       lineCount = 25;
       lineLength = amp * freq;
       radius = (amp * windowWidth);
       varianceFromCenter = amp * 5;
-      if (rainy) {
+      if (cloudy) {
       	ellipse1Size = (amp * (windowWidth * 100));
 	    //  ellipse2Size = (offset >> 2) * 2;
 	    lineLength = amp * (windowWidth * 10);
@@ -172,10 +172,10 @@ function renderSynth(amp, offset, hue, freq) {
 	        //blendMode(LIGHTEST);
 	        theta = (i * 45 / lineCount) + offset;
 	        tDegrees = theta / 45 * Math.PI;
-	        x1 = windowWidth / 2;
-	        y1 = windowHeight / 2;
-	        x2 = middleX + (radius + 5 * lineLength) * Math.cos(tDegrees);
-	        y2 = middleY + (radius + 5 * lineLength) * Math.sin(tDegrees);
+	        x1 = windowWidth / i;
+	        y1 = windowHeight / i;
+	        x2 = x1 + (radius/i * lineLength) * Math.cos(tDegrees);
+	        y2 = y1 + (radius/i * lineLength) * Math.sin(tDegrees);
 	        line(x1, y1, x2, y2);
 	        
 	        	//circles at tip of lines
@@ -188,8 +188,8 @@ function renderSynth(amp, offset, hue, freq) {
 	      return results;
 
       }
-      else if (cloudy) {
-      	ellipse1Size = (amp * (windowWidth * 20));
+      else if (rainy) {
+      	ellipse1Size = (amp * (windowWidth / 20));
 	      ellipse2Size = (offset >> 1) * data.a[1];
 	      results = [];
 	      for (i = _i = 0, _ref = lineCount - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
@@ -198,23 +198,21 @@ function renderSynth(amp, offset, hue, freq) {
 	        //blendMode(LIGHTEST);
 	         theta = (i * 360 / lineCount) + offset;
 	         tDegrees = theta / 180 * Math.PI;
-	        x1 = windowWidth / (i * (amp * 1000)) ;
-	        y1 = windowHeight / (i *(amp * 2000)) ;
+	        x1 = windowWidth / (i * (amp / 10)) ;
+	        y1 = windowHeight / (i *(amp / 20)) ;
 	        x2 = windowWidth * (radius ) * Math.cos(tDegrees);
 	        y2 = windowHeight * (radius) * Math.sin(tDegrees);
-	        line(x1, y1, x2, y2);
+	        line(y1, x1, x2, y2);
 	        //if (sunny) {
 	        	//circles at tip of lines
 	          noStroke();
 	          //fill(0, 0, 50, hue);
 	          rect(x1, y1, ellipse1Size, ellipse1Size);
-	          results.push(ellipse(x2, y2, ellipse2Size, ellipse2Size));
+	          ellipse(x2, y2, ellipse2Size, ellipse2Size);
 	        // } else {
 	        //   results.push(void 0);
 	        // }
 	      }
-	      return results;
-
       }
       else if (!rainy || !cloudy) {
       	  ellipse1Size = (amp * (windowWidth / 16));
@@ -262,8 +260,8 @@ function GroupSynths(q) {
 			synthKinds.push(k);
 		}
 		 else {
-			//var k = kinds[floor(random(kindsLength))],
-			var k = 'pad',
+			var k = kinds[floor(random(kindsLength))],
+			//var k = 'pad',
 			fxAmount = floor(random(1,3));
 			synth = new SynthCreate(i, k);
 			synth.make();
@@ -438,6 +436,7 @@ function Updater (p, c) {
 			var anotherCoin = CoinReturn();
 			if (anotherCoin == 1){
 				if (c == 0) {
+					console.log("c = 0" + syns[p][0])
 					bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
 					nR = Harmony.notesReturn(floor(random(2,4)), floor(random(1,3)))
 				}
@@ -864,6 +863,3 @@ function listAllProperties(o){
 	
 	return result; 
 }
-
-
-
