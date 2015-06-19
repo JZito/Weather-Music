@@ -112,7 +112,12 @@ function draw() {
       // }
       // background and clear old lines
       noStroke();
-      fill(255);
+       if (day){
+      	fill(255);
+      }
+      else if (!day) {
+      	fill(0);
+      }
       rect(0, 0, windowWidth, windowHeight);
       
       ref = tracks;
@@ -145,17 +150,23 @@ function draw() {
 function RandomWeather() {
  	// temperature = floor(random(33,75));
  	// temperatureC = floor((temperature  -  32)  *  5/9);
- 	day = floor(random(0,2));
- 	//day = 1;
- 	 rainy = floor(random(0,2));
- 	//rainy = 0;
- 	//cloudy = 1;
- 	cloudy = floor(random(0,2));
+ 	//day = floor(random(0,2));
+ 	day = 1;
+ 	// rainy = floor(random(0,2));
+ 	rainy = 0;
+ 	cloudy = 1;
+ 	//cloudy = floor(random(0,2));
  	console.log(day + " day " + rainy + "rainy" + cloudy + "cloudy")
  }
 
 function renderSynth(amp, offset, hue, freq) {
-      var ellipse1Size, ellipse2Size, i, lineCount, lineLength, radius, tDegrees, theta, varianceFromCenter, x1, x2, y1, y2, _i, ref, results;
+      var ellipse1Size, timeCol, ellipse2Size, i, lineCount, lineLength, radius, tDegrees, theta, varianceFromCenter, x1, x2, y1, y2, _i, ref, results;
+      if (day){
+      	timeCol = 0;
+      }
+      else if (!day) {
+      	timeCol = 255;
+      }
       stroke(0, 100, 50, 255);
       lineCount = 25;
       lineLength = amp * freq;
@@ -167,7 +178,7 @@ function renderSynth(amp, offset, hue, freq) {
 	    lineLength = amp * (windowWidth * 10);
 	      results = [];
 	      for (i = _i = 0, _ref = lineCount - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-	        stroke(0, 0, 50, hue);
+	        stroke(timeCol, timeCol, timeCol, hue);
 	        noFill();
 	        //blendMode(LIGHTEST);
 	        theta = (i * 45 / lineCount) + offset;
@@ -193,7 +204,7 @@ function renderSynth(amp, offset, hue, freq) {
 	      ellipse2Size = (offset >> 1) * data.a[1];
 	      results = [];
 	      for (i = _i = 0, _ref = lineCount - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-	        stroke(0, 0, 0, hue);
+	        stroke(timeCol, timeCol, timeCol, hue);
 	        noFill();
 	        //blendMode(LIGHTEST);
 	         theta = (i * 360 / lineCount) + offset;
@@ -219,7 +230,7 @@ function renderSynth(amp, offset, hue, freq) {
 	      ellipse2Size = (offset >> 12) * data.a[1];
 	      results = [];
 	      for (i = _i = 0, _ref = lineCount - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-	        stroke(0, 0, 50, hue);
+	        stroke(timeCol, timeCol, timeCol, hue);
 	        noFill();
 	        //blendMode(LIGHTEST);
 	        theta = (i * 360 / lineCount) + offset;
@@ -449,10 +460,11 @@ function Updater (p, c) {
 					}
 					else {
 						// new entry is just previous entry
-						console.log("it is defined");
+						
 						ignore = true;
 						nR = noteLog[c -1 ][p][0];
 						bR =noteLog[c - 1][p][1];
+						console.log("it is defined" + nR + " nr "+ bR + " br");
 					}
 				}
 			}
