@@ -3,7 +3,7 @@ var ranNotes = [12,11,9,7,5,4,2,0,-1], noteLog = [ ],
 beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
 bR, nR, bR2, nR2, sunny = true, bw, columns, space, randomCount = 4, stopper, 
 tracks = [], syns = [], busses = [], currentSeqs = [], effector, fols= [],
-day = true, cloudy = false, rainy = false,
+day = true, cloudy = false, rainy = false, changer = false, state = 'noChange', done = false,
 effectsTypes = [], effectsProperties = [];
   xOffsets = [0, 0, 0, 0];
   hues = [20, 50, 70, 194 / 255];
@@ -56,7 +56,8 @@ function setup () {
 	// drum.fx.add(Crush('lowSamp'))
 	RandomWeather();
 	GroupSynths(3);
-	NewScore();
+	MainLoop();
+	NewFollow();
 	mult = [200,200,200,200,2,2,2];
 
 }
@@ -98,6 +99,7 @@ function CoinReturn() {
 
 function draw() {
       var hue, i, offsetX, track, v, j, len, len1, ref, ref1; 
+      CheckTheTime(minute());
       //results;
 
       // if (lastBeat === 4 && gibber.Clock.currentBeat === 1) {
@@ -123,16 +125,17 @@ function draw() {
       ref = tracks;
       for (i = 0, len = ref.length; i < len; ++i) {
         track = ref[i];
-        xOffsets[i] += tracks[i].instrument.frequency / 1000  ;
+        xOffsets[i] += fols[i].getValue() * 10  ;
       //  console.log(xOffsets[i] + " " + i + " i ");
-        hues[i] += tracks[i].follow.getValue() / 1000;
+        hues[i] += tracks[i].follow.getValue() * 2;
       //  console.log(hues[i]);
-         if (hues[i] < 100) {
-         	//set ceiling of hues, over 100 loops back to 1
-           hues[i] = 100;
-         }
+         // if (hues[i] < 100) {
+         // 	//set ceiling of hues, over 100 loops back to 1
+         //   hues[i] = 100;
+         // }
+         //console.log(hues[i]);
     }
-    stroke(200, 200, 100, hue);
+    //stroke(200, 200, 100, hue);
     //blendMode(LIGHTEST);
     ref1 = tracks;
    // results = [];
@@ -145,6 +148,40 @@ function draw() {
         renderSynth(v, offsetX, hue, track.instrument.frequency);
     }
    // return results;
+};
+
+function CheckTheTime(time) //function check the time
+ {
+    var previousState = state; 
+    
+    //console.log(time);
+    if (time == 6 || time == 11 || time == 37 || time == 49) 
+    {
+    	state = 'change';
+
+    	//console.log('change');
+    }
+  //  else if (time != 1 || time != 15 || time !=  30 || time != 45)
+    else
+    {
+    	state = 'noChange';
+    }
+
+    if (state != previousState) {
+    	state = 'noChange';
+    	console.log('state !=')
+    	changer = true;
+    	// if (ticker == 1){
+    	// 	pieces[0].scoreFadeOut(1);
+    	// 	//go = false;
+    	// 	ticker = 2;	
+    	// }
+    	// else if (ticker == 2){
+    	// 	pieces[1].scoreFadeOut(0);
+    	// 	//go = false;
+    	// 	ticker = 1;	
+    	// }
+    }
 };
 
 function RandomWeather() {
@@ -214,6 +251,7 @@ function renderSynth(amp, offset, hue, freq) {
 	        x2 = windowWidth * (radius ) * Math.cos(tDegrees);
 	        y2 = windowHeight * (radius) * Math.sin(tDegrees);
 	        line(y1, x1, x2, y2);
+	        strokeWeight(3);
 	        //if (sunny) {
 	        	//circles at tip of lines
 	          noStroke();
@@ -288,13 +326,12 @@ function GroupSynths(q) {
 			//	b.fx.add (name)
 			}
 			busses.push(b);
-			console.log(b + " b ")
 	};
 }
 
 function SynthCreate(name, kind) {
-	var ampVar = .5, 
-	presetLeadFMArray = ['bong', 'bong','clarinet', 'glockenspiel', 'glockenspiel', 'glockenspiel'],
+	var ampVar = .25, 
+	presetLeadFMArray = ['bong', 'bong','glockenspiel', 'glockenspiel', 'glockenspiel'],
 	presetLeadMonoArray = ['semiHorn', 'preTester'],
 	presetLeadSynthArray = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin'],
 	padPresets = ['cascade', 'calvin'],
@@ -391,9 +428,8 @@ function EFXCreate(name, kind, kindPre, buss) {
 	}
 }
 
-function NewScore() {
-	var count = 0,
-	s = syns.length;
+function NewFollow() {
+	var s = syns.length;
 	for (k = 0; k < s; k++ ) {
 		//assign each synth to its respective follow for visual representation
 		var f = k;
@@ -402,17 +438,55 @@ function NewScore() {
 		f = Follow (busses[k]);
 		fols.push(f);
 	}
+}
+function MainLoop() {
+	var count = 0,
+	
 	a = Seq( function() { 
 		console.log(count + "count at beginning")
+		s = syns.length;
 		//have a count to determine how many synth gets switched and which doesn't, not just length of array
 // array of objects to change, objects to stop and objcts to leave alone?
-	for (i = 0; i < s; i++){
+		if (changer) {
+			var fadeTime = 24, fadeDiv;
+			randomCount = fadeTime;
+			score = Score([ 0,
+				function(){
+				b = Bus().fx.add (Delay(1/6,.95 ));
+		  		llll = new Line(0, .5, 1)
+				for (i = 0; i < s; i++){
 		//var syn = syns[i][0];
-		Updater(i, count);
+					//	Changer(i, count, fadeTime);
+						fadeDiv = fadeTime/floor(random(1,4))
+						syns[i][0].send(b, llll)
+						syns[i][0].fadeOut(fadeDiv);
+						
+			  		}
+				}, measures(fadeTime/2),
+				function() {
+					for (j = 0; j < s; i++){
+		//var syn = syns[i][0];
+					//	Changer(i, count, fadeTime);
+						randomCount = fadeTime;
+						// syns[i][0].kill();
+			  		}
+					GroupSynths(3);
+					NewFollow();
+				},
+				measures(fadeTime/2)
+				]).start()
+			changer = false;
+		}
+		else if (!changer) {
+			for (i = 0; i < s; i++){
+		//var syn = syns[i][0];
+				Updater(i, count);
+				randomCount = 4;
+				done = false;
 		//EffectsUpdater(i);
-	}
+			}
+		}
 	noteLog.push(currentSeqs)
-	randomCount = 4;
 	count++;
 	console.log( count + " count " + randomCount) }, randomCount ) // every one measures
 }
@@ -429,8 +503,32 @@ function UpdaterTest (p) {
 	}
 }
 
+// function Changer (p, c, m) {
+// 	for (synths) {
+
+// 	}
+// }
 //synth count notes beats
 //
+// function Changer (p, c, m) {
+// 	//p is place in syns index/for loop
+// 	//c is count of beat
+// 	//m is measures for fade
+// 	var ranFader, synth = syns[p][0], synthKind = syns[p][1], fadeDiv = m/floor(random(1,4));
+// 	s = Score([0, 
+// 		function(){
+// 			synth.fadeOut(fadeDiv);
+// 		},
+// 		measures (fadeDiv),
+// 		function() {
+
+// 		}, measures (fadeDiv)
+// 		]).start()
+	
+
+
+// }
+
 
 function Updater (p, c) {
 	var nR, bR;
