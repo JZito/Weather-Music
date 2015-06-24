@@ -34,7 +34,7 @@ function CheckTheTime(time) //function check the time
     		ticker = 1;
     }
     //console.log(time);
-    if (time == 4 || time == 15 || time == 30 || time == 45) 
+    if (time == 4 || time == 15 || time == 40 || time == 45) 
     {
     	state = 'change';
     	//console.log('change');
@@ -46,7 +46,7 @@ function CheckTheTime(time) //function check the time
     }
 
     if (state != previousState) {
-    	state = 'noChange';
+    	//state = 'noChange';
     	console.log('state !=')
     	
     	if (ticker == 1){
