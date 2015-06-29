@@ -1,8 +1,6 @@
 // sandbox
-var ranNotes = [12,11,9,7,5,4,2,0,-1], noteLog = [ ],
+var ranNotes = [12,11,9,7,5,4,2,0,-1], noteLog = [ ], ticker = 0, songs= [],
 beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
-bR, nR, bR2, nR2, sunny = true, bw, columns, space, randomCount = 4, stopper, 
-tracks = [], syns = [], busses = [], currentSeqs = [], effector, fols= [],
 day = true, cloudy = false, rainy = false, changer = false, state = 'noChange', done = false,
 effectsTypes = [], effectsProperties = [];
   xOffsets = [0, 0, 0, 0];
@@ -36,9 +34,10 @@ function setup () {
 	// drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
 	// drum.fx.add(Crush('lowSamp'))
 	RandomWeather();
-	GroupSynths(3);
-	MainLoop();
-	NewFollow();
+	NewSong(0);
+	// GroupSynths(3);
+	// MainLoop();
+	// NewFollow();
 	count = 0;
 	
 	mult = [200,200,200,200,2,2,2];
@@ -81,9 +80,11 @@ function CoinReturn() {
 // }
 
 function draw() {
-      var hue, i, offsetX, track, v, j, len, len1, ref, ref1; 
-      CheckTheTime(minute());
-      //results;
+    var hue, i, offsetX, track, v, j, len, len1, ref, ref1; 
+    CheckTheTime(minute());
+    var currentSong = songs[ticker],
+   // console.log(songs[ticker]);
+      results;
 
       // if (lastBeat === 4 && gibber.Clock.currentBeat === 1) {
       //   sketch.onBarChange();
@@ -96,21 +97,21 @@ function draw() {
       //   return;
       // }
       // background and clear old lines
-      noStroke();
-       if (day){
+    noStroke();
+    if (day){
       	fill(255);
-      }
-      else if (!day) {
+    }
+    else if (!day) {
       	fill(0);
-      }
-      rect(0, 0, windowWidth, windowHeight);
+    }
+    rect(0, 0, windowWidth, windowHeight);
       
-      ref = tracks;
-      for (i = 0, len = ref.length; i < len; ++i) {
+    ref = currentSong.publicTracks;
+    for (i = 0, len = ref.length; i < len; ++i) {
         track = ref[i];
-        xOffsets[i] += fols[i].getValue() * 10  ;
+        xOffsets[i] += currentSong.publicFols[i].getValue() * 10  ;
       //  console.log(xOffsets[i] + " " + i + " i ");
-        hues[i] += tracks[i].follow.getValue() * 2;
+        hues[i] += track.follow.getValue() * 2;
       //  console.log(hues[i]);
          // if (hues[i] < 100) {
          // 	//set ceiling of hues, over 100 loops back to 1
@@ -118,9 +119,7 @@ function draw() {
          // }
          //console.log(hues[i]);
     }
-    //stroke(200, 200, 100, hue);
-    //blendMode(LIGHTEST);
-    ref1 = tracks;
+    ref1 = songs[ticker].publicTracks;
    // results = [];
     ref1L = ref1.length;
     for ( j = 0, len1 = ref1L; j < len1; ++j) {
@@ -130,7 +129,7 @@ function draw() {
         hue = hues[j];
         renderSynth(v, offsetX, hue, track.instrument.frequency);
     }
-   // return results;
+   return results;
 };
 
 function CheckTheTime(time) //function check the time
@@ -154,17 +153,27 @@ function CheckTheTime(time) //function check the time
     	//state = 'noChange';
     	console.log('state !=')
     	changer = true;
-    	// if (ticker == 1){
-    	// 	pieces[0].scoreFadeOut(1);
-    	// 	//go = false;
-    	// 	ticker = 2;	
-    	// }
-    	// else if (ticker == 2){
-    	// 	pieces[1].scoreFadeOut(0);
-    	// 	//go = false;
-    	// 	ticker = 1;	
-    	// }
+    	 if (ticker == 0){
+    	 	aSong.stop();
+    	 	songs[0].scoreFadeOut(1);
+    	 	//go = false;
+    	 	ticker = 1;	
+    	 }
+    	 else if (ticker == 1){
+    	 	bSong.stop();
+    	 	songs[1].scoreFadeOut(0);
+    	 	//go = false;
+    	 	ticker = 0;	
+    	}
     }
+};
+
+function NewSong(t) {
+	song = new Song('ho', t);
+	song.make();
+	songs[t].groupSynths(3);
+	songs[t].scoreCreate();
+	songs[t].newFollow();
 };
 
 function RandomWeather() {
@@ -275,141 +284,141 @@ function renderSynth(amp, offset, hue, freq) {
   		}
     };
 
-function GroupSynths(q) {
+// function GroupSynths(q) {
 	
-	// bass must be last entry in kinds
-	var kinds = ['pad', 'lead', 'bass'], synthKinds = [],
-	kindsLength = kinds.length;
-	// q is number of instruments to create
-	for (var i = 0; i <= q; i++){
-		var b;
-		b = Bus();
-		// if one bass exists already
-		if (synthKinds.indexOf('bass') > -1) {
-			var k = kinds[floor(random((kindsLength -1)))];
-			synth = new SynthCreate(i, k);
-			synth.make();
-			synthKinds.push(k);
-		}
-		 else {
-			var k = kinds[floor(random(kindsLength))],
-			//var k = 'pad',
-			fxAmount = floor(random(1,3));
-			synth = new SynthCreate(i, k);
-			synth.make();
-			synthKinds.push(k);
-			//create the effects for bus for each synthesizer, fxamount is number of effects to add
+// 	// bass must be last entry in kinds
+// 	var kinds = ['pad', 'lead', 'bass'], synthKinds = [],
+// 	kindsLength = kinds.length;
+// 	// q is number of instruments to create
+// 	for (var i = 0; i <= q; i++){
+// 		var b;
+// 		b = Bus();
+// 		// if one bass exists already
+// 		if (synthKinds.indexOf('bass') > -1) {
+// 			var k = kinds[floor(random((kindsLength -1)))];
+// 			synth = new SynthCreate(i, k);
+// 			synth.make();
+// 			synthKinds.push(k);
+// 		}
+// 		 else {
+// 			var k = kinds[floor(random(kindsLength))],
+// 			//var k = 'pad',
+// 			fxAmount = floor(random(1,3));
+// 			synth = new SynthCreate(i, k);
+// 			synth.make();
+// 			synthKinds.push(k);
+// 			//create the effects for bus for each synthesizer, fxamount is number of effects to add
 			
-		}
-		for (var j = 0; j < fxAmount; j++){
-				var e = floor(random(effectsTypes.length));
+// 		}
+// 		for (var j = 0; j < fxAmount; j++){
+// 				var e = floor(random(effectsTypes.length));
 				
-				effect = new EFXCreate(i, effectsTypes[e][0], effectsTypes[e][floor(random(1,effectsTypes[e].length))], b);
-				effect.make()
-			//	b.fx.add (name)
-			}
-			busses.push(b);
-	};
-}
+// 				effect = new EFXCreate(i, effectsTypes[e][0], effectsTypes[e][floor(random(1,effectsTypes[e].length))], b);
+// 				effect.make()
+// 			//	b.fx.add (name)
+// 			}
+// 			busses.push(b);
+// 	};
+// }
 
-function SynthCreate(name, kind) {
-	var ampVar = .45, 
-	presetLeadFMArray = ['bong', 'bong','glockenspiel', 'glockenspiel', 'glockenspiel'],
-	presetLeadMonoArray = ['semiHorn', 'preTester'],
-	presetLeadSynthArray = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin'],
-	padPresets = ['cascade', 'calvin'],
-	pad2Presets = ['triTest'],
-	leadInstruments = [FM, Synth, Mono], padInstruments = [Synth2];
-	  // name - name object, kind - role of instrument (lead, pad etc), pre- preset,
-	  //reference item by spot in syns array... 
-	this.name = name;
+// function SynthCreate(name, kind) {
+// 	var ampVar = .45, 
+// 	presetLeadFMArray = ['bong', 'bong','glockenspiel', 'glockenspiel', 'glockenspiel'],
+// 	presetLeadMonoArray = ['semiHorn', 'preTester'],
+// 	presetLeadSynthArray = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin'],
+// 	padPresets = ['cascade', 'calvin'],
+// 	pad2Presets = ['triTest'],
+// 	leadInstruments = [FM, Synth, Mono], padInstruments = [Synth2];
+// 	  // name - name object, kind - role of instrument (lead, pad etc), pre- preset,
+// 	  //reference item by spot in syns array... 
+// 	this.name = name;
 	   
-	this.make = function() {
-	var instrumentKind;
-	if (kind == 'lead') {
-	   	instrumentKind = leadInstruments[floor(random(leadInstruments.length))];
-	   	if (instrumentKind == FM){
-	   		//pre =  'brass'
-	   		pre = presetLeadFMArray[floor(random(presetLeadFMArray.length))];
+// 	this.make = function() {
+// 	var instrumentKind;
+// 	if (kind == 'lead') {
+// 	   	instrumentKind = leadInstruments[floor(random(leadInstruments.length))];
+// 	   	if (instrumentKind == FM){
+// 	   		//pre =  'brass'
+// 	   		pre = presetLeadFMArray[floor(random(presetLeadFMArray.length))];
 
-	   		//ampVar = .2
-	   }
-	  else if (instrumentKind == Synth){
-	   		pre = presetLeadSynthArray[floor(random(presetLeadSynthArray.length))];
-	   		if (pre == 'cascade' || pre == 'warble') {
-	   			ampVar = .2
-	   		}
-	   		else if (pre == 'calvin') {
-	   			ampVar = .05
-	   		}
-	   		else {
-	   			ampVar = .25
-	   		}
-	   }
-	   else if (instrumentKind == Mono){
-	   		pre = presetLeadMonoArray[floor(random(presetLeadMonoArray.length))];
-	   		ampVar = .25
-	   }
-	}
-	else if (kind == 'pad') {
-		ampVar = .5
-		var coin = Math.round(Math.random()*2);
-		if (coin == 1) {
-			instrumentKind = Synth;
-			pre = padPresets[floor(random(padPresets.length))]
-			if (pre == 'cascade' || pre == 'warble' || pre == 'calvin') {
-	   			ampVar = .2
-	   		}
-	   		else {
-	   			ampVar = .25
-	   		}
-		}
-		else {
-			instrumentKind = Synth2;
-	    	pre = pad2Presets[floor(random(pad2Presets.length))]
-	    	ampVar = .5	
-		};
-	}
-	else if (kind == 'bass'){
-	  	instrumentKind = Mono;
-	   	pre = 'waveBass';
-	}
+// 	   		//ampVar = .2
+// 	   }
+// 	  else if (instrumentKind == Synth){
+// 	   		pre = presetLeadSynthArray[floor(random(presetLeadSynthArray.length))];
+// 	   		if (pre == 'cascade' || pre == 'warble') {
+// 	   			ampVar = .2
+// 	   		}
+// 	   		else if (pre == 'calvin') {
+// 	   			ampVar = .05
+// 	   		}
+// 	   		else {
+// 	   			ampVar = .25
+// 	   		}
+// 	   }
+// 	   else if (instrumentKind == Mono){
+// 	   		pre = presetLeadMonoArray[floor(random(presetLeadMonoArray.length))];
+// 	   		ampVar = .25
+// 	   }
+// 	}
+// 	else if (kind == 'pad') {
+// 		ampVar = .5
+// 		var coin = Math.round(Math.random()*2);
+// 		if (coin == 1) {
+// 			instrumentKind = Synth;
+// 			pre = padPresets[floor(random(padPresets.length))]
+// 			if (pre == 'cascade' || pre == 'warble' || pre == 'calvin') {
+// 	   			ampVar = .2
+// 	   		}
+// 	   		else {
+// 	   			ampVar = .25
+// 	   		}
+// 		}
+// 		else {
+// 			instrumentKind = Synth2;
+// 	    	pre = pad2Presets[floor(random(pad2Presets.length))]
+// 	    	ampVar = .5	
+// 		};
+// 	}
+// 	else if (kind == 'bass'){
+// 	  	instrumentKind = Mono;
+// 	   	pre = 'waveBass';
+// 	}
 	
-	name = instrumentKind(pre)
-	name.amp (ampVar)
-	foll = Follow(name)
-	console.log(name + " name " + kind + " kind " + instrumentKind + " instrumentKind " + pre + " pre " + foll + " foll")
-	// if want to add fx, call fxObj = new FX(blah blah)
-	//fxObj.make();
-	//name.fx.add(fxObj);
-	var valueToPush = new Array();
-			valueToPush[0] = name;
-			valueToPush[1] = kind;
-	syns.push(valueToPush);
+// 	name = instrumentKind(pre)
+// 	name.amp (ampVar)
+// 	foll = Follow(name)
+// 	console.log(name + " name " + kind + " kind " + instrumentKind + " instrumentKind " + pre + " pre " + foll + " foll")
+// 	// if want to add fx, call fxObj = new FX(blah blah)
+// 	//fxObj.make();
+// 	//name.fx.add(fxObj);
+// 	var valueToPush = new Array();
+// 			valueToPush[0] = name;
+// 			valueToPush[1] = kind;
+// 	syns.push(valueToPush);
 
-	tracks.push({
-        instrument: name,
-        follow: foll
-      });
-	//name._;
-	    // pluck is very quiet
-  }
-}
+// 	tracks.push({
+//         instrument: name,
+//         follow: foll
+//       });
+// 	//name._;
+// 	    // pluck is very quiet
+//   }
+// }
 
-function EFXCreate(name, kind, kindPre, buss) {
-// 	var efX = [presetLPFArray = ['rising'], presetDelayArray = , 
-// presetSchizoArray = , presetVibratoArray = ,
-//  presetCrushArray = ['clean', 'lowSamp', 'dirty']], pre;
-	this.name = name;
+// function EFXCreate(name, kind, kindPre, buss) {
+// // 	var efX = [presetLPFArray = ['rising'], presetDelayArray = , 
+// // presetSchizoArray = , presetVibratoArray = ,
+// //  presetCrushArray = ['clean', 'lowSamp', 'dirty']], pre;
+// 	this.name = name;
 	   
-	this.make = function() {
-		var efxKind, pre;
-		efxKind = kind;
-		pre = kindPre;
-		name = efxKind(pre)
-		buss.fx.add(name);
-	}
-}
+// 	this.make = function() {
+// 		var efxKind, pre;
+// 		efxKind = kind;
+// 		pre = kindPre;
+// 		name = efxKind(pre)
+// 		buss.fx.add(name);
+// 	}
+// }
 
 function NewFollow() {
 	var s = syns.length;
@@ -422,93 +431,26 @@ function NewFollow() {
 		fols.push(f);
 	}
 }
-function MainLoop() {
-	var count = 0,
+// function MainLoop(tic) {
+// 	var count = 0,
 	
-	aSong = Seq( function() { 
-		console.log(count + "count at beginning")
-		s = syns.length;
-		//have a count to determine how many synth gets switched and which doesn't, not just length of array
-// array of objects to change, objects to stop and objcts to leave alone?
-		if (!changer){
-			for (i = 0; i < s; i++){
-				Updater(i, count);
-			}
-		//var syn = syns[i][0];
-				
-				randomCount = 4;
-				done = false;
-		//EffectsUpdater(i);
-			}
-		else if (changer){
-			changer = false;
-			var b, llll, ll, lll;
-	synLength = syns.length;
-	scoreFade = Score([0,
-		function () {
-			console.log("first function in fade");
-			b = Bus().fx.add (Delay(1/6,.95 ));
-			llll = new Line(0, .5, 1)
-			// llll send up to .5 in 1 measure
-			for (var i = 0; i < synLength; i++) {
-				syns[i][0].send(b, llll)
-			}
-		}, measures(2),
-		function(){
-			console.log("2nd function in fade");
-			ll = new Line(.5, 0, 2)
-			//
-			//drum.fadeOut(4);
-			for (var i = 0; i < synLength; i++) {
-				syns[i][0].amp(ll)
-			}
-			//innerSongBus.amp(ll);
-			//NewSong(tick);	
-		}, measures(4),
-		function(){
-			console.log("3rd function in fade");
-			go = false;
-			 // for (var j = 0; j < fols.length; j++) {
-			 // 	fols[j].remove();
-			 // };
-			for (var i = 0; i < syns.length; i++){
-			 	syns[i][0].kill();
-			};
-			
-			GroupSynths(3);
-			MainLoop();
-			NewFollow();
-			lll = new Line(.5, 0, 2);
-				//drum.kill();
-				
-			b.fx[0].feedback = .45;
-			b.fx[0].feedback = lll;
-			
-			//fols.length = 0;
-			//scores.length = 0;
-			
-		}, measures(1),
-		function(){
+// 	aSong = Seq( function() { 
+// 		console.log(count + "count at beginning")
+// 		s = syns.length;
+// 		//have a count to determine how many synth gets switched and which doesn't, not just length of array
+// // array of objects to change, objects to stop and objcts to leave alone?
+// 		for (i = 0; i < s; i++){
+// 			Updater(i, count);
+// 			randomCount = 4;
+// 			done = false;
+// 		}
+// 	noteLog.push(currentSeqs)
+// 	count++;
+// 	//console.log( count + " count " + randomCount) 
+// 	}, randomCount ) // every one measures
+// 	pieces[tic] = aSong;
 
-			console.log("last function in fade");
-			//inScore.stop();
-			//score.stop();
-			//innerSongBus.kill();
-			b.kill();
-			//l.kill();
-			llll.kill();
-			ll.kill();
-			lll.kill();
-			aSong.stop();
-			}, measures(1)]).start();
-			randomCount = 12;
-		}
-		//}
-	noteLog.push(currentSeqs)
-	count++;
-	//console.log( count + " count " + randomCount) 
-	}, randomCount ) // every one measures
-}
+// }
 
 // function Change () {
 // 	var b, llll, ll, lll;
@@ -570,17 +512,7 @@ function MainLoop() {
 // 			}, measures(1)]).start();
 // }
 
-function UpdaterTest (p) {
-	var nRbR=[], bR = Harmony.wholeBeetsReturn(.5, floor(random(1,6))),
-	nR = Harmony.melodyReturn(0, bR.length, bR.length),
-	synth = syns[p][0], coin = CoinReturn();
-	if (coin == 1){
-		synth.note.seq(nR,bR)
-	}
-	else if (coin == 0) {
-		//synth.note.seq(nR, bR);
-	}
-}
+
 
 // function Changer (p, c, m) {
 // 	for (synths) {
@@ -609,175 +541,9 @@ function UpdaterTest (p) {
 // }
 
 
-function Updater (p, c) {
-	var nR, bR;
-	//p is place, place in syns index/for loop
-	// c is count
-	var stop = false, chord = false, ignore = false, coin = CoinReturn(), synth = syns[p][0],
-	synthKind = syns[p][1];
-	// flip a coin
-	//console.log(p + " . .  "+ coin)
-	
-	if (synthKind == 'lead') {
-		console.log(p + " " + synthKind + " lead ")
-		if (coin == 1){
-			var anotherCoin = CoinReturn();
-			if (anotherCoin == 1){
-				if (c == 0) {
-					//console.log("c = 0" + syns[p][0])
-					bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
-					nR = Harmony.notesReturn(floor(random(2,4)), floor(random(1,3)))
-				}
-				else if (c >= 1){
-					if (!noteLog[c-1][p][0]){
-						console.log("it  is undefined ");
-						bR = Harmony.wholeBeetsReturn(1, floor(random(3,12)));
-						bRL = bR.length;
-						nR = Harmony.melodyReturn(12, bRL, bRL);
-					}
-					else {
-						// new entry is just previous entry
-						
-						ignore = true;
-						nR = noteLog[c -1 ][p][0];
-						bR =noteLog[c - 1][p][1];
-						console.log("it is defined" + nR + " nr "+ bR + " br");
-					}
-				}
-			}
-			else if (c == 0) {
-				bR = Harmony.wholeBeetsReturn(2, floor(random(1,8)));
-				bRL = bR.length;
-				nR = Harmony.melodyReturn(0, bRL, bRL);
-			}
-			else if (c >=1 ) {
-				stop = true;
-			}
-		}
-		else if (coin ==0){	
-			bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
-			bRL = bR.length;
-			nR = Harmony.melodyReturn(0, bRL, bRL);
-		}
-	}
-		//if sunny
 
-		//if cloudy
 
-		//if rainy
-	
-	else if (synthKind == 'bass') {
-	//	newM = function() {
-		if (day) {
-			//console.log('bass line' + syns[m][1] + syns[m][0]);
-			
-			if (cloudy) {
-				nR = Harmony.notesReturn(0, 1, 8);
-  				bR = Harmony.beetsReturn(4, floor(random(2,4)));
-			}
-			else if (rainy) {
-				nR = Harmony.notesReturn(floor(random(2,4)), 2);
-  				bR = Harmony.beetsReturn(2, floor(random(1,3)));
-			}
-			else if (!rainy && !cloudy) {
-				bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
-				nR = Harmony.notesReturn(floor(random(2,4)), floor(random(1,3)))
-				//syns[m][0].note.seq(nR, bR);
-			}
-		}
-		else if (!day) {
-			
-			if (cloudy) {
-				nR = Harmony.notesReturn(0, 1, 8);
-  				bR = Harmony.beetsReturn(4, floor(random(2,4)));
-			}
-			else if (rainy) {
-				nR = Harmony.notesReturn(floor(random(2,4)), 2);
-  				bR = Harmony.beetsReturn(2, floor(random(1,3)));
-			}
-			else if (!rainy && !cloudy) {
-				bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
-				nR = Harmony.notesReturn(floor(random(2,4)), floor(random(1,3)))
-				//syns[m][0].note.seq(nR, bR);
-			}
-		}
-	}
-	else if (synthKind == 'pad') {
-		if (day) {
-			chord = true;
-			if (cloudy) {
-				
-				bR = Harmony.beetsReturn(4, floor(random(1,3)));
-					nR = Harmony.chordsReturn(floor(random(2,4)), floor(random(1,3)))
-			}
-			else if (rainy) {
-				bR = Harmony.beetsReturn(4, floor(random(1,3)));
-					nR = Harmony.chordsReturn(floor(random(2,4)), floor(random(1,3)))
-			}
-			else if (!rainy && !cloudy) {
-				
-				bR = Harmony.beetsReturn(1, floor(random(1,8)));
-			nR = Harmony.chordsReturn(4, floor(random(2,4)));
-			}
-		}
-		else if (!day) {
-			chord = false;
-			if (cloudy) {
-				bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
-			nR = Harmony.melodyReturn(0, bR.length, bR.length);
-			}
-			else if (rainy){
-				bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
-			nR = Harmony.melodyReturn(0, bR.length, bR.length);
-			}
-			else if (!rainy && !cloudy) {
-				bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
-			nR = Harmony.melodyReturn(0, bR.length, bR.length);
-			}
-		}
-	}
 
-		//oif kind lead
-
-	if (stop){
-		synth.note.seq.stop();
-	}
-	else if (ignore) {
-		console.log("ignore")	
-	}
-	else if (chord){
-		console.log("chords chosen" + nR + " . " + bR);
-		synth.chord.seq(nR, bR);
-	}
-	else if (!stop && !ignore && !chord) {
-		synth.note.seq(nR, bR)
-	}
-	//array now
-	//count is the i position, setting the point in the top array
-	//bottom array includes everything else, 0 will always be synth
-	//1 will aways be nR array, 2 will always be bR array
-	var combo = [];
-	combo[0] = nR;
-	combo[1] = bR;
-	var currentSeqsToPush = [];
-	currentSeqsToPush[0] = p;
-	currentSeqsToPush[1] = combo;
-	currentSeqs[p] = currentSeqsToPush;
-	//console.log(c + "c" + p + " name " + nR + "nr" + bR + "br")
-	//noteLog[c].push([synth.name, nR, bR])
-	//console.log(noteLog[c][p][0] + " notelog c p 0 ")
-
-}
-
-function isItemInArray(array, item) {
-    for (var i = 0; i < array.length; i++) {
-        // This if statement depends on the format of your array
-        if (array[i][0] == item[0] && array[i][1] == item[1]) {
-            return true;   // Found it
-        }
-    }
-    return false;   // Not found
-}
 
 function EffectsUpdater (place) {
 	var clear = false, coin = CoinReturn(), theBus = busses[place], anotherCoin = CoinReturn(),
@@ -1052,3 +818,438 @@ function listAllProperties(o){
 	
 	return result; 
 }
+
+function isItemInArray(array, item) {
+    for (var i = 0; i < array.length; i++) {
+        // This if statement depends on the format of your array
+        if (array[i][0] == item[0] && array[i][1] == item[1]) {
+            return true;   // Found it
+        }
+    }
+    return false;   // Not found
+}
+
+var Song = function (n, place) { //enclose song
+	this.name = n;		   
+	this.make = function() {
+		beepEM = floor(random(56,79));
+		Clock.bpm(beepEM);
+		var innerSong = (function () {
+			var bw, columns, space, randomCount = 4, stopper, 
+			tracks = [], syns = [], busses = [], currentSeqs = [], effector, fols= [];
+			// var inScore, arp, arps = [],score,  mezhure, mezhures = [], mezhuresAlreadyAdded = [], scores = [], syn, kindsAlreadyAdded = [], fols = [], busses = [], syns = [], m = 4, scorePhrases = floor(random(32,112)), innerSongBus,
+			// presets = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin'], bassWaveform = ['Saw','Sine','Triangle', 'Square'], 
+			// presetLeadFMArray = ['bong', 'bong','clarinet', 'glockenspiel', 'glockenspiel', 'glockenspiel'],
+			// presetLeadMonoArray = ['semiHorn', 'preTester'];
+			// padPresets = ['cascade', 'calvin'],
+			// arpPatternArray = ['updown2', 'updown', 'down', 'up'],
+			// //pad2Presets = ['pad2','pad4', 'rainTri' ];
+			// pad2Presets = ['triTest'];
+
+			//it can all happen in here. handle each score, handle each instrument
+			// array of syn objects can live here but be changed by a public method
+			// syns = [];
+			// public method to restart clears objects
+			// syn is the object to be effected... how to assign?
+			// privtely fill details of score
+		    // check the time function will be calling module.clear method to start over
+		    // use a circle ? for each follow... needs to be referenced from draw. call method from draw? how
+		    // will that work?
+			// var scoreDetails = function(m, scoreType) {
+				// there's array scores... if scores[i] index of blah blah, do blah blah, else do blah blah?
+				//an additional array, if the rotations are brief, if there are less than x notes, classify as
+				// blah blah, if conditions are otherwise, clsassify it as blah blah bloo
+				// good for things like arp?? if afternoon or night, arp .. if more than two arps, no more arps
+				// if midnight no arp, if 6 am- noon one arp only... things like that?
+				//if pad exists twice, one be chords, one be slow lead for tensions
+				// if rhodes exists twice, have one return chords (intervals maybe), one return melody
+			// };
+			var Updater = function (p, c) {
+				var nR, bR,
+				//p is place, place in syns index/for loop
+				// c is count
+				stop = false, chord = false, ignore = false, coin = CoinReturn(), synth = syns[p][0],
+				synthKind = syns[p][1];
+				// flip a coin
+				//console.log(p + " . .  "+ coin)
+
+				if (synthKind == 'lead') {
+					console.log(p + " " + synthKind + " lead ")
+					if (coin == 1){
+						var anotherCoin = CoinReturn();
+						if (anotherCoin == 1){
+							if (c == 0) {
+								//console.log("c = 0" + syns[p][0])
+								bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
+								nR = Harmony.notesReturn(0, floor(random(2,4)), floor(random(1,3)))
+							}
+							else if (c >= 1){
+								if (!noteLog[c-1][p][0]){
+									console.log("it  is undefined ");
+									bR = Harmony.wholeBeetsReturn(1, floor(random(3,12)));
+									bRL = bR.length;
+									nR = Harmony.melodyReturn(12, bRL, bRL);
+								}
+								else {
+									// new entry is just previous entry
+									
+									ignore = true;
+									nR = noteLog[c -1 ][p][0];
+									bR =noteLog[c - 1][p][1];
+									console.log("it is defined" + nR + " nr "+ bR + " br");
+								}
+							}
+						}
+						else if (c == 0) {
+							bR = Harmony.wholeBeetsReturn(2, floor(random(1,8)));
+							bRL = bR.length;
+							nR = Harmony.melodyReturn(0, bRL, bRL);
+						}
+						else if (c >=1 ) {
+							stop = true;
+						}
+					}
+					else if (coin ==0){	
+						bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
+						bRL = bR.length;
+						nR = Harmony.melodyReturn(0, bRL, bRL);
+					}
+				}
+					//if sunny
+
+					//if cloudy
+
+					//if rainy
+
+				else if (synthKind == 'bass') {
+				//	newM = function() {
+					if (day) {
+						//console.log('bass line' + syns[m][1] + syns[m][0]);
+						
+						if (cloudy) {
+							nR = Harmony.notesReturn(0, 1, 8);
+								bR = Harmony.beetsReturn(4, floor(random(2,4)));
+						}
+						else if (rainy) {
+							nR = Harmony.notesReturn(0, floor(random(2,4)), 2);
+								bR = Harmony.beetsReturn(2, floor(random(1,3)));
+						}
+						else if (!rainy && !cloudy) {
+							bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
+							nR = Harmony.notesReturn(0, floor(random(2,4)), floor(random(1,3)))
+							//syns[m][0].note.seq(nR, bR);
+						}
+					}
+					else if (!day) {
+						
+						if (cloudy) {
+							nR = Harmony.notesReturn(0, 1, 8);
+								bR = Harmony.beetsReturn(4, floor(random(2,4)));
+						}
+						else if (rainy) {
+							nR = Harmony.notesReturn(0, floor(random(2,4)), 2);
+								bR = Harmony.beetsReturn(2, floor(random(1,3)));
+						}
+						else if (!rainy && !cloudy) {
+							bR = Harmony.wholeBeetsReturn(4, floor(random(1,3)));
+							nR = Harmony.notesReturn(0, floor(random(2,4)), floor(random(1,3)))
+							//syns[m][0].note.seq(nR, bR);
+						}
+					}
+				}
+				else if (synthKind == 'pad') {
+					if (day) {
+						chord = true;
+						if (cloudy) {
+							
+							bR = Harmony.beetsReturn(4, floor(random(1,3)));
+								nR = Harmony.chordsReturn(floor(random(2,4)), floor(random(1,3)))
+						}
+						else if (rainy) {
+							bR = Harmony.beetsReturn(4, floor(random(1,3)));
+								nR = Harmony.chordsReturn(floor(random(2,4)), floor(random(1,3)))
+						}
+						else if (!rainy && !cloudy) {
+							
+							bR = Harmony.beetsReturn(1, floor(random(1,8)));
+						nR = Harmony.chordsReturn(4, floor(random(2,4)));
+						}
+					}
+					else if (!day) {
+						chord = false;
+						if (cloudy) {
+							bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
+						nR = Harmony.melodyReturn(0, bR.length, bR.length);
+						}
+						else if (rainy){
+							bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
+						nR = Harmony.melodyReturn(0, bR.length, bR.length);
+						}
+						else if (!rainy && !cloudy) {
+							bR = Harmony.wholeBeetsReturn(.5, floor(random(1,8)));
+						nR = Harmony.melodyReturn(0, bR.length, bR.length);
+						}
+					}
+				}
+
+					//oif kind lead
+
+				if (stop){
+					synth.note.seq.stop();
+				}
+				else if (ignore) {
+					console.log("ignore")	
+				}
+				else if (chord){
+					console.log("chords chosen" + nR + " . " + bR);
+					synth.chord.seq(nR, bR);
+				}
+				else if (!stop && !ignore && !chord) {
+					synth.note.seq(nR, bR)
+				}
+				//array now
+				//count is the i position, setting the point in the top array
+				//bottom array includes everything else, 0 will always be synth
+				//1 will aways be nR array, 2 will always be bR array
+				var combo = [];
+				combo[0] = nR;
+				combo[1] = bR;
+				var currentSeqsToPush = [];
+				currentSeqsToPush[0] = p;
+				currentSeqsToPush[1] = combo;
+				currentSeqs[p] = currentSeqsToPush;
+				//console.log(c + "c" + p + " name " + nR + "nr" + bR + "br")
+				//noteLog[c].push([synth.name, nR, bR])
+				//console.log(noteLog[c][p][0] + " notelog c p 0 ")
+
+				}
+			return {
+				publicSyns: syns,
+				publicFols: fols,
+				publicTracks: tracks,
+				// groupsynths is create a whole group of individual synthcreates
+				groupSynths: function(q) {
+					// bass must be last entry in kinds to ensure only one
+					var kinds = ['pad', 'lead', 'bass'], synthKinds = [],
+					kindsLength = kinds.length;
+					// q is number of instruments to create
+					for (var i = 0; i <= q; i++){
+						var b;
+						b = Bus();
+						// if one bass exists already
+						if (synthKinds.indexOf('bass') > -1) {
+							var k = kinds[floor(random((kindsLength -1)))];
+							synth = new innerSong.synthCreate(i, k);
+							synth.make();
+							synthKinds.push(k);
+						}
+						 else {
+							var k = kinds[floor(random(kindsLength))],
+							//var k = 'pad',
+							fxAmount = floor(random(1,3));
+							synth = new innerSong.synthCreate(i, k);
+							synth.make();
+							synthKinds.push(k);
+							//create the effects for bus for each synthesizer, fxamount is number of effects to add
+							
+						}
+						for (var j = 0; j < fxAmount; j++){
+								var e = floor(random(effectsTypes.length));
+								
+								effect = new innerSong.eFXCreate(i, effectsTypes[e][0], effectsTypes[e][floor(random(1,effectsTypes[e].length))], b);
+								effect.make()
+							//	b.fx.add (name)
+							}
+							busses.push(b);
+					};
+				},
+				synthCreate: function(name, kind) {
+					var ampVar = .45, 
+					presetLeadFMArray = ['bong', 'bong','glockenspiel', 'glockenspiel', 'glockenspiel'],
+					presetLeadMonoArray = ['semiHorn', 'preTester'],
+					presetLeadSynthArray = ['bleep', 'bleepEcho', 'rhodes', 'calvin'],
+					padPresets = ['cascade', 'calvin', 'warble'],
+					pad2Presets = ['triTest'],
+					leadInstruments = [FM, Synth, Mono], padInstruments = [Synth2];
+					  // name - name object, kind - role of instrument (lead, pad etc), pre- preset,
+					  //reference item by spot in syns array... 
+					this.name = name;
+					   
+					this.make = function() {
+					var instrumentKind;
+					if (kind == 'lead') {
+					   	instrumentKind = leadInstruments[floor(random(leadInstruments.length))];
+					   	if (instrumentKind == FM){
+					   		//pre =  'brass'
+					   		pre = presetLeadFMArray[floor(random(presetLeadFMArray.length))];
+
+					   		//ampVar = .2
+					   }
+					  else if (instrumentKind == Synth){
+					   		pre = presetLeadSynthArray[floor(random(presetLeadSynthArray.length))];
+					   		if (pre == 'cascade' || pre == 'warble') {
+					   			ampVar = .2
+					   		}
+					   		else if (pre == 'calvin') {
+					   			ampVar = .05
+					   		}
+					   		else {
+					   			ampVar = .25
+					   		}
+					   }
+					   else if (instrumentKind == Mono){
+					   		pre = presetLeadMonoArray[floor(random(presetLeadMonoArray.length))];
+					   		ampVar = .25
+					   }
+					}
+					else if (kind == 'pad') {
+						ampVar = .5
+						var coin = Math.round(Math.random()*2);
+						if (coin == 1) {
+							instrumentKind = Synth;
+							pre = padPresets[floor(random(padPresets.length))]
+							if (pre == 'cascade' || pre == 'warble' || pre == 'calvin') {
+					   			ampVar = .2
+					   		}
+					   		else {
+					   			ampVar = .25
+					   		}
+						}
+						else {
+							instrumentKind = Synth2;
+					    	pre = pad2Presets[floor(random(pad2Presets.length))]
+					    	ampVar = .5	
+						};
+					}
+					else if (kind == 'bass'){
+					  	instrumentKind = Mono;
+					   	pre = 'waveBass';
+					}
+					
+					name = instrumentKind(pre)
+					name.amp (ampVar)
+					foll = Follow(name)
+					console.log(name + " name " + kind + " kind " + instrumentKind + " instrumentKind " + pre + " pre " + foll + " foll")
+					// if want to add fx, call fxObj = new FX(blah blah)
+					//fxObj.make();
+					//name.fx.add(fxObj);
+					var valueToPush = new Array();
+							valueToPush[0] = name;
+							valueToPush[1] = kind;
+					syns.push(valueToPush);
+
+					tracks.push({
+				        instrument: name,
+				        follow: foll
+				      });
+					//name._;
+					    // pluck is very quiet
+				  }
+				},
+				scoreCreate: function() {
+					var beeps = floor((60/beepEM) *1000);
+					console.log(beeps + 'bpm');
+					innerSongBus = Bus().fx.add( //Schizo({chance:.95, pitchChance: 0, rate:ms(beeps/4), length:ms(beeps)}), 
+					Reverb('large') ) // right
+					innerSongBus.connect();
+					innerSongBus.amp(0)
+					l = Line(0, 1, 4);
+					s = syns.length;
+					for (p = 0; p > s; p++){ 
+						syns[i][0]._;
+						syns[i][0].connect(innerSongBus);
+					}
+					innerSongBus.amp = l;
+					var count = 0,
+					aSong = Seq( function() { 
+					//have a count to determine how many synth gets switched and which doesn't, not just length of array
+					// array of objects to change, objects to stop and objcts to leave alone?
+						for (i = 0; i < s; i++){
+							Updater(i, count);
+							randomCount = 4;
+							done = false;
+						}
+						noteLog.push(currentSeqs)
+						count++;
+						}, randomCount ); // every one measures
+		  			},
+		  		eFXCreate: function(name, kind, kindPre, buss) {
+						// 	var efX = [presetLPFArray = ['rising'], presetDelayArray = , 
+						// presetSchizoArray = , presetVibratoArray = ,
+						//  presetCrushArray = ['clean', 'lowSamp', 'dirty']], pre;
+						this.name = name;
+						this.make = function() {
+							var efxKind, pre;
+							efxKind = kind;
+							pre = kindPre;
+							name = efxKind(pre)
+							buss.fx.add(name);
+						}
+					},
+				newFollow: function() {
+					var s = syns.length;
+					for (k = 0; k < s; k++ ) {
+						//assign each synth to its respective follow for visual representation
+						var f = k;
+						syns[f][0]._
+						syns[f][0].send(busses[k], 1);
+						f = Follow (busses[k]);
+						fols.push(f);
+					}
+				},
+		  		scoreFadeOut: function(tick) {
+		  			var b, llll, ll, lll;
+		  			scoreFade = Score([0,
+		  				function () {
+		  					b = Bus().fx.add (Delay(1/6,.95 ));
+		  					llll = new Line(0, .5, 1)
+		  					for (var i = 0; i < syns.length; i++) {
+		  						syns[i][0].send(b, llll)
+		  					}
+		  				}, measures(2),
+		  				function(){
+		  					score.stop();
+		  					inScore.stop();
+		  					ll = new Line(.5, 0, 2)
+		  					//
+		  					//drum.fadeOut(4);
+		  					innerSongBus.amp(ll);
+		  					NewSong(tick);	
+		  				}, measures(4),
+		  				function(){
+		  					go = false;
+							for (var j = 0; j < fols.length; j++) {
+ 		  						fols[j].remove();
+ 		  					};
+		  					for (var i = 0; i < syns.length; i++){
+ 		  						syns[i][0].kill();
+ 		  					};
+ 		  					
+		  					lll = new Line(.5, 0, 2)
+ 		  					//drum.kill();
+ 		  					
+		  					b.fx[0].feedback = .45;
+		  					b.fx[0].feedback = lll;
+		  					
+		  					fols.length = 0;
+		  					scores.length = 0;
+		  					
+		  				}, measures(1),
+		  				function(){
+		  					inScore.stop();
+		  					score.stop();
+ 		  					innerSongBus.kill();
+ 		  					b.kill();
+		  					l.kill();
+		  					
+		  					llll.kill();
+		  					ll.kill();
+		  					lll.kill();
+		  				}, measures(1)]).start();
+		  			}
+		  		};
+			})();//inner song enclosure
+		songs[place] = innerSong;
+	}
+
+}; //song enclosure 
