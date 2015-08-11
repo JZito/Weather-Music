@@ -1,6 +1,6 @@
 // sandbox
-var ranNotes = [12,11,9,7,5,4,2,0,-1], noteLog = [ ], ticker = 0, songs= [],
-beets = [1, 1/1.5, 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
+var ranNotes = [12,11,9,7,5,4,2,0,-1], noteLog = [ ], ticker = 0, songs = [],
+beets = [1, 1/1.5, , , , 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
 day = true, cloudy = false, rainy = false, changer = false, state = 'noChange', done = false,
 effectsTypes = [], effectsProperties = [];
   xOffsets = [0, 0, 0, 0];
@@ -9,7 +9,7 @@ effectsTypes = [], effectsProperties = [];
   visualizer = false;
 
 function setup () {
-	var aSong;
+	//var aSong;
 	canvas = createCanvas( windowWidth, windowHeight );
 	console.log("windowWidth" + windowWidth + " window height" + windowHeight)
 	middleX = windowWidth / 2;
@@ -29,17 +29,13 @@ function setup () {
 	effectsProperties = [ ['LPF', ['cutoff',0,1], ['resonance', 0,5] ]  , ['Delay', ['time',0,1], ['feedback', 0,5]],
 	['Schizo', ['chance', 0,1], ['reverseChance',0,1], ['mix',0, 1],
     ['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,5], ['offset',25,1250 ], ['amount', 25,100]]];
-	//can set it up so if only two numbers, treat it as range, otherwise, treat it as multi option specific picker
+	//set it up so if only two numbers, treat it as range, otherwise, treat it as multi option specific picker
 	//songBus = Bus().fx.add( Reverb('large'))
 	// drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
 	// drum.fx.add(Crush('lowSamp'))
 	RandomWeather();
 	NewSong(0);
-	// GroupSynths(3);
-	// MainLoop();
-	// NewFollow();
 	count = 0;
-	
 	mult = [200,200,200,200,2,2,2];
 
 }
@@ -75,41 +71,39 @@ function CoinReturn() {
  	return coin;
  }
 
-// function Stopper () {
-
-// }
 
 function draw() {
     var hue, i, offsetX, track, v, j, len, len1, ref, ref1; 
     CheckTheTime(minute());
-    var currentSong = songs[ticker],
-   // console.log(songs[ticker]);
-      results;
+     var currentSong = songs[ticker],
+    // console.log(songs[ticker]);
+       results;
+       console.log(currentSong + ticker);
 
-      // if (lastBeat === 4 && gibber.Clock.currentBeat === 1) {
-      //   sketch.onBarChange();
-      //   if (barIndex % 4 === 0) {
-      //     sketch.onPhraseChange();
-      //   }
-      // }
-      // lastBeat = gibber.Clock.currentBeat;
-      // if (!visualizer) {
-      //   return;
-      // }
-      // background and clear old lines
-    noStroke();
-    if (day){
-      	fill(255);
-    }
+   //    // if (lastBeat === 4 && gibber.Clock.currentBeat === 1) {
+   //    //   sketch.onBarChange();
+   //    //   if (barIndex % 4 === 0) {
+   //    //     sketch.onPhraseChange();
+   //    //   }
+   //    // }
+   //    // lastBeat = gibber.Clock.currentBeat;
+   //    // if (!visualizer) {
+   //    //   return;
+   //    // }
+   //    // background and clear old lines
+     noStroke();
+     if (day){
+       	fill(255);
+   		}
     else if (!day) {
       	fill(0);
     }
     rect(0, 0, windowWidth, windowHeight);
-      
     ref = currentSong.publicTracks;
     for (i = 0, len = ref.length; i < len; ++i) {
         track = ref[i];
         xOffsets[i] += currentSong.publicFols[i].getValue() * 10  ;
+        xOffsets[i] += track.instrument.frequency * 10  ;
       //  console.log(xOffsets[i] + " " + i + " i ");
         hues[i] += track.follow.getValue() * 2;
       //  console.log(hues[i]);
@@ -119,8 +113,7 @@ function draw() {
          // }
          //console.log(hues[i]);
     }
-    ref1 = songs[ticker].publicTracks;
-   // results = [];
+    ref1 = currentSong.publicTracks;
     ref1L = ref1.length;
     for ( j = 0, len1 = ref1L; j < len1; ++j) {
         track = ref1[j];
@@ -137,7 +130,7 @@ function CheckTheTime(time) //function check the time
     var previousState = state; 
     
     //console.log(time);
-    if (time == 09 || time == 29 || time == 45 || time == 59) 
+    if (time == 17 || time == 30 || time == 47 || time == 59) 
     {
     	state = 'change';
 
@@ -154,25 +147,27 @@ function CheckTheTime(time) //function check the time
     	console.log('state !=')
     	changer = true;
     	 if (ticker == 0){
-    	 	aSong.stop();
-    	 	songs[0].scoreFadeOut(1);
+    	 	//aSong.stop();
+    	 	songs[0].songFadeOut(1);
     	 	//go = false;
-    	 	ticker = 1;	
+    	 	//ticker = 1;	
     	 }
     	 else if (ticker == 1){
-    	 	bSong.stop();
-    	 	songs[1].scoreFadeOut(0);
+    	 	//bSong.stop();
+    	 	songs[1].songFadeOut(0);
     	 	//go = false;
-    	 	ticker = 0;	
+    	 	//ticker = 0;	
     	}
     }
 };
 
 function NewSong(t) {
 	song = new Song('ho', t);
+
 	song.make();
+	console.log(t + " t " + "song " + song.name)
 	songs[t].groupSynths(3);
-	songs[t].scoreCreate();
+	songs[t].songCreate();
 	songs[t].newFollow();
 };
 
@@ -420,17 +415,17 @@ function renderSynth(amp, offset, hue, freq) {
 // 	}
 // }
 
-function NewFollow() {
-	var s = syns.length;
-	for (k = 0; k < s; k++ ) {
-		//assign each synth to its respective follow for visual representation
-		var f = k;
-		syns[f][0]._
-		syns[f][0].send(busses[k], 1);
-		f = Follow (busses[k]);
-		fols.push(f);
-	}
-}
+// function NewFollow() {
+// 	var s = syns.length;
+// 	for (k = 0; k < s; k++ ) {
+// 		//assign each synth to its respective follow for visual representation
+// 		var f = k;
+// 		syns[f][0]._
+// 		syns[f][0].send(busses[k], 1);
+// 		f = Follow (busses[k]);
+// 		fols.push(f);
+// 	}
+// }
 // function MainLoop(tic) {
 // 	var count = 0,
 	
@@ -835,7 +830,7 @@ var Song = function (n, place) { //enclose song
 		beepEM = floor(random(56,79));
 		Clock.bpm(beepEM);
 		var innerSong = (function () {
-			var bw, columns, space, randomCount = 4, stopper, 
+			var scoreInSong, bw, columns, space, randomCount = 4, innerSongBus, stopper, 
 			tracks = [], syns = [], busses = [], currentSeqs = [], effector, fols= [];
 			// var inScore, arp, arps = [],score,  mezhure, mezhures = [], mezhuresAlreadyAdded = [], scores = [], syn, kindsAlreadyAdded = [], fols = [], busses = [], syns = [], m = 4, scorePhrases = floor(random(32,112)), innerSongBus,
 			// presets = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin'], bassWaveform = ['Saw','Sine','Triangle', 'Square'], 
@@ -1146,7 +1141,7 @@ var Song = function (n, place) { //enclose song
 					    // pluck is very quiet
 				  }
 				},
-				scoreCreate: function() {
+				songCreate: function() {
 					var beeps = floor((60/beepEM) *1000);
 					console.log(beeps + 'bpm');
 					innerSongBus = Bus().fx.add( //Schizo({chance:.95, pitchChance: 0, rate:ms(beeps/4), length:ms(beeps)}), 
@@ -1161,17 +1156,28 @@ var Song = function (n, place) { //enclose song
 					}
 					innerSongBus.amp = l;
 					var count = 0,
-					aSong = Seq( function() { 
-					//have a count to determine how many synth gets switched and which doesn't, not just length of array
-					// array of objects to change, objects to stop and objcts to leave alone?
-						for (i = 0; i < s; i++){
-							Updater(i, count);
-							randomCount = 4;
-							done = false;
+					// aSong = Seq( function() { 
+					// //have a count to determine how many synth gets switched and which doesn't, not just length of array
+					// // array of objects to change, objects to stop and objcts to leave alone?
+					// 	for (i = 0; i < s; i++){
+					// 		Updater(i, count);
+					// 		randomCount = 4;
+					// 		done = false;
+					// 	}
+					// 	noteLog.push(currentSeqs)
+					// 	count++;
+					// 	}, randomCount ); // every one measures
+					scoreInSong = Score([0,
+						function(){
+							for (i = 0; i < s; i++){
+								Updater(i, count);
+								randomCount = 4;
+								done = false;
 						}
 						noteLog.push(currentSeqs)
 						count++;
-						}, randomCount ); // every one measures
+						}, measures(randomCount)
+						]).start().loop();
 		  			},
 		  		eFXCreate: function(name, kind, kindPre, buss) {
 						// 	var efX = [presetLPFArray = ['rising'], presetDelayArray = , 
@@ -1197,32 +1203,52 @@ var Song = function (n, place) { //enclose song
 						fols.push(f);
 					}
 				},
-		  		scoreFadeOut: function(tick) {
+		  		songFadeOut: function(tick) {
+		  			console.log(tick + "tick");
 		  			var b, llll, ll, lll;
 		  			scoreFade = Score([0,
 		  				function () {
+		  					console.log("first function");
 		  					b = Bus().fx.add (Delay(1/6,.95 ));
 		  					llll = new Line(0, .5, 1)
-		  					for (var i = 0; i < syns.length; i++) {
+		  					for (var i = 0, s = syns.length; i < s; i++) {
 		  						syns[i][0].send(b, llll)
 		  					}
 		  				}, measures(2),
 		  				function(){
-		  					score.stop();
-		  					inScore.stop();
+		  					console.log("did it stop?" + "second function");
+		  					// if (tick == 1){
+		  					// 	songs[0].scoreInSong.stop();
+		  					// }
+		  					// else if (tick == 0){
+		  					// 	songs[1].scoreInSong.stop();
+		  					// }
+		  					
 		  					ll = new Line(.5, 0, 2)
 		  					//
 		  					//drum.fadeOut(4);
 		  					innerSongBus.amp(ll);
-		  					NewSong(tick);	
+		  					NewSong(tick);
+		  					if (tick == 0){
+		  						ticker = 1;
+		  						console.log("ticker now 1" + ticker)
+		  					}	
+		  					else if (tick == 1) {
+		  						ticker = 0;
+		  						console.log("ticker now 0" + ticker)
+		  					}
 		  				}, measures(4),
 		  				function(){
+		  					console.log("third function");
+
 		  					go = false;
 							for (var j = 0; j < fols.length; j++) {
  		  						fols[j].remove();
+ 		  						console.log("removed" + j)
  		  					};
 		  					for (var i = 0; i < syns.length; i++){
  		  						syns[i][0].kill();
+
  		  					};
  		  					
 		  					lll = new Line(.5, 0, 2)
@@ -1232,12 +1258,15 @@ var Song = function (n, place) { //enclose song
 		  					b.fx[0].feedback = lll;
 		  					
 		  					fols.length = 0;
-		  					scores.length = 0;
+		  					//scores.length = 0;
 		  					
 		  				}, measures(1),
 		  				function(){
-		  					inScore.stop();
-		  					score.stop();
+		  					console.log("final function");
+
+		  					// inScore.stop();
+		  					//scoreInSong.kill();
+		  					// score.stop();
  		  					innerSongBus.kill();
  		  					b.kill();
 		  					l.kill();
@@ -1249,7 +1278,9 @@ var Song = function (n, place) { //enclose song
 		  			}
 		  		};
 			})();//inner song enclosure
+			console.log(place);
 		songs[place] = innerSong;
+		console.log(songs[place] + " " + place + " " + "songs place")
 	}
 
 }; //song enclosure 

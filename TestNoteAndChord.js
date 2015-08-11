@@ -25,16 +25,17 @@ function setup() {
 	bgColA = color(175,14,14,255);
 	colors = [newColor0, newColor1, newColor2, newColor3, newColor4, newColor5];
 	NewSong(0);
+	if (ticker == 0){
+    		ticker = 1;
+    }
 };
 
 function CheckTheTime(time) //function check the time
  {
     var previousState = state; 
-    if (ticker == 0){
-    		ticker = 1;
-    }
+    
     //console.log(time);
-    if (time == 4 || time == 15 || time == 40 || time == 45) 
+    if (time == 4 || time == 15 || time == 38 || time == 45) 
     {
     	state = 'change';
     	//console.log('change');
@@ -71,36 +72,36 @@ function NewSong(t) {
 
 function draw() {
 	//console.log(go + "go")
-	var mult = [10,20,14,16], ww2 = windowWidth / 2, wh = windowHeight,
-	p0 = pieces[0], p1 = pieces[1];
-	CheckTheTime(minute());
-	noStroke();
-    fill(bgCol);
-    rect(0, 0, width, height); 
-    if (go) {
-    	if (cubeGo == 0){
-			for (var i = 0; i < p0.publicFols.length; i++){
-				var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
-				//        if width greater than height, use wh * value, otherwise use ww2 * value
-			    radius = ( ww2 > wh ? wh * value: ww2 * value);
-				CoolSquare(col, value, ww2, wh, radius  );
-			}
-		}
-		else if (cubeGo == 1){
-			for (var i = 0; i < p1.publicFols.length; i++) {
-				var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
-			    radius = ( ww2 > wh ? wh * value: ww2 * value);
-				CoolSquare(col, value, ww2, wh, radius  );
-			}
-		}
-	}
-    if (a < countdown)
-  	{
-  		lerpVar = (lerpVar += a % countdown) * .0001;
-  	}
-  	textSize(38)
-  	fill(0)
-  	text(str,0,24,48,48)
+	// var mult = [10,20,14,16], ww2 = windowWidth / 2, wh = windowHeight,
+	// p0 = pieces[0], p1 = pieces[1];
+	// CheckTheTime(minute());
+	// noStroke();
+ //    fill(bgCol);
+ //    rect(0, 0, width, height); 
+ //    if (go) {
+ //    	if (cubeGo == 0){
+	// 		for (var i = 0; i < p0.publicFols.length; i++){
+	// 			var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
+	// 			//        if width greater than height, use wh * value, otherwise use ww2 * value
+	// 		    radius = ( ww2 > wh ? wh * value: ww2 * value);
+	// 			CoolSquare(col, value, ww2, wh, radius  );
+	// 		}
+	// 	}
+	// 	else if (cubeGo == 1){
+	// 		for (var i = 0; i < p1.publicFols.length; i++) {
+	// 			var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
+	// 		    radius = ( ww2 > wh ? wh * value: ww2 * value);
+	// 			CoolSquare(col, value, ww2, wh, radius  );
+	// 		}
+	// 	}
+	// }
+ //    if (a < countdown)
+ //  	{
+ //  		lerpVar = (lerpVar += a % countdown) * .0001;
+ //  	}
+ //  	textSize(38)
+ //  	fill(0)
+ //  	text(str,0,24,48,48)
 };
 
 function CoolSquare(c, v, w, h, r){
