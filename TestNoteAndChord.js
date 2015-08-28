@@ -1,3 +1,119 @@
+//THREE.JS SECTION
+// set the scene size
+var WIDTH =  window.innerWidth,
+    HEIGHT =  window.innerHeight;
+
+// set some camera attributes
+var VIEW_ANGLE = 45,
+    ASPECT = WIDTH / HEIGHT,
+    NEAR = 0.1,
+    FAR = 10000;
+
+// get the DOM element to attach to
+// - assume we've got jQuery to hand
+var $container = $('#container');
+var objects = [];
+
+// create a WebGL renderer, camera
+// and a scene
+var renderer = new THREE.WebGLRenderer();
+var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
+                                ASPECT,
+                                NEAR,
+                                FAR  );
+
+
+var scene = new THREE.Scene();
+var theta = 0;
+var renderPass = new THREE.RenderPass(scene, camera);
+var composer = new THREE.EffectComposer(renderer);
+composer.addPass(renderPass);
+// the camera starts at 0,0,0 so pull it back
+camera.position.z = 500;
+
+// start the renderer
+renderer.setSize(WIDTH, HEIGHT);
+
+// 1. BloomPass: blurry, glowing effect
+var bloomPass = new THREE.BloomPass(3, 25, 5, 256);
+composer.addPass(bloomPass);
+
+// 2. EffectFilm, which output the result in an old style TV screen fashion (with thin colourful stripes):
+var effectFilm = new THREE.FilmPass(0.8, 0.325, 256, false);
+effectFilm.renderToScreen = true;
+composer.addPass(effectFilm);
+
+
+// attach the render-supplied DOM element
+$container.append(renderer.domElement);
+
+// create the sphere's material
+var sphereMaterial = new THREE.MeshLambertMaterial(
+{
+    color: 0xCC0000
+});
+
+// set up the sphere vars
+var radius = 50, segments = 16, rings = 16;
+
+// create a new mesh with sphere geometry -
+// we will cover the sphereMaterial next!
+
+for (var i = 0; i <4; i++) {
+	var i5 = (i*125) - 200;
+	var sphere = new THREE.Mesh(
+   new THREE.BoxGeometry(radius, segments, rings),
+   new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ));
+	sphere.position.x = i5;
+	sphere.position.y = 0;
+	sphere.position.z = 0;
+
+	sphere.scale.y = window.innerHeight;
+
+	objects.push(sphere);
+	scene.add(sphere);
+}
+
+
+// add the sphere to the scene
+//scene.add(objects);
+
+// and the camera
+scene.add(camera);
+
+// create a point light
+var pointLight = new THREE.PointLight( 0xFFFFFF );
+
+// set its position
+pointLight.position.x = 10;
+pointLight.position.y = 50;
+pointLight.position.z = 270;
+
+// add to the scene
+scene.add(pointLight);
+
+// draw!
+renderer.render(scene, camera);
+var clock = new THREE.Clock()
+function render() {
+    var delta = clock.getDelta();
+    composer.render(delta); //parameter must be set with render
+    requestAnimationFrame(render);
+}
+render();
+// init ();
+// function init (){
+// 	container = document.createElement( 'div' );
+// 	document.body.appendChild( container );
+// 	container.append(renderer.domElement);
+
+// }
+// attach the render-supplied DOM element
+
+
+
+// MUSIC SECTION
+
 // to do--- fix for loop in score- set it back to individual score for each instrument
 // 
 var state = 'noChange', tempDivP5, radiuses = [], go = false, col, currentSong, mouseHit = false, bgCol, values = [], 
@@ -35,7 +151,7 @@ function CheckTheTime(time) //function check the time
     var previousState = state; 
     
     //console.log(time);
-    if (time == 4 || time == 15 || time == 38 || time == 45) 
+    if (time == 4 || time == 15 || time == 27 || time == 45) 
     {
     	state = 'change';
     	//console.log('change');
@@ -66,35 +182,41 @@ function CheckTheTime(time) //function check the time
 function NewSong(t) {
 	song = new Song('ho', t);
 	song.make();
-	pieces[t].groupSynths(1);
+	pieces[t].groupSynths(3);
 	pieces[t].scoreCreate();
 };
 
 function draw() {
-	//console.log(go + "go")
+	
 	// var mult = [10,20,14,16], ww2 = windowWidth / 2, wh = windowHeight,
-	// p0 = pieces[0], p1 = pieces[1];
+	 var p0 = pieces[0], p1 = pieces[1];
+	 theta += 1;
 	// CheckTheTime(minute());
 	// noStroke();
  //    fill(bgCol);
  //    rect(0, 0, width, height); 
- //    if (go) {
- //    	if (cubeGo == 0){
-	// 		for (var i = 0; i < p0.publicFols.length; i++){
-	// 			var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
-	// 			//        if width greater than height, use wh * value, otherwise use ww2 * value
-	// 		    radius = ( ww2 > wh ? wh * value: ww2 * value);
-	// 			CoolSquare(col, value, ww2, wh, radius  );
-	// 		}
-	// 	}
-	// 	else if (cubeGo == 1){
-	// 		for (var i = 0; i < p1.publicFols.length; i++) {
-	// 			var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
-	// 		    radius = ( ww2 > wh ? wh * value: ww2 * value);
-	// 			CoolSquare(col, value, ww2, wh, radius  );
-	// 		}
-	// 	}
-	// }
+     if (go) {
+     	if (cubeGo == 0){
+			for (var i = 0; i < p0.publicFols.length; i++){
+				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
+				//        if width greater than height, use wh * value, otherwise use ww2 * value
+			    console.log(p0.publicFols[i].getValue() +" " + i);
+			    objects[i].scale.x = 1 + p0.publicFols[i].getValue() * 20;
+			    objects[i].position.y = theta;
+			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
+				// CoolSquare(col, value, ww2, wh, radius  );
+			}
+		}
+		else if (cubeGo == 1){
+			for (var i = 0; i < p1.publicFols.length; i++) {
+				// var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
+			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
+			 objects[i].scale.z = 1 + p1.publicFols[i].getValue() * 2;
+			     console.log(p1.publicFols[i].value + i);
+				//CoolSquare(col, value, ww2, wh, radius  );
+			}
+		}
+	}
  //    if (a < countdown)
  //  	{
  //  		lerpVar = (lerpVar += a % countdown) * .0001;
@@ -689,7 +811,7 @@ var Song = function (n, place) { //enclose song
 
 						}
 						 else {
-							var k = 'pad';
+							var k = kinds[floor(random(kinds.length))];
 							synth = new innerSong.synthCreate(i, k, 'oo');
 							synth.make(k);
 							synthKinds.push(k);
@@ -892,4 +1014,6 @@ function add(a, b) {
     }
     return curr;
 }
+
+
 

@@ -168,7 +168,7 @@ function NewSong(t) {
 	console.log(t + " t " + "song " + song.name)
 	songs[t].groupSynths(3);
 	songs[t].songCreate();
-	songs[t].newFollow();
+	//songs[t].newFollow();
 };
 
 function RandomWeather() {
@@ -673,11 +673,13 @@ Harmony = (function () {
 	  	sum = scoreBeets.reduce(add, 0);
 	  	//if the sum is an odd number
 	  	if (sum %2 != 0) {
-	  	//sumRound is difference between sum and a whole set of measures
+	  	//sumRound is difference between sum and a whole set of measures,
+	  	// necessary to fill in final gap to make a whole measure
 	  		var sumRound;
 	  	// if sum will not round to 1, is short phrase
 	  		if (sum < .5){
 	  			sumRound = .5 - sum;
+
 	  			scoreBeets.push(sumRound);
 	  		}
 	  		else {
@@ -1150,10 +1152,10 @@ var Song = function (n, place) { //enclose song
 					innerSongBus.amp(0)
 					l = Line(0, 1, 4);
 					s = syns.length;
-					for (p = 0; p > s; p++){ 
-						syns[i][0]._;
-						syns[i][0].connect(innerSongBus);
-					}
+					// for (p = 0; p > s; p++){ 
+					// 	syns[i][0]._;
+					// 	syns[i][0].connect(innerSongBus);
+					// }
 					innerSongBus.amp = l;
 					var count = 0,
 					// aSong = Seq( function() { 
@@ -1167,17 +1169,59 @@ var Song = function (n, place) { //enclose song
 					// 	noteLog.push(currentSeqs)
 					// 	count++;
 					// 	}, randomCount ); // every one measures
+
+// OK REPLACE scoreInSong with this system, one long ass function at the end
+
+					// score= Score([0,
+						// function(){ 
+						// 	//drum = XOX('x*x*', 1/16);
+						// 	//drum.fadeIn(4, 1);
+						// 	for (var i = 0; i < syns.length; i++){
+						// 		//assign each synth it's own score via scoredetails
+
+						// 		syns[i][0]._;
+						// 		syns[i][0].connect(innerSongBus);
+						// 		var ss = scoreDetails(i);
+						// 		scores.push(ss);
+		  		// 				inScore = Score(ss).start();
+		  		// 			}
+		  		// 			innerSongBus.amp = l;
+						// }, measures(4),
+		  		// 		function(){
+		  		// 			l.kill();
+		  		// 		}, measures(6800)]).start();
+
 					scoreInSong = Score([0,
-						function(){
-							for (i = 0; i < s; i++){
-								Updater(i, count);
-								randomCount = 4;
-								done = false;
-						}
-						noteLog.push(currentSeqs)
-						count++;
-						}, measures(randomCount)
-						]).start().loop();
+						function(){ 
+							//drum = XOX('x*x*', 1/16);
+							//drum.fadeIn(4, 1);
+							for (var i = 0; i < s; i++){
+								synth = syns[p][0],
+								synthKind = syns[p][1]
+								//assign each synth it's own score via scoredetails
+								syns[i][0]._;
+								syns[i][0].connect(innerSongBus);
+								var ss = scoreDetails(i);
+								scores.push(ss);
+		  						inScore = Score(ss).start();
+		  					}
+		  					innerSongBus.amp = l;
+						}, measures(4),
+		  				function(){
+		  					l.kill();
+		  				}, measures(6800)]).start();
+// replaced by above
+					// scoreInSong = Score([0,
+					// 	function(){
+					// 		for (i = 0; i < s; i++){
+					// 			Updater(i, count);
+					// 			randomCount = 4;
+					// 			done = false;
+					// 	}
+					// 	noteLog.push(currentSeqs)
+					// 	count++;
+					// 	}, measures(randomCount)
+					// 	]).start().loop();
 		  			},
 		  		eFXCreate: function(name, kind, kindPre, buss) {
 						// 	var efX = [presetLPFArray = ['rising'], presetDelayArray = , 

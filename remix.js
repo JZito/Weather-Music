@@ -6,6 +6,10 @@
 
 //EFFECTS UPDATER
 
+function setup () {
+	NewSong(0);
+}
+
 function start () {
 	var beeps = floor((60/beepEM) *1000);
 	console.log(beeps + 'bpm');

@@ -91,6 +91,18 @@ function RandomWeather() {
  			var scoreInSong, arp, arps = [], bw, columns, space, innerSongBus,
  			tracks = [], syns = [], busses = [], currentSeqs = [], effector, fols = [];
 
+ 			var Updater = function (p, c) {
+ 				// p is place in syns index/for loop
+ 				// c is count
+ 				// nr is note (or melody) return, br is beets return
+ 				var nR, bR, stop = false, chord = false, ignore = false, 
+ 				coin = CoinReturn(), synth = syns[p][0],
+				synthKind = syns[p][1];
+
+				if (synthKind == 'lead') {
+					
+				}
+ 			}
  		})
  	}
  }
