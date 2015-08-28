@@ -37,6 +37,7 @@ renderer.setSize(WIDTH, HEIGHT);
 // 1. BloomPass: blurry, glowing effect
 var bloomPass = new THREE.BloomPass(3, 25, 5, 256);
 composer.addPass(bloomPass);
+bloomPass.clear = true;
 
 // 2. EffectFilm, which output the result in an old style TV screen fashion (with thin colourful stripes):
 var effectFilm = new THREE.FilmPass(0.8, 0.325, 256, false);
@@ -62,7 +63,7 @@ var radius = 50, segments = 16, rings = 16;
 for (var i = 0; i <4; i++) {
 	var i5 = (i*125) - 200;
 	var sphere = new THREE.Mesh(
-   new THREE.BoxGeometry(radius, segments, rings),
+   new THREE.SphereGeometry(radius, segments, rings),
    new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ));
 	sphere.position.x = i5;
 	sphere.position.y = 0;
@@ -82,12 +83,12 @@ for (var i = 0; i <4; i++) {
 scene.add(camera);
 
 // create a point light
-var pointLight = new THREE.PointLight( 0xFFFFFF );
+var pointLight = new THREE.SpotLight( 0xFFFFFF );
 
 // set its position
 pointLight.position.x = 10;
-pointLight.position.y = 50;
-pointLight.position.z = 270;
+pointLight.position.y = 60;
+pointLight.position.z = 1070;
 
 // add to the scene
 scene.add(pointLight);
@@ -130,16 +131,6 @@ function mousePressed () {
 	mouseHit = true;
 }
 function setup() {
-	canvas = createCanvas( windowWidth, windowHeight );
-	newColor0 = color(247, 75, 43, 127);
-	newColor1 = color (200, 38, 8, 127);
-	newColor2 = color(255, 214, 147, 127);
-	newColor3 = color (247, 169, 43, 127);
-	newColor4 = color(247, 218, 43, 127);
-	newColor5 = color (14, 168, 70, 127);
-	bgCol = color(255,14,14,255);
-	bgColA = color(175,14,14,255);
-	colors = [newColor0, newColor1, newColor2, newColor3, newColor4, newColor5];
 	NewSong(0);
 	if (ticker == 0){
     		ticker = 1;
@@ -190,7 +181,7 @@ function draw() {
 	
 	// var mult = [10,20,14,16], ww2 = windowWidth / 2, wh = windowHeight,
 	 var p0 = pieces[0], p1 = pieces[1];
-	 theta += 1;
+	 theta += .01;
 	// CheckTheTime(minute());
 	// noStroke();
  //    fill(bgCol);
@@ -201,8 +192,8 @@ function draw() {
 				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
 				//        if width greater than height, use wh * value, otherwise use ww2 * value
 			    console.log(p0.publicFols[i].getValue() +" " + i);
-			    objects[i].scale.x = 1 + p0.publicFols[i].getValue() * 20;
-			    objects[i].position.y = theta;
+			    objects[i].scale.x = 1 + p0.publicFols[i].getValue() * 10;
+			    objects[i].rotation.z = theta;;
 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
 				// CoolSquare(col, value, ww2, wh, radius  );
 			}
