@@ -1035,7 +1035,7 @@ var Song = function (n, place) { //enclose song
 						b = Bus();
 						// if one bass exists already
 						if (synthKinds.indexOf('bass') > -1) {
-							var k = kinds[floor(random((kindsLength -1)))];
+							var k = kinds[floor(random((kindsLength - 1)))];
 							synth = new innerSong.synthCreate(i, k);
 							synth.make();
 							synthKinds.push(k);
@@ -1055,7 +1055,7 @@ var Song = function (n, place) { //enclose song
 								
 								effect = new innerSong.eFXCreate(i, effectsTypes[e][0], effectsTypes[e][floor(random(1,effectsTypes[e].length))], b);
 								effect.make()
-							//	b.fx.add (name)
+								b.fx.add (name)
 							}
 							busses.push(b);
 					};
@@ -1066,7 +1066,7 @@ var Song = function (n, place) { //enclose song
 					presetLeadMonoArray = ['semiHorn', 'preTester'],
 					presetLeadSynthArray = ['bleep', 'bleepEcho', 'rhodes', 'calvin'],
 					padPresets = ['cascade', 'calvin', 'warble'],
-					pad2Presets = ['triTest'],
+					pad2Presets = ['triTest', 'pad2', 'pad4', 'rainTri'],
 					leadInstruments = [FM, Synth, Mono], padInstruments = [Synth2];
 					  // name - name object, kind - role of instrument (lead, pad etc), pre- preset,
 					  //reference item by spot in syns array... 

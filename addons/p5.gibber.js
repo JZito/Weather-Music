@@ -12260,7 +12260,7 @@ module.exports = function( Gibber ) {
                 attack:4, decay:12, sustain:.1, release:2},
     triTest: {waveform:'Triangle', maxVoices:6, amp:1, resonance:1, useADSR:true, 
                                requireReleaseTrigger:true,
-                attack:1/1, decay:8/1, sustain:1/2, release:1/1}     
+                attack:8/1, decay:8/1, sustain:1/2, release:1/1}     
   }
   
   Synths.Presets.Mono = {
@@ -12378,7 +12378,7 @@ module.exports = function( Gibber ) {
     },
 
     preTester: {
-      waveform:'Triangle',
+      waveform:'Sine',
       useADSR:true, 
       amp:.2,
       cutoff: .25,
