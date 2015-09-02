@@ -10292,6 +10292,11 @@ module.exports = function( Gibber ) {
       sampleRate:.5,
       bitDepth:23
     },
+    littleBit: {
+      sampleRate:.95,
+      bitDepth: 18
+    },
+
     dirty:{
       sampleRate:.25,
       bitDepth:4
@@ -12230,9 +12235,11 @@ module.exports = function( Gibber ) {
     rhodes: { waveform:'Sine', maxVoices:4, attack:44, decay:1, 
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo(2, .2) ) },
     },
-    calvin: { waveform:'PWM',  maxVoices:4, pulsewidth:.25, amp: .055, out: .2, attack:Clock.maxMeasures, decay:1,
+    calvin: { waveform:'PWM',  maxVoices:4, pulsewidth:.25, amp: .05, 
+                      useADSR:true,
+              attacK: 1/8, decay: 1/4,
     presetInit: function() { this.fx.add( Gibber.Audio.FX.Vibrato(random(3), random(1)), 
-      Gibber.Audio.FX.Reverb({preset:'large', wet:.25, dry:0}), Gibber.Audio.FX.Delay({wet:.25, dry:.05}))  }
+      Gibber.Audio.FX.Reverb({preset:'large', wet:.5, dry:0}), Gibber.Audio.FX.Delay({preset:'nightChill',wet:.25, dry:.05}))  }
     },
     warble: { waveform:'Sine', attack:Clock.maxMeasures,
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Vibrato(2), Gibber.Audio.FX.Delay( 1/6, .75 ) ) } 
@@ -12255,7 +12262,7 @@ module.exports = function( Gibber ) {
     amp:.4,
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Delay( 1/9, .55 ) ) }
     },
-    rainTri: {waveform:'Triangle', maxVoices:6, amp:.4, glide:.9, resonance:1, useADSR:true, 
+    sunriseTri: {waveform:'Triangle', maxVoices:6, amp:.4, glide:.9, resonance:1, useADSR:true, 
                                requireReleaseTrigger:false,
                 attack:4, decay:12, sustain:.1, release:2},
     triTest: {waveform:'Triangle', maxVoices:6, amp:1, resonance:1, useADSR:true, 
@@ -12376,33 +12383,89 @@ module.exports = function( Gibber ) {
       attack:.5, decay: 5, sustain:1, release:.75,
      // presetInit: function() { this.fx.add(Gibber.Audio.FX.Reverb({ preset:'small', wet:.75, dry:.35 })) }
     },
-
-    preTester: {
-      waveform:'Sine',
-      useADSR:true, 
+    dayBass: {
+      waveform: 'Sine',
       amp:.2,
-      cutoff: .25,
-      resonance: 4,
-      attack:1/4, decay: 1/4, sustain:2/1, release:1/2,
+      cutoff: .75,
+      resonance: .7,
+       requireReleaseTrigger:true,
+      octave:-2,
+      octave2:-1,
+      octave3:1,
+      detune2:-.02,
+      detune3:.0225,
+      attack:.01, decay: 1/2, sustain:1/4, release:0
     },
 
-    semiHorn: {
+    sighTri: {
+      waveform:'Triangle',
+      useADSR:true, 
+      amp:.08,
+      cutoff: .95,
+      octave2:-1,
+      octave3:1,
+      resonance: .25,
+      detune2: .01,
+      detune3: -.011,
+      attack:1/3, decay: 1/3, sustain:3/1, release:1/6,
+    },
+    steelSine: {
       waveform:'Sine',
+      useADSR:true, 
+      amp:.08,
+      cutoff: .95,
+      octave2:0,
+      octave3:1,
+      resonance: .25,
+      detune2: .01,
+      detune3: -.011,
+      attack:1/6, decay: 1/1.5, sustain:1/1.5, release:1/6,
+    },
+    steelSineNight: {
+      waveform:'Sine',
+      presetInit: function() {
+        this.fx.add( Gibber.Audio.FX.Crush('littleBit') )
+      },
+      useADSR:true, 
+      amp:.08,
+      cutoff: .55,
+      octave2:-1,
+      octave3:0,
+      resonance: 2,
+      detune2: .0051,
+      detune3: -.005,
+      glide:.98,
+      attack:1/6, decay: 1/2 , sustain:2/1, release:2/1,
+    },
+    sunAccordion: {
+      waveform:'Triangle',
       maxVoices:4,
       useADSR:true, 
-      amp:.2,
-      cutoff: .95,
+      amp:.1,
+      cutoff: .45,
       resonance: 1,
+      detune2: .02,
+      detune3: -.02,
       octave:0,
-      octave2:0,
+      octave2:1,
       octave3:0,
-      attack:1/64, decay: 1/1, sustain:4/1, release:1/1,
-      presetInit: function() {
-        this.bus = Gibber.Audio.Busses.Bus().fx.add( Gibber.Audio.FX.Delay(1/8,.75), Gibber.Audio.FX.LPF({ resonance:4 }) )
-        this.bus.fx[1].cutoff = Gibber.Audio.Core.Binops.Add(.25, Gibber.Audio.Oscillators.Sine(.1,.2)._ )
-        this.send( this.bus, .95 )
-      }
-    }
+      attack:1/16, decay: 4/1, sustain:1/1, release:1/1
+    },
+
+    eitherBass: {
+      waveform:'Sine',
+      useADSR:true, 
+      amp:.1,
+      cutoff: .45,
+      resonance: 2,
+      octave:-1,
+      octave2:-1,
+      octave3:-1,
+      detune2:-.02,
+      glide:.97,
+      detune3:.0225,
+      attack:1/64, decay: 2/1, sustain:2/1, release:1/2,
+    },
   }
   
   Synths.Presets.FM = {

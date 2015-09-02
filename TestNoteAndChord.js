@@ -469,12 +469,13 @@ var Song = function (n, place) { //enclose song
 		var innerSong = (function () {
 			var inScore, arp, arps = [],score,  busses = [], mezhure, mezhures = [], mezhuresAlreadyAdded = [], scores = [], syn, kindsAlreadyAdded = [], fols = [], busses = [], syns = [], m = 4, scorePhrases = floor(random(32,112)), innerSongBus,
 			presets = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin'], 
+			// warble is a night sound
 			presetLeadFMArray = ['bong', 'bong','glockenspiel', 'glockenspiel', 'glockenspiel'],
-			presetLeadMonoArray = ['semiHorn', 'preTester'];
+			presetLeadMonoArray = ['sunAccordion', 'preTester', 'sighTri', 'steelSine', 'steelSineNight'];
 			padPresets = ['cascade', 'calvin'],
 			arpPatternArray = ['updown2', 'updown', 'down', 'up'],
 			//pad2Presets = ['pad2','pad4', 'rainTri' ];
-			pad2Presets = ['triTest', 'pad2', 'pad4', 'rainTri', "sinePad"];
+			pad2Presets = ['triTest', 'pad2', 'pad4', 'sunriseTri', "sinePad"];
 			//it can all happen in here. handle each score, handle each instrument
 			// array of syn objects can live here but be changed by a public method
 			// syns = [];
@@ -910,6 +911,9 @@ var Song = function (n, place) { //enclose song
 						
 					}
 					else if (kind == 'bass'){
+						// if day, dayBass
+						//if night, waveBass
+						// eitherBass for both
 					  	instrumentKind = Mono;
 					   	pre = 'waveBass';
 					}
