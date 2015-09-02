@@ -86,15 +86,17 @@ for (var i = 0; i <4; i++) {
 scene.add(camera);
 
 // create a point light
-var pointLight = new THREE.SpotLight( 0xFFFFFF );
+var spotLight = new THREE.SpotLight( 0xFFFFFF );
+var pointLight = new THREE.PointLight( 0x99FFFF);
 
 // set its position
-pointLight.position.x = 10;
-pointLight.position.y = 60;
-pointLight.position.z = 1070;
+spotLight.position.x = 10;
+spotLight.position.y = 60;
+spotLight.position.z = 1070;
 
 // add to the scene
 scene.add(pointLight);
+scene.add(spotLight);
 
 // draw!
 renderer.render(scene, camera);
@@ -186,7 +188,8 @@ function MoveAround() {
 	}
 }
 function animateObj(obj) {
-  TweenMax.to(obj, 12, {x: Math.random() * 500, ease: SteppedEase.config(86),
+  TweenMax.to(obj, 12, {x: Math.random() * 500, y: Math.random() * 20, 
+  	ease: RoughEase.ease.config({ template: Power0.easeNone, strength: 1, points: 20, taper: "none", randomize: true, clamp: false}),
   	repeat:1, yoyo:true, onComplete:animateObj, onCompleteParams:[obj]})
 }
 
@@ -232,7 +235,9 @@ function draw() {
 				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
 				//        if width greater than height, use wh * value, otherwise use ww2 * value
 			  //  console.log(p0.publicFols[i].getValue() +" " + i);
-			    objects[i].scale.x = 1 + p0.publicFols[i].getValue() * 10;
+			    objects[i].scale.x = 2 + p0.publicFols[i].getValue() * 10;
+			    //objects[i].scale.y = 1 + p0.publicFols[i].getValue() * 10;
+			    objects[i].scale.z = 1 + p0.publicFols[i].getValue() * 10;
 			    //objects[i].rotation.z = theta;;
 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
 				// CoolSquare(col, value, ww2, wh, radius  );
