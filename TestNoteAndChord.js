@@ -144,7 +144,7 @@ function CheckTheTime(time) //function check the time
     var previousState = state; 
     
     //console.log(time);
-    if (time == 17 || time == 30 || time == 31 || time == 32) { 
+    if (time == 17 || time == 30 || time == 32 || time == 32) { 
     
     	state = 'change';
 
@@ -174,7 +174,24 @@ function CheckTheTime(time) //function check the time
 };
 
 function NewSong(t) {
-	song = new Song('ho', t);
+	var date = new Date();
+	var h = date.getHours();
+	var d;
+	console.log(h + " YO YO YO YO YO");
+	if (h <= 5 || h >= 19) {
+		d = 'night';
+	}
+	else if (h > 5 && h < 7) {
+		d = 'dawn';
+	}
+	else if (h >= 7 && h < 17) {
+		d = 'day';
+	}
+	else if (h >= 17 && h < 19) {
+		d = 'twilight';
+	}
+	console.log("d" + d);
+	song = new Song('o', t, d);
 	song.make();
 	pieces[t].groupSynths(3);
 	pieces[t].scoreCreate();
@@ -461,22 +478,65 @@ var Harmony = (function () {
 /////////////// SONG ////////////////////
 
 
-var Song = function (n, place) { //enclose song
+var Song = function (n, place, timeOfDay) { //enclose song
 	this.name = n;		   
 	this.make = function() {
 		beepEM = floor(random(56,79));
 		Clock.bpm(beepEM);
 		var innerSong = (function () {
-			var inScore, arp, arps = [],score,  busses = [], mezhure, mezhures = [], mezhuresAlreadyAdded = [], scores = [], syn, kindsAlreadyAdded = [], fols = [], busses = [], syns = [], m = 4, scorePhrases = floor(random(32,112)), innerSongBus,
-			presets = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin'], 
-			// warble is a night sound
-			//triTest is a night sound
-			presetLeadFMArray = ['bong', 'bong','glockenspiel', 'glockenspiel', 'glockenspiel'],
-			presetLeadMonoArray = ['sunAccordion', 'preTester', 'sighTri', 'steelSine', 'steelSineNight'];
-			padPresets = ['cascade', 'calvin'],
-			arpPatternArray = ['updown2', 'updown', 'down', 'up'],
-			//pad2Presets = ['pad2','pad4', 'rainTri' ];
-			pad2Presets = ['triTest', 'pad2', 'pad4', 'sunriseTri', "sinePad"];
+			var inScore, arp, arps = [],score,  busses = [], mezhure, mezhures = [], 
+			mezhuresAlreadyAdded = [], scores = [], syn, kindsAlreadyAdded = [], 
+			fols = [], busses = [], syns = [], m = 4, scorePhrases = floor(random(32,112)), 
+			innerSongBus,
+			bassPresets = [], leadSynthPresets = [], leadFMPresets = [], leadMonoPresets = [],
+			pluckPresets = [], padPresets = []. pad2Presets = [];
+			// presets = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin', 'squareLead', 'triLead'], 
+			// bassDayPresets = [],
+			// bassNightPresets = [],
+			// // warble is a night sound
+			// //triTest is a night sound
+			// leadFMPresets = ['bong', 'bong','glockenspiel', 'glockenspiel', 'glockenspiel'],
+			// presetLeadMonoArray = ['sunAccordion', 'preTester', 'sighTri', 'steelSine', 'steelSineNight'];
+			// padPresets = ['cascade', 'calvin'],
+			// arpPatternArray = ['updown2', 'updown', 'down', 'up'],
+			// //pad2Presets = ['pad2','pad4', 'rainTri' ];
+			// pad2Presets = ['triTest', 'pad2', 'pad4', 'sunriseTri', 'sinePad'];
+			if (timeOfDay == 'day') {
+				bassPresets = ['eitherBass', 'dayBass', 'dayBass', 'waveBass'];
+				leadSynthPresets = ['bleep', 'rhodes', 'calvin', 'squareLead'];
+				leadFMPresets = ['bong', 'glockenspiel', 'glockenspiel', 'brass'];
+				leadMonoPresets = ['steelSine', 'sunAccordion', 'sighTri', 'preTester'];
+				pluckPresets = ['simple'];
+				padPresets = ['cascade', 'calvin'];
+				pad2Presets = ['triTest', 'pad2', 'pad4', 'sunriseTri', 'sinePad'];
+			}
+			else if (timeOfDay == 'night') {
+				bassPresets = ['waveBass', 'waveBass', 'eitherBass'];
+				leadSynthPresets = ['bleepEcho', 'rhodes', 'warble', 'calvin', 'triLead'];
+				leadFMPresets = ['bong', 'glockenspiel', 'brass', 'magicBong'];
+				leadMonoPresets = [];
+				padPresets = ['cascade', 'calvin'];
+				pad2Presets = ['triTest', 'pad2', 'pad4', 'sunriseTri', 'sinePad'];
+			}
+			else if (timeOfDay == 'twilight') {
+				bassPresets = ['eitherBass', 'dayBass'];
+				leadSynthPresets = ['bleepEcho', 'rhodes', 'squareLead'];
+				leadFMPresets = ['clarinet', 'magicBong' ];
+				leadMonoPresets = ['preTester', 'steelSine'];
+				padPresets = ['cascade'];
+				pluckPresets = ['simple'];
+				pad2Presets = ['triTest', 'pad2', 'pad4', 'sunriseTri', 'sinePad'];
+			}
+			else if (timeOfDay == 'dawn') {
+				bassPresets = ['eitherBass', 'waveBass'];
+				leadSynthPresets = [];
+				leadFMPresets = ['stabs', 'brass', 'magicBong'];
+				leadMonoPresets = ['sunAccordion'];
+				pluckPresets = ['simple'];
+				padPresets = ['calvin'];
+				pluckPresets = ['simple'];
+				pad2Presets = ['triTest', 'pad2', 'pad4', 'sunriseTri', 'sinePad'];
+			}
 			//it can all happen in here. handle each score, handle each instrument
 			// array of syn objects can live here but be changed by a public method
 			// syns = [];
@@ -797,6 +857,7 @@ var Song = function (n, place) { //enclose song
 				groupSynths: function(q) {
 					// opportunity to return different bus effects based on circumstance
 					// bass must be last entry in kinds
+					//if weather is x, y or z
 					var b, kinds = ['pad', 'lead', 'bass'], synthKinds = [], fxAmount;
 					// q is number of instruments to create
 					for (var i = 0; i <= q; i++){
@@ -860,12 +921,12 @@ var Song = function (n, place) { //enclose song
 					   	instrumentKind = leadInstruments[floor(random(leadInstruments.length))];
 					   	if (instrumentKind == FM){
 					   		//pre =  'brass'
-					   		pre = presetLeadFMArray[floor(random(presetLeadFMArray.length))];
+					   		pre = leadFMPresets[floor(random(leadFMPresets.length))];
 
 					   		ampVar = .2
 					   }
 					  else if (instrumentKind == Synth){
-					   		pre = 'warble';
+					   		pre = leadSynthPresets[floor(random(leadSynthPresets.length))];
 					   		if (pre == 'cascade' || pre == 'warble') {
 					   			ampVar = .2
 					   		}

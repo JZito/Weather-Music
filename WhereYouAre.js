@@ -162,6 +162,9 @@ function CheckTheTime(time) //function check the time
 };
 
 function NewSong(t) {
+	var d = new Date();
+	var h = d.getHours();
+	console.log(h);
 	song = new Song('ho', t);
 
 	song.make();
@@ -1062,7 +1065,7 @@ var Song = function (n, place) { //enclose song
 				},
 				synthCreate: function(name, kind) {
 					var ampVar = .45, 
-					presetLeadFMArray = ['bong', 'bong','glockenspiel', 'glockenspiel', 'glockenspiel'],
+					presetLeadFMArray = ['bong', 'bong','glockenspiel', 'glockenspiel', 'glockenspiel', 'gong', ],
 					presetLeadMonoArray = ['semiHorn', 'preTester'],
 					presetLeadSynthArray = ['bleep', 'bleepEcho', 'rhodes', 'calvin'],
 					padPresets = ['cascade', 'calvin', 'warble'],

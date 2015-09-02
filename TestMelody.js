@@ -8,19 +8,19 @@ function setup () {
 			nR2 = NotesReturn(bR2.length);
 	canvas = createCanvas( windowWidth, windowHeight );
 	Clock.bpm(floor(random(55,75)))
-	songBus = Bus().fx.add( Schizo({chance:.65, pitchChance: 0, rate:ms(Clock.bpm.value/2), length:ms(Clock.bpm.value * 2)}), Reverb('large'))
+	songBus = Bus().fx.add( Reverb('large'))
 	drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
-	m = Synth('calvin')
-	m2 = Synth2('pad2')
-	m1 = Synth('bleep')
+	m = FM('magicBong')
+	m2 = Synth2('triTest')
+	//m1 = Synth('bleep')
 	//drum.send(songBus, .25)
-	m.send(songBus, .45)
+	m.send(songBus, 1)
 	m2.send(songBus, 1)
 	songBus.amp(1);
     NewScore();
 	syns.push(m);
 	syns.push(m2);
-	syns.push(m1);
+	//syns.push(m1);
 
 }
 

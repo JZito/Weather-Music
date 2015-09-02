@@ -12235,6 +12235,16 @@ module.exports = function( Gibber ) {
     rhodes: { waveform:'Sine', maxVoices:4, attack:44, decay:1, 
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo(2, .2) ) },
     },
+    squareLead: { waveform:'Square', amp: .25, maxVoices:1, useADSR: true, attack:1/8, decay:1, release:1/4,glide:.99,
+                      requireReleaseTrigger: false, 
+      presetInit: function() {this.fx.add( Gibber.Audio.FX.Crush('littleBit'), Gibber.Audio.FX.Flanger(), Gibber.Audio.FX.Tremolo(1/6, .75)    )   }
+
+    },
+    triLead: { waveform:'Triangle', amp: .5, maxVoices:1, useADSR: true, attack:44, decay:1, release:1/4,glide:.95,
+                      requireReleaseTrigger: false, 
+      presetInit: function() {this.fx.add( Gibber.Audio.FX.Vibrato(random(2), random(.65)),Gibber.Audio.FX.Crush('littleBit'),  Gibber.Audio.FX.Tremolo(2, .25))}
+
+    },
     calvin: { waveform:'PWM',  maxVoices:4, pulsewidth:.25, amp: .05, 
                       useADSR:true,
               attacK: 1/8, decay: 1/4,
@@ -12248,6 +12258,13 @@ module.exports = function( Gibber ) {
 
   Synths.Presets.Noise = {
     good: {amp:0}
+  }
+
+  Synths.Presets.Pluck = {
+    simple: {
+      damping: 0
+
+    }
   }
   
   Synths.Presets.Synth2 = {
@@ -12539,11 +12556,26 @@ module.exports = function( Gibber ) {
 			decay	: 1,
 		},
 		clarinet : {
-			cmRatio	: 3 / 2,
+			cmRatio	: 5,
 			index	: 1.5,
-			attack	: 50 * 44.1,
+			attack	: 14400,
 			decay	: 200 * 44.1,
-		}
+		},
+    magicBong: {
+      cmRatio : 4,
+      index : 1.765,
+      attack  : 1/64,
+      decay : 1/16,
+      presetInit: function() {
+        this.fx.add( Gibber.Audio.FX.Vibrato(random(2), random(.65)), Gibber.Audio.FX.Delay({feedback:.9, time: 1/48,dry:1, wet:1, }) )
+      }
+      // presetInit: function() {
+      //   this.bus = Gibber.Audio.Busses.Bus().fx.add( , Gibber.Audio.FX.Crush('dirty'), 
+      //   Gibber.Audio.FX.LPF({ resonance:5 }) )
+      //   this.bus.fx[1].cutoff = Gibber.Audio.Core.Binops.Add(.25, Gibber.Audio.Oscillators.Sine(1/1.5,.25)._ )
+      //   this.send( this.bus, 1 )
+      // }
+    }
 	};
   
   return Synths
