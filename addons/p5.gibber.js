@@ -12441,7 +12441,7 @@ module.exports = function( Gibber ) {
       waveform:'Triangle',
       maxVoices:4,
       useADSR:true, 
-      amp:.1,
+      amp:.075,
       cutoff: .45,
       resonance: 1,
       detune2: .02,

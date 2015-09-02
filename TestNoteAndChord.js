@@ -144,8 +144,8 @@ function CheckTheTime(time) //function check the time
     var previousState = state; 
     
     //console.log(time);
-    if (time == 17 || time == 30 || time == 58 || time == 00) 
-    {
+    if (time == 17 || time == 30 || time == 31 || time == 32) { 
+    
     	state = 'change';
 
     	//console.log('change');
@@ -207,7 +207,7 @@ function draw() {
 			for (var i = 0; i < p1.publicFols.length; i++) {
 				// var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
-			 objects[i].scale.x = 1 + p1.publicFols[i].getValue() * 20;
+			 objects[i].scale.x = 1 + p1.publicFols[i].getValue() * 10;
 			 //    console.log(p1.publicFols[i].value + i);
 				//CoolSquare(col, value, ww2, wh, radius  );
 			}
@@ -470,6 +470,7 @@ var Song = function (n, place) { //enclose song
 			var inScore, arp, arps = [],score,  busses = [], mezhure, mezhures = [], mezhuresAlreadyAdded = [], scores = [], syn, kindsAlreadyAdded = [], fols = [], busses = [], syns = [], m = 4, scorePhrases = floor(random(32,112)), innerSongBus,
 			presets = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin'], 
 			// warble is a night sound
+			//triTest is a night sound
 			presetLeadFMArray = ['bong', 'bong','glockenspiel', 'glockenspiel', 'glockenspiel'],
 			presetLeadMonoArray = ['sunAccordion', 'preTester', 'sighTri', 'steelSine', 'steelSineNight'];
 			padPresets = ['cascade', 'calvin'],
@@ -1016,10 +1017,11 @@ var Song = function (n, place) { //enclose song
  		  					for (var m = 0; m < busses.length; m++) {
  		  						busses[m].kill();
  		  					}
+ 		  					fols.length = 0;
 		  					NewSong(tick);	
 		  				}, measures(4),
 		  				function(){
-		  					go = false;
+		  					//go = false;
 							
  		  					
 		  					lll = new Line(.5, 0, 2)
@@ -1028,7 +1030,7 @@ var Song = function (n, place) { //enclose song
 		  					b.fx[0].feedback = .45;
 		  					b.fx[0].feedback = lll;
 		  					
-		  					fols.length = 0;
+		  					
 		  					scores.length = 0;
 		  					
 		  				}, measures(1),
