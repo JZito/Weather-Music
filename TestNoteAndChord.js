@@ -1,3 +1,4 @@
+
 //THREE.JS SECTION
 // set the scene size
 var WIDTH =  window.innerWidth,
@@ -62,9 +63,11 @@ var radius = 50, segments = 16, rings = 16;
 
 for (var i = 0; i <4; i++) {
 	var i5 = (i*225) - 350;
+	var col = Math.random() * 0xffffff;
 	var sphere = new THREE.Mesh(
    new THREE.SphereGeometry(radius, segments, rings),
-   new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ));
+   new THREE.MeshLambertMaterial( { color: col } ));
+	console.log(col + " " + i);
 	sphere.position.x = i5;
 	sphere.position.y = 0;
 	sphere.position.z = 0;
@@ -119,7 +122,7 @@ render();
 // 
 var state = 'noChange', tempDivP5, radiuses = [], go = false, col, currentSong, mouseHit = false, bgCol, values = [], 
 lerpVar, radius, a = 0, countdown = 140, ticker = 0, cubeGo = 2, str = "74",
-vanillaNotes = [7,4,2,0,-11,-9,-7], vanillaMeasures = [1,2,4,6,8,12,16], effectsTypes = [], effectsProperties = [],
+vanillaNotes = [7,4,2,0,-11,-9,-7], vanillaMeasures = [1,1,2,2,2,4,4,4,8,8,6,6,8,8,12,12,16], effectsTypes = [], effectsProperties = [],
 beets = [1, 1/1.5, , , , 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
 //beets = [1, 1/2, 1/4, 1/8,1/16, 1/32], 
 beepEM = 67, rotations = [2,4,6,8, 16], pieces = [],
@@ -173,6 +176,20 @@ function CheckTheTime(time) //function check the time
     }
 };
 
+function MoveAround() {
+	for (var i =0; i < objects.length; i++) {
+		var mover = floor(random(500)) - floor(random(1000));
+		var q = objects[i].position;
+		console.log(i + " " + q)
+		animateObj(q);
+		//TweenLite.to(q, 12, {x:mover, ease: SteppedEase.config(36)});
+	}
+}
+function animateObj(obj) {
+  TweenMax.to(obj, 12, {x: Math.random() * 500, ease: SteppedEase.config(86),
+  	repeat:1, yoyo:true, onComplete:animateObj, onCompleteParams:[obj]})
+}
+
 function NewSong(t) {
 	var date = new Date();
 	var h = date.getHours();
@@ -196,6 +213,7 @@ function NewSong(t) {
 	pieces[t].groupSynths(3);
 	pieces[t].scoreCreate();
 	pieces[t].NewFollow();
+	MoveAround();
 };
 
 function draw() {
@@ -489,43 +507,43 @@ var Song = function (n, place, timeOfDay) { //enclose song
 			fols = [], busses = [], syns = [], m = 4, scorePhrases = floor(random(32,112)), 
 			innerSongBus,
 			bassPresets = [], leadSynthPresets = [], leadFMPresets = [], leadMonoPresets = [],
-			pluckPresets = [], padPresets = []. pad2Presets = [];
+			pluckPresets = [], padPresets = []. pad2Presets = [],
 			// presets = ['bleep', 'bleepEcho', 'rhodes', 'warble', 'calvin', 'squareLead', 'triLead'], 
 			// bassDayPresets = [],
 			// bassNightPresets = [],
 			// // warble is a night sound
 			// //triTest is a night sound
 			// leadFMPresets = ['bong', 'bong','glockenspiel', 'glockenspiel', 'glockenspiel'],
-			// presetLeadMonoArray = ['sunAccordion', 'preTester', 'sighTri', 'steelSine', 'steelSineNight'];
+			// leadMonoPresets = ['sunAccordion', 'preTester', 'sighTri', 'steelSine', 'steelSineNight'];
 			// padPresets = ['cascade', 'calvin'],
-			// arpPatternArray = ['updown2', 'updown', 'down', 'up'],
+			 arpPatternArray = ['updown2', 'updown', 'down', 'up'];
 			// //pad2Presets = ['pad2','pad4', 'rainTri' ];
 			// pad2Presets = ['triTest', 'pad2', 'pad4', 'sunriseTri', 'sinePad'];
 			if (timeOfDay == 'day') {
 				bassPresets = ['eitherBass', 'dayBass', 'dayBass', 'waveBass'];
 				leadSynthPresets = ['bleep', 'rhodes', 'calvin', 'squareLead'];
-				leadFMPresets = ['bong', 'glockenspiel', 'glockenspiel', 'brass'];
-				leadMonoPresets = ['steelSine', 'sunAccordion', 'sighTri', 'preTester'];
+				leadFMPresets = ['bong', 'glockenspiel', 'brass'];
+				leadMonoPresets = ['steelSine', 'sunAccordion', 'sighTri'];
 				pluckPresets = ['simple'];
 				padPresets = ['cascade', 'calvin'];
-				pad2Presets = ['triTest', 'pad2', 'pad4', 'sunriseTri', 'sinePad'];
+				pad2Presets = ['pad4', 'sunriseTri'];
 			}
 			else if (timeOfDay == 'night') {
 				bassPresets = ['waveBass', 'waveBass', 'eitherBass'];
 				leadSynthPresets = ['bleepEcho', 'rhodes', 'warble', 'calvin', 'triLead'];
 				leadFMPresets = ['bong', 'glockenspiel', 'brass', 'magicBong'];
-				leadMonoPresets = [];
+				leadMonoPresets = ['steelSineNight'];
 				padPresets = ['cascade', 'calvin'];
-				pad2Presets = ['triTest', 'pad2', 'pad4', 'sunriseTri', 'sinePad'];
+				pad2Presets = ['triTest', 'pad2', 'pad4'];
 			}
 			else if (timeOfDay == 'twilight') {
 				bassPresets = ['eitherBass', 'dayBass'];
 				leadSynthPresets = ['bleepEcho', 'rhodes', 'squareLead'];
 				leadFMPresets = ['clarinet', 'magicBong' ];
-				leadMonoPresets = ['preTester', 'steelSine'];
+				leadMonoPresets = ['steelSine'];
 				padPresets = ['cascade'];
 				pluckPresets = ['simple'];
-				pad2Presets = ['triTest', 'pad2', 'pad4', 'sunriseTri', 'sinePad'];
+				pad2Presets = ['triTest', 'pad2', 'pad4'];
 			}
 			else if (timeOfDay == 'dawn') {
 				bassPresets = ['eitherBass', 'waveBass'];
@@ -535,7 +553,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				pluckPresets = ['simple'];
 				padPresets = ['calvin'];
 				pluckPresets = ['simple'];
-				pad2Presets = ['triTest', 'pad2', 'pad4', 'sunriseTri', 'sinePad'];
+				pad2Presets = ['pad2', 'sunriseTri', 'sinePad'];
 			}
 			//it can all happen in here. handle each score, handle each instrument
 			// array of syn objects can live here but be changed by a public method
@@ -590,7 +608,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			//var arpie = arps[m];
 				  			var time = Harmony.beetsReturn(2, floor(random(1,2)));
 				  			var nR = Harmony.notesReturn(0,1,8),
-				  			arpie = Arp(nR, time, 'down', 2);
+				  			arpie = Arp(nR, time, arpPatternArray[floor(random(arpPatternArray.length))], 2);
 				  			bV = Harmony.beetsReturn(4, 1);
 				  			arpie.target = syns[m][0];
 				  			//arpie.chord.seq([12,11,7], 1);
@@ -646,7 +664,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					if (kindsAlreadyAdded.indexOf('lead') > -1) { 
 				  		//if lead already exists, use supportBeetsReturn
 				  	
-					  	rper = function(){
+					  	arper = function(){
 				  			//var arpie = arps[0];
 				  			arpie = Arp([24,24], 1/12, 'down', 2)
 				  			console.log("arper arper gg");
@@ -654,7 +672,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			bV = Harmony.beetsReturn(4, 1);
 				  			arpie.target = syns[m][0];
 				  			arpie.chord.seq([nR, nR], 2)
-				  			arpie.seq.speed = 1/32;
+				  			arpie.seq.speed = beets[floor(random(8,beets.length))];
 				  			//syns[m][0].note.seq([-12,-12,-12], 1/32);
 
 				  		},
@@ -757,7 +775,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					  		syns[m][0].note.seq.stop()
 					  ;};
 				} // else lead does not exist
-				   functions = [arper, arperStop, newS, pm, newF, newM, sto]; 
+				   functions = [arper, newS, pm, newF, newM, sto, arperStop]; 
 
 			}
 				// 	else if (scores[m-1]){
@@ -806,6 +824,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				//CREATE AN ARRAY FILLED WITH THE ROTATION COUNTS THEN SUM THE ARRAY
 				//
 				for (var i = 0; i < scorePhrases; i++){
+
 				    if (i == 0){
 				    	steps.push(0);
 				     // console.log(steps[i] + i);
@@ -833,6 +852,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				    }
 				    else if ((i+2)%2==0 && i !=2 ) {
 				      //length of each step
+
 				      	var mezh = measures(vanillaMeasures[floor(random(vanillaMeasures.length))]);
 				    	steps.push(mezh);
 				    	mezhures.push(mezh);
@@ -842,10 +862,12 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				    else {
 				    	var n =  functions[floor(random(functions.length))] ;
 				    	steps.push(n);
+
 				    //  console.log(n + i + mm);
 				    }
 				}
-				mezhuresAlreadyAdded.push(mezhures)
+				mezhuresAlreadyAdded.push(mezhures);
+				console.log(mezhuresAlreadyAdded[i]);
 				kindsAlreadyAdded.push(syns[m][1])
 				return steps;
 			};
@@ -938,7 +960,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					   		}
 					   }
 					   else if (instrumentKind == Mono){
-					   		pre = presetLeadMonoArray[floor(random(presetLeadMonoArray.length))];
+					   		pre = leadMonoPresets[floor(random(leadMonoPresets.length))];
 					   		ampVar = .25
 					   }
 					}
@@ -958,8 +980,8 @@ var Song = function (n, place, timeOfDay) { //enclose song
 
 						}
 						else if (instrumentKind == Synth2) {
-							pre = 'triTest';
-							//pre = pad2Presets[floor(random(padPresets.length))]
+							//pre = 'triTest';
+							pre = pad2Presets[floor(random(pad2Presets.length))]
 							ampVar = .4
 					   		
 						}
@@ -977,7 +999,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 						//if night, waveBass
 						// eitherBass for both
 					  	instrumentKind = Mono;
-					   	pre = 'waveBass';
+					   	pre = bassPresets[floor(random(bassPresets.length))];;
 					}
 					
 					name = instrumentKind(pre)
@@ -1028,7 +1050,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					var beeps = floor((60/beepEM) *1000);
 					console.log(beeps + 'bpm');
 					innerSongBus = Bus().fx.add( //Schizo({chance:.95, pitchChance: 0, rate:ms(beeps/4), length:ms(beeps)}), 
-					Reverb('large') ) // right
+					Reverb('space') ) // right
 					innerSongBus.connect();
 					innerSongBus.amp(0)
 					l = Line(0, 1, 4)
@@ -1044,6 +1066,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 								var ss = scoreDetails(i);
 								scores.push(ss);
 		  						inScore = Score(ss).start();
+		  						busses[i].connect(innerSongBus);
 		  					}
 		  					innerSongBus.amp = l;
 						}, measures(4),
@@ -1134,6 +1157,7 @@ function add(a, b) {
     }
     return curr;
 }
+
 
 
 

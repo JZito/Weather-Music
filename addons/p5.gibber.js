@@ -12235,7 +12235,7 @@ module.exports = function( Gibber ) {
     rhodes: { waveform:'Sine', maxVoices:4, attack:44, decay:1, 
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo(2, .2) ) },
     },
-    squareLead: { waveform:'Square', amp: .25, maxVoices:1, useADSR: true, attack:1/8, decay:1, release:1/4,glide:.99,
+    squareLead: { waveform:'Square', amp: .08, maxVoices:1, useADSR: true, attack:1/1.5, decay:1, release:1/4,glide:.99,
                       requireReleaseTrigger: false, 
       presetInit: function() {this.fx.add( Gibber.Audio.FX.Crush('littleBit'), Gibber.Audio.FX.Flanger(), Gibber.Audio.FX.Tremolo(1/6, .75)    )   }
 
@@ -12411,7 +12411,7 @@ module.exports = function( Gibber ) {
       octave3:1,
       detune2:-.02,
       detune3:.0225,
-      attack:.01, decay: 1/2, sustain:1/4, release:0
+      attack:.01, decay: 1/2, sustain:1/4, release:1/1.5
     },
 
     sighTri: {
