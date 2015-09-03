@@ -1,4 +1,6 @@
 
+
+//TweenMax.to(theObject)
 //THREE.JS SECTION
 // set the scene size
 var WIDTH =  window.innerWidth,
@@ -17,7 +19,7 @@ var objects = [];
 
 // create a WebGL renderer, camera
 // and a scene
-var renderer = new THREE.WebGLRenderer({antialias:true});
+var renderer = new THREE.WebGLRenderer();
 var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
                                 ASPECT,
                                 NEAR,
@@ -25,20 +27,34 @@ var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
 
 
 var scene = new THREE.Scene();
-var rain = true;
+var rain = false;
 var theta = 0;
 var renderPass = new THREE.RenderPass(scene, camera);
 var composer = new THREE.EffectComposer(renderer);
+
+// create a point light
+var spotLight = new THREE.SpotLight( 0xFFFFFF );
+var pointLight = new THREE.PointLight( 0x99FFFF);
+
+// set its position
+spotLight.position.x = 10;
+spotLight.position.y = 60;
+spotLight.position.z = 500;
+pointLight.position.z = 3;
+
+// add to the scene
+scene.add(pointLight);
+scene.add(spotLight);
 composer.addPass(renderPass);
 // the camera starts at 0,0,0 so pull it back
-camera.position.z = 500;
+camera.position.z = 1000;
 
 
 // start the renderer
 renderer.setSize(WIDTH, HEIGHT);
 
 //1. BloomPass: blurry, glowing effect
-var bloomPass = new THREE.BloomPass(3, 25, 5, 256);
+var bloomPass = new THREE.BloomPass(5, 25, 5, 256);
 composer.addPass(bloomPass);
 bloomPass.clear = true;
 
@@ -50,7 +66,12 @@ composer.addPass(effectFilm);
 // attach the render-supplied DOM element
 $container.append(renderer.domElement);
 
-
+var bgCol = new THREE.Color("rgb(40,20,250)");
+var vat = new THREE.MeshLambertMaterial({color: bgCol});
+var geometry = new THREE.PlaneBufferGeometry(1800*2, 1600 * 2,1,1);
+var bgPlane = new THREE.Mesh(geometry, vat);
+bgPlane.position.z = - 100;
+scene.add(bgPlane);
 
 // set up the sphere vars
 var radius = 50, segments = 16, rings = 16;
@@ -60,14 +81,28 @@ var radius = 50, segments = 16, rings = 16;
 
 // create a new mesh with sphere geometry -
 // we will cover the sphereMaterial next!
-var col = new THREE.Color("rgb(10,45,2)");
+var col = new THREE.Color("rgb(50,10,5)");
+if (rain) {
+	//FadeColor(bgPlane, .92, .62, 1);
+	bgCol = new THREE.Color("rgb(20,10,200)");
+	bgPlane.material.color = col;
+	//bgCol = new THREE.Color("rgb(20,10,200)");
+	pointLight.intensity = 2;
+	MoveCamera(2, true);
+}
+else if (!rain) {
+	bgCol = new THREE.Color("rgb(180,60,5)");
+	bgPlane.material.color = bgCol;
+	pointLight.intensity = 5;
+	//pointLight.color = new THREE.Color("rbg(200,40,10)");
+}
 for (var i = 0; i <4; i++) {
 	if (rain) {
 		radius = 45;
 		segments = 5;
 		rings = 20;
 		var i5 = (i*225) - 350;
-		col.b = i * .45;
+		col.b = col.b + (i * .45);
 		var sphere = new THREE.Mesh(
 	   	new THREE.BoxGeometry(radius, segments, rings),
 	    new THREE.MeshLambertMaterial( { color: col } ));
@@ -77,13 +112,14 @@ for (var i = 0; i <4; i++) {
 		sphere.position.x = i5;
 		sphere.position.y = 0;
 		sphere.position.z = 0;
-		MoveCamera(1, true);
+		
 		sphere.scale.y = window.innerHeight;
 		//sphere.scale.x = window.innerWidth / 6;
 	}
 	else {
 		var i5 = (i*225) - 350;
-		var col = new THREE.Color("rgb(235,108,2)");
+		//col.r = col.r + (i * .075);
+		//col.g = col.g + i * .02;
 		var sphere = new THREE.Mesh(
 	   	new THREE.SphereGeometry(radius, segments, rings),
 	    new THREE.MeshLambertMaterial( { color: col } ));
@@ -93,7 +129,7 @@ for (var i = 0; i <4; i++) {
 		sphere.position.x = i5;
 		sphere.position.y = 0;
 		sphere.position.z = 0;
-
+		
 		sphere.scale.y = window.innerHeight;
 	}
 	
@@ -103,15 +139,11 @@ for (var i = 0; i <4; i++) {
 	// TweenMax.to(sphere.material, 4, {opacity:1,
  //  	ease: Power2.easeOut, yoyo:false} );
 }
-var bgCol = new THREE.Color("rgb(0,100,255)");
-var vat = new THREE.MeshLambertMaterial({color: bgCol});
-var geometry = new THREE.PlaneGeometry(1800*2, 1600 * 2,1,1);
-var bgPlane = new THREE.Mesh(geometry, vat);
-bgPlane.position.z = - 100;
-scene.add(bgPlane);
+
 //position of object calling it should be passed in
 var SphereCreate = function (parent) {
 	var i5 = (i*225) - 350;
+	var tweenDir;
 		//color of object that called it
 		//partially transparent?
 	var col = parent.material.color.getHex();
@@ -129,7 +161,12 @@ var SphereCreate = function (parent) {
 
 	sph.scale.x = parent.scale.x;
 	sph.scale.y = window.innerHeight;
-	
+	if (rain) {
+		tweenDir = parent.position.x + Math.random() * 1000;
+	}
+	else if (!rain) {
+		tweenDir = -800 + Math.random() * 800;
+	}
 
 	scene.add(sph);
 	//console.log(sph.position.x + sph + "sphere");
@@ -160,11 +197,41 @@ function FadeOutPad (parent) {
   	ease:  SteppedEase.config(24), yoyo:false} );
 }
 
-function MoveCamera(point, yo) {
+function MoveCamera(point, tic) {
+	var p;
+	if (tic == 1) {
+		p = 2;
+		tick = 2;
+	}
+	else if (tic == 2) {
+		p = -2;
+		tick = 1;
+	}
 	var camPos = camera.position;
 	var camRot = camera.rotation;
-	TweenMax.to(camera.rotation, 12, {z: point,
-  	ease:  SteppedEase.config(144), yoyo:yo} );
+	TweenMax.to(camera.rotation, 30, {z: point,
+  	ease:  Power2.easeOut, onComplete:MoveCamera, onCompleteParams:[p, tick]} );
+}
+
+// function FadeColor(object, hH, sS, vV) {
+// 	var hsvCol = object.material.color.getHSV();
+// 	var newCol = object.material.color.setHSV();
+// 	TweenMax.to(hsvCol, 6, {
+// 		h: hH, s: sS, v: vV, ease:  Power2.easeOut,
+// 		yoyo: false,  onUpdate: applyValue, onUpdateParams:[newCol]
+// 	});
+	
+// }
+
+function applyValue (tween){
+
+	 console.log(tween.h); 
+};
+
+function animateObj(obj) {
+  TweenMax.to(obj, 12, {x: Math.random() * 500, y: Math.random() * 20, 
+  	ease: RoughEase.ease.config({ template: Power0.easeNone, strength: 1, points: 20, taper: "none", randomize: true, clamp: false}),
+  	repeat:1, yoyo:true, onComplete:animateObj, onCompleteParams:[obj]})
 }
 
 
@@ -175,19 +242,7 @@ function MoveCamera(point, yo) {
 // and the camera
 scene.add(camera);
 
-// create a point light
-var spotLight = new THREE.SpotLight( 0xFFFFFF );
-var pointLight = new THREE.PointLight( 0x99FFFF);
 
-// set its position
-spotLight.position.x = 10;
-spotLight.position.y = 60;
-spotLight.position.z = 500;
-pointLight.position.z = 3;
-
-// add to the scene
-scene.add(pointLight);
-scene.add(spotLight);
 
 // draw!
 renderer.render(scene, camera);
@@ -277,11 +332,6 @@ function MoveAround() {
 		//animateObj(q);
 		//TweenLite.to(q, 12, {x:mover, ease: SteppedEase.config(36)});
 	}
-}
-function animateObj(obj) {
-  TweenMax.to(obj, 12, {x: Math.random() * 500, y: Math.random() * 20, 
-  	ease: RoughEase.ease.config({ template: Power0.easeNone, strength: 1, points: 20, taper: "none", randomize: true, clamp: false}),
-  	repeat:1, yoyo:true, onComplete:animateObj, onCompleteParams:[obj]})
 }
 
 function NewSong(t) {
@@ -1052,7 +1102,8 @@ var Song = function (n, place, timeOfDay) { //enclose song
 						else {
 							//var k = kinds[floor(random(kinds.length))];
 							var k = 'lead';
-							fxAmount = floor(random(1,3));
+							fxAmount = floor(random(3));
+							console.log(fxAmount + "fxamount");
 							synth = new innerSong.synthCreate(i, k, 'oo');
 							synth.make(k);
 							synthKinds.push(k);
@@ -1205,7 +1256,9 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				scoreCreate: function() {
 					var beeps = floor((60/beepEM) *1000);
 					console.log(beeps + 'bpm');
-					innerSongBus = Bus().fx.add( //Schizo({chance:.95, pitchChance: 0, rate:ms(beeps/4), length:ms(beeps)}), 
+					innerSongBus = Bus().fx.add( 
+					
+					//Schizo({chance:.95, pitchChance: 0, rate:ms(beeps/4), length:ms(beeps)}), 
 					Reverb('space') ) // right
 					innerSongBus.connect();
 					innerSongBus.amp(0)
