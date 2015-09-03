@@ -12421,10 +12421,10 @@ module.exports = function( Gibber ) {
       cutoff: .95,
       octave2:-1,
       octave3:1,
-      resonance: .25,
+      resonance: .55,
       detune2: .01,
       detune3: -.011,
-      attack:1/3, decay: 1/3, sustain:3/1, release:1/6,
+      attack:1/1.5, decay: 1/3, sustain:3/1, release:2/1,
     },
     steelSine: {
       waveform:'Sine',

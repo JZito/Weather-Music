@@ -78,6 +78,37 @@ for (var i = 0; i <4; i++) {
 	scene.add(sphere);
 }
 
+//position of object calling it should be passed in
+var SphereCreate = function (parent) {
+	console.log("SPHERE!");
+		var i5 = (i*225) - 350;
+		//color of object that called it
+		//partially transparent?
+	var col = parent.material.color.getHex();
+	//console.log("col" + col);
+	var sph = new THREE.Mesh(
+   		new THREE.SphereGeometry(radius, segments, rings),
+   		new THREE.MeshLambertMaterial( { color: col } ));
+	//position of object that called it
+	sph.position.x = parent.position.x;
+
+	sph.scale.x = parent.scale.x;
+	sph.scale.y = window.innerHeight;
+
+	scene.add(sph);
+	//console.log(sph.position.x + sph + "sphere");
+
+	TweenMax.to(sph.position, 1, {x: -300 + Math.random() * 1000,
+  	ease: SteppedEase.config(12),
+  	yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
+}
+
+function KillSphere(s) {
+	scene.remove(s);
+}
+
+
+
 
 // add the sphere to the scene
 //scene.add(objects);
@@ -235,7 +266,7 @@ function draw() {
 				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
 				//        if width greater than height, use wh * value, otherwise use ww2 * value
 			  //  console.log(p0.publicFols[i].getValue() +" " + i);
-			    objects[i].scale.x = 2 + p0.publicFols[i].getValue() * 10;
+			    objects[i].scale.x = .25 + p0.publicFols[i].getValue() * 10;
 			    //objects[i].scale.y = 1 + p0.publicFols[i].getValue() * 10;
 			    objects[i].scale.z = 1 + p0.publicFols[i].getValue() * 10;
 			    //objects[i].rotation.z = theta;;
@@ -429,8 +460,7 @@ var Harmony = (function () {
 	};
 
 
-// chordsreturn might need a type argument to specify behavior. it is product horrible frequencies with
-// one of the synths right now
+// chordsreturn might need a type argument to specify behavior. 
   	var chordsReturn = function (c, cLength) {
   		var chords = [], oct = [-12,-12,-12,0,0,0,12,12], pedalPoint = vanillaNotes[floor(random(vanillaNotes.length))];
 		for (var i = 0; i < c; i++){
@@ -580,6 +610,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 
 				  var arpie, functions = [], oct = [-12,-12,-12,0,0,0,12,12], steps = [], 
 				  newM, newS, newF, newC, pm, sto, beetsVar; 
+				  var o = objects[m];
 				  if (syns[m][1] == 'bass'){
 				  //	if(syns[m][1].pre = 'xx') {
 				  		newM = function() {
@@ -632,6 +663,11 @@ var Song = function (n, place, timeOfDay) { //enclose song
 							var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
 				  			syns[m][0].note.seq(nR, bV)
+				  			var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								console.log("sequence" + q)
+							}, bV );
 					  ;}, 
 					  /// function for series of melodies
 				  		newS = function () {
@@ -645,19 +681,38 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  				}, measures(rot),
 				  				function(){
 				  					syns[m][0].note.seq(nR2, bV)
-				  				}, measures(rot)]).start()
+				  				}, measures(rot)]).start() ;
+				  			var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								console.log("sequence" + q);
+								SphereCreate(o);
+							}, bV );
 				  		}, 
 					 	newF = function(){
 					 		console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
 					  		var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
-					  		syns[m][0].note.seq(nR, bV)
+					  		syns[m][0].note.seq(nR, bV);
+					  		var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								console.log("sequence" + q);
+								
+								SphereCreate(o);
+							}, bV );
 				        ;}, 
 					    pm = function(){
 					    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
 					    	var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
 					  		syns[m][0].note.seq(nR, bV)
+					  		var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								console.log("sequence" + q)
+								SphereCreate(o);
+							}, bV );
 				        ;}, 
 					    sto = function(){
 					  		syns[m][0].note.seq.stop()
@@ -676,8 +731,15 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			var nR = Harmony.notesReturn(0,1,8),
 				  			bV = Harmony.beetsReturn(4, 1);
 				  			arpie.target = syns[m][0];
-				  			arpie.chord.seq([nR, nR], 2)
-				  			arpie.seq.speed = beets[floor(random(8,beets.length))];
+				  			arpie.chord.seq([nR, nR], 2);
+				  			var spee = beets[floor(random(8,beets.length))];
+				  			arpie.seq.speed = spee;
+				  			var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								console.log("sequence" + q)
+								SphereCreate(o);
+							}, spee );
 				  			//syns[m][0].note.seq([-12,-12,-12], 1/32);
 
 				  		},
@@ -691,7 +753,12 @@ var Song = function (n, place, timeOfDay) { //enclose song
 							console.log('lead newM' + syns[m][1] + syns[m][0]);
 							var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,4)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
-				  			syns[m][0].note.seq(nR, bV)
+				  			syns[m][0].note.seq(nR, bV);var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								console.log("sequence" + q)
+								SphereCreate(o);
+							}, bV );
 					  ;}, 
 					  /// function for series of melodies
 				  		newS = function () {
@@ -712,7 +779,13 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					 	newF = function(){
 					 		var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,3)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
-					  		syns[m][0].note.seq(nR, bV)
+					  		syns[m][0].note.seq(nR, bV);
+					  		var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								console.log("sequence" + q)
+								SphereCreate(o);
+							}, bV );
 				      ;}, 
 					    pm = function(){
 					    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
@@ -901,7 +974,8 @@ var Song = function (n, place, timeOfDay) { //enclose song
 
 						}
 						else {
-							var k = kinds[floor(random(kinds.length))];
+							//var k = kinds[floor(random(kinds.length))];
+							var k = 'lead';
 							fxAmount = floor(random(1,3));
 							synth = new innerSong.synthCreate(i, k, 'oo');
 							synth.make(k);
@@ -943,6 +1017,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					this.name = name;
 					   
 					this.make = function() {
+						//SphereCreate();
 					var instrumentKind;
 					if (kind == 'lead') {
 					   	instrumentKind = leadInstruments[floor(random(leadInstruments.length))];
