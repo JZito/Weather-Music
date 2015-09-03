@@ -66,7 +66,7 @@ for (var i = 0; i <4; i++) {
 	var col = Math.random() * 0xffffff;
 	var sphere = new THREE.Mesh(
    new THREE.SphereGeometry(radius, segments, rings),
-   new THREE.MeshLambertMaterial( { color: col } ));
+   new THREE.MeshPhongMaterial( { color: col } ));
 	console.log(col + " " + i);
 	sphere.position.x = i5;
 	sphere.position.y = 0;
@@ -90,17 +90,25 @@ var SphereCreate = function (parent) {
    		new THREE.SphereGeometry(radius, segments, rings),
    		new THREE.MeshLambertMaterial( { color: col } ));
 	//position of object that called it
+	sph.scale.y = parent.scale.y;
+	sph.scale.x = parent.scale.x;
 	sph.position.x = parent.position.x;
+	sph.rotation.x = parent.rotation.x;
 
 	sph.scale.x = parent.scale.x;
 	sph.scale.y = window.innerHeight;
 
 	scene.add(sph);
 	//console.log(sph.position.x + sph + "sphere");
+	var p = 12;
+	TweenMax.to(sph.rotation, .5, {z: -300 + Math.random() * 1000, y:p++,
+  	ease: SteppedEase.config(5),
+  	yoyo:false, } );
 
-	TweenMax.to(sph.position, 1, {x: -300 + Math.random() * 1000,
-  	ease: SteppedEase.config(12),
+	TweenMax.to(sph.position, .5, {x: -300 + Math.random() * 1000, y:p++,
+  	ease: SteppedEase.config(6),
   	yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
+
 }
 
 function KillSphere(s) {
@@ -214,7 +222,7 @@ function MoveAround() {
 		var mover = floor(random(500)) - floor(random(1000));
 		var q = objects[i].position;
 		console.log(i + " " + q)
-		animateObj(q);
+		//animateObj(q);
 		//TweenLite.to(q, 12, {x:mover, ease: SteppedEase.config(36)});
 	}
 }
@@ -250,11 +258,17 @@ function NewSong(t) {
 	MoveAround();
 };
 
+function GetThetas(i) {
+	var thetas = [-.02, -.01, .01, .02];
+	theta = thetas[i];
+	return theta;
+
+}
 function draw() {
 	
 	// var mult = [10,20,14,16], ww2 = windowWidth / 2, wh = windowHeight,
 	 var p0 = pieces[0], p1 = pieces[1];
-	 theta += .01;
+	var theta;
 	CheckTheTime(minute());
 	// noStroke();
  //    fill(bgCol);
@@ -263,13 +277,16 @@ function draw() {
      	if (cubeGo == 0){
  //    		console.log(p0.publicFols.length + " " + "length");
 			for (var i = 0; i < p0.publicFols.length; i++){
+				var hug = GetThetas(i);
+				theta += .01;
+				console.log(theta);
 				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
 				//        if width greater than height, use wh * value, otherwise use ww2 * value
 			  //  console.log(p0.publicFols[i].getValue() +" " + i);
-			    objects[i].scale.x = .25 + p0.publicFols[i].getValue() * 10;
+			    objects[i].scale.x = .125 + p0.publicFols[i].getValue() * 5;
 			    //objects[i].scale.y = 1 + p0.publicFols[i].getValue() * 10;
-			    objects[i].scale.z = 1 + p0.publicFols[i].getValue() * 10;
-			    //objects[i].rotation.z = theta;;
+			    objects[i].rotation.z = theta;
+			    //objects[i].rotation.z = theta;
 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
 				// CoolSquare(col, value, ww2, wh, radius  );
 			}
@@ -278,7 +295,7 @@ function draw() {
 			for (var i = 0; i < p1.publicFols.length; i++) {
 				// var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
-			 objects[i].scale.x = 1 + p1.publicFols[i].getValue() * 10;
+			 objects[i].scale.x = .125 + p1.publicFols[i].getValue() * 10;
 			 //    console.log(p1.publicFols[i].value + i);
 				//CoolSquare(col, value, ww2, wh, radius  );
 			}
