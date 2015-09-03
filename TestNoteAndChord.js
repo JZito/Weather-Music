@@ -27,7 +27,7 @@ var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
 
 
 var scene = new THREE.Scene();
-var rain = false;
+var rain = true;
 var theta = 0;
 var renderPass = new THREE.RenderPass(scene, camera);
 var composer = new THREE.EffectComposer(renderer);
@@ -84,11 +84,14 @@ var radius = 50, segments = 16, rings = 16;
 var col = new THREE.Color("rgb(50,10,5)");
 if (rain) {
 	//FadeColor(bgPlane, .92, .62, 1);
+	//col = new THREE.Color("rgb(50,10,5)");
 	bgCol = new THREE.Color("rgb(20,10,200)");
 	bgPlane.material.color = col;
 	//bgCol = new THREE.Color("rgb(20,10,200)");
-	pointLight.intensity = 2;
-	MoveCamera(2, true);
+	pointLight.intensity = 1;
+	camera.rotation.z = 270;
+	//MoveCamera(200, true);
+
 }
 else if (!rain) {
 	bgCol = new THREE.Color("rgb(180,60,5)");
@@ -102,7 +105,8 @@ for (var i = 0; i <4; i++) {
 		segments = 5;
 		rings = 20;
 		var i5 = (i*225) - 350;
-		col.b = col.b + (i * .45);
+		col.r = i * .001;
+		col.b = col.b + (i * .25);
 		var sphere = new THREE.Mesh(
 	   	new THREE.BoxGeometry(radius, segments, rings),
 	    new THREE.MeshLambertMaterial( { color: col } ));
@@ -112,7 +116,7 @@ for (var i = 0; i <4; i++) {
 		sphere.position.x = i5;
 		sphere.position.y = 0;
 		sphere.position.z = 0;
-		
+		animateObj(sphere.position)
 		sphere.scale.y = window.innerHeight;
 		//sphere.scale.x = window.innerWidth / 6;
 	}
@@ -157,7 +161,7 @@ var SphereCreate = function (parent) {
 	sph.scale.y = parent.scale.y;
 	sph.scale.x = parent.scale.x;
 	sph.position.x = parent.position.x;
-	sph.rotation.x = parent.rotation.x;
+	sph.rotation.z = parent.rotation.z;
 
 	sph.scale.x = parent.scale.x;
 	sph.scale.y = window.innerHeight;
@@ -207,10 +211,13 @@ function MoveCamera(point, tic) {
 		p = -2;
 		tick = 1;
 	}
-	var camPos = camera.position;
-	var camRot = camera.rotation;
-	TweenMax.to(camera.rotation, 30, {z: point,
-  	ease:  Power2.easeOut, onComplete:MoveCamera, onCompleteParams:[p, tick]} );
+	for (var i = 0; i< objects.length; i++) {
+		//var camPos = camera.position;
+		var objRot = object[i].rotation;
+		TweenMax.to(objRot, 2, {z: point,
+  		ease:  Power2.easeOut, onComplete:MoveCamera, onCompleteParams:[p, tick]} );
+	}
+	
 }
 
 // function FadeColor(object, hH, sS, vV) {
@@ -229,7 +236,7 @@ function applyValue (tween){
 };
 
 function animateObj(obj) {
-  TweenMax.to(obj, 12, {x: Math.random() * 500, y: Math.random() * 20, 
+  TweenMax.to(obj, 1, {z: Math.random(), 
   	ease: RoughEase.ease.config({ template: Power0.easeNone, strength: 1, points: 20, taper: "none", randomize: true, clamp: false}),
   	repeat:1, yoyo:true, onComplete:animateObj, onCompleteParams:[obj]})
 }
