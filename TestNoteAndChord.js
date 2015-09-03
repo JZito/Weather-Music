@@ -31,6 +31,7 @@ var composer = new THREE.EffectComposer(renderer);
 composer.addPass(renderPass);
 // the camera starts at 0,0,0 so pull it back
 camera.position.z = 500;
+//camera.rotation.z = 90;
 
 // start the renderer
 renderer.setSize(WIDTH, HEIGHT);
@@ -66,7 +67,9 @@ for (var i = 0; i <4; i++) {
 	var col = Math.random() * 0xffffff;
 	var sphere = new THREE.Mesh(
    new THREE.SphereGeometry(radius, segments, rings),
-   new THREE.MeshPhongMaterial( { color: col } ));
+   new THREE.MeshLambertMaterial( { color: col } ));
+	sphere.material.transparent = true;
+	sphere.material.opacity = 0;
 	console.log(col + " " + i);
 	sphere.position.x = i5;
 	sphere.position.y = 0;
@@ -76,12 +79,13 @@ for (var i = 0; i <4; i++) {
 
 	objects.push(sphere);
 	scene.add(sphere);
+	// TweenMax.to(sphere.material, 4, {opacity:1,
+ //  	ease: Power2.easeOut, yoyo:false} );
 }
 
 //position of object calling it should be passed in
 var SphereCreate = function (parent) {
-	console.log("SPHERE!");
-		var i5 = (i*225) - 350;
+	var i5 = (i*225) - 350;
 		//color of object that called it
 		//partially transparent?
 	var col = parent.material.color.getHex();
@@ -89,6 +93,8 @@ var SphereCreate = function (parent) {
 	var sph = new THREE.Mesh(
    		new THREE.SphereGeometry(radius, segments, rings),
    		new THREE.MeshLambertMaterial( { color: col } ));
+	sph.material.transparent = true;
+	sph.material.opacity = 0;
 	//position of object that called it
 	sph.scale.y = parent.scale.y;
 	sph.scale.x = parent.scale.x;
@@ -97,22 +103,35 @@ var SphereCreate = function (parent) {
 
 	sph.scale.x = parent.scale.x;
 	sph.scale.y = window.innerHeight;
+	
 
 	scene.add(sph);
 	//console.log(sph.position.x + sph + "sphere");
 	var p = 12;
-	TweenMax.to(sph.rotation, .5, {z: -300 + Math.random() * 1000, y:p++,
-  	ease: SteppedEase.config(5),
-  	yoyo:false, } );
+	TweenMax.to(sph.material, 1, {opacity:1,
+  	ease:  SteppedEase.config(12), yoyo:true} );
+	// TweenMax.to(sph.rotation, .5, {x: -300 + Math.random() * 1000, y:p++,
+ //  	ease: SteppedEase.config(5),
+ //  	yoyo:false, } );
 
-	TweenMax.to(sph.position, .5, {x: -300 + Math.random() * 1000, y:p++,
-  	ease: SteppedEase.config(6),
+	TweenMax.to(sph.position, 2, {x: -300 + Math.random() * 1000, y:p++,
+  	ease: SteppedEase.config(24),
   	yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
 
 }
 
+var FadeInPad = function (parent) {
+	TweenMax.to(parent.material, 2, {opacity:1,
+  	ease:  SteppedEase.config(24), OnComplete: FadeOutPad, OnCompleteParams:[parent]} );
+}
+
 function KillSphere(s) {
 	scene.remove(s);
+}
+
+function FadeOutPad (parent) {
+	TweenMax.to(parent.material, 2, {opacity:0,
+  	ease:  SteppedEase.config(24), yoyo:false} );
 }
 
 
@@ -166,7 +185,7 @@ lerpVar, radius, a = 0, countdown = 140, ticker = 0, cubeGo = 2, str = "74",
 vanillaNotes = [7,4,2,0,-11,-9,-7], vanillaMeasures = [1,1,2,2,2,4,4,4,8,8,6,6,8,8,12,12,16], effectsTypes = [], effectsProperties = [],
 beets = [1, 1/1.5, , , , 1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
 //beets = [1, 1/2, 1/4, 1/8,1/16, 1/32], 
-beepEM = 67, rotations = [2,4,6,8, 16], pieces = [],
+beepEM = 67, rotations = [2,4,6,8, 16], pieces = [], thetas = [-0.2, -0.1, 0.1, 0.2],
 measureCount = 0, prevColor1, newColor1, prevColor6, newColor6, mainScore;
 // brass-- CLOUDY DAY TIME- brass only acceptable if octave is kept low 0  or lower. 
 // 
@@ -236,7 +255,6 @@ function NewSong(t) {
 	var date = new Date();
 	var h = date.getHours();
 	var d;
-	console.log(h + " YO YO YO YO YO");
 	if (h <= 5 || h >= 19) {
 		d = 'night';
 	}
@@ -249,7 +267,6 @@ function NewSong(t) {
 	else if (h >= 17 && h < 19) {
 		d = 'twilight';
 	}
-	console.log("d" + d);
 	song = new Song('o', t, d);
 	song.make();
 	pieces[t].groupSynths(3);
@@ -268,24 +285,24 @@ function draw() {
 	
 	// var mult = [10,20,14,16], ww2 = windowWidth / 2, wh = windowHeight,
 	 var p0 = pieces[0], p1 = pieces[1];
-	var theta;
+	//var theta;
 	CheckTheTime(minute());
 	// noStroke();
  //    fill(bgCol);
  //    rect(0, 0, width, height); 
      if (go) {
      	if (cubeGo == 0){
- //    		console.log(p0.publicFols.length + " " + "length");
-			for (var i = 0; i < p0.publicFols.length; i++){
-				var hug = GetThetas(i);
-				theta += .01;
-				console.log(theta);
+     		theta += .001;
+     		camera.rotation.z = theta;
+     		var hug;
+    		for (var i = 0; i < p0.publicFols.length; i++){
+				
 				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
 				//        if width greater than height, use wh * value, otherwise use ww2 * value
-			  //  console.log(p0.publicFols[i].getValue() +" " + i);
-			    objects[i].scale.x = .125 + p0.publicFols[i].getValue() * 5;
+			  	objects[i].scale.x = .125 + p0.publicFols[i].getValue() * 10;
 			    //objects[i].scale.y = 1 + p0.publicFols[i].getValue() * 10;
-			    objects[i].rotation.z = theta;
+			    objects[i].rotation.x = theta;
+
 			    //objects[i].rotation.z = theta;
 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
 				// CoolSquare(col, value, ww2, wh, radius  );
@@ -349,7 +366,7 @@ var Harmony = (function () {
     			var uOrD = [-1,0,1];
     			if (vanillaNotes[lastPos + uOrD]){
     				scoreNotes[i] = vanillaNotes[lastPos + uOrD];
-    				console.log(scoreNotes[i])
+    				//console.log(scoreNotes[i])
     			}
     			else {
     				scoreNotes[i] = vanillaNotes[floor(random(vanillaNotes.length))] + oct;
@@ -635,6 +652,10 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			var nR = Harmony.bassLineReturn();
 				  			bV = Harmony.beetsReturn(2, floor(random(1,2)));
 				  			syns[m][0].note.seq(nR, bV);
+				  			aSong = Seq( function() { 
+				  				FadeInPad(objects[m]);
+							}, bV );
+				  			
 				  		},
 				  		newF = function() {
 				  			//console.log('bass line newF melody style' + syns[m][1] + syns[m][0])
@@ -657,7 +678,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				else if (syns[m][1] == 'lead') {
 				  	if (!scores[m-1]) { 
 				  	  	arper = function(){
-				  			console.log("arper arper bb");
+				  			//console.log("arper arper bb");
 				  			//var arpie = arps[m];
 				  			var time = Harmony.beetsReturn(2, floor(random(1,2)));
 				  			var nR = Harmony.notesReturn(0,1,8),
@@ -676,7 +697,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  		},
 				  		
 						newM = function(){
-							console.log('lead newM' + syns[m][1] + syns[m][0]);
+							//console.log('lead newM' + syns[m][1] + syns[m][0]);
 							var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
 				  			syns[m][0].note.seq(nR, bV)
@@ -684,6 +705,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			aSong = Seq( function() { 
 				  				q++;
 								console.log("sequence" + q)
+								SphereCreate(o);
 							}, bV );
 					  ;}, 
 					  /// function for series of melodies
@@ -754,7 +776,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			var q = 0;
 				  			aSong = Seq( function() { 
 				  				q++;
-								console.log("sequence" + q)
+								//console.log("sequence" + q)
 								SphereCreate(o);
 							}, spee );
 				  			//syns[m][0].note.seq([-12,-12,-12], 1/32);
@@ -773,7 +795,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			syns[m][0].note.seq(nR, bV);var q = 0;
 				  			aSong = Seq( function() { 
 				  				q++;
-								console.log("sequence" + q)
+								//console.log("sequence" + q)
 								SphereCreate(o);
 							}, bV );
 					  ;}, 
@@ -800,7 +822,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					  		var q = 0;
 				  			aSong = Seq( function() { 
 				  				q++;
-								console.log("sequence" + q)
+								//console.log("sequence" + q)
 								SphereCreate(o);
 							}, bV );
 				      ;}, 
@@ -888,20 +910,24 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					    	bV = Harmony.wholeBeetsReturn(floor(random(8)), floor(random(1,8)));
 	
 				  			syns[m][0].note.seq(nR, bV)
+				  			FadeInPad(objects[m]);
 					  ;}, 
 					 	newC = function(){
 					 		console.log('chords' + syns[m][1] + syns[m][0])
 					  		nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
 					  		bV = Harmony.beetsReturn(4, floor(random(1,4)));
 					  		syns[m][0].chord.seq(nR, bV)
+					  		FadeInPad(objects[m]);
 				      ;}, 
 					    pm = function(){
 					  		var nR = [0,0,0,0,-1,-1,-1,-1], 
 					  		bV = Harmony.beetsReturn(4, floor(random(1,4)));
 					  		syns[m][0].note.seq(nR, bV)
+					  		FadeInPad(objects[m]);
 				      ;}, 
 					    sto = function(){
 					  		syns[m][0].note.seq.stop()
+					  		FadeOutPad(objects[m]);
 					  ;};
 				   functions = [newM, newC, pm, sto]; 
 				}
@@ -991,8 +1017,8 @@ var Song = function (n, place, timeOfDay) { //enclose song
 
 						}
 						else {
-							//var k = kinds[floor(random(kinds.length))];
-							var k = 'lead';
+							var k = kinds[floor(random(kinds.length))];
+							//var k = 'lead';
 							fxAmount = floor(random(1,3));
 							synth = new innerSong.synthCreate(i, k, 'oo');
 							synth.make(k);
@@ -1157,7 +1183,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 							//drum.fadeIn(4, 1);
 							for (var i = 0; i < syns.length; i++){
 								//assign each synth it's own score via scoredetails
-								console.log("creating score details");
+								//console.log("creating score details");
 								//syns[i][0]._;
 								syns[i][0].connect(innerSongBus);
 								var ss = scoreDetails(i);
