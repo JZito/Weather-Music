@@ -25,22 +25,22 @@ var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
 
 
 var scene = new THREE.Scene();
-var rain = false;
+var rain = true;
 var theta = 0;
 var renderPass = new THREE.RenderPass(scene, camera);
 var composer = new THREE.EffectComposer(renderer);
 composer.addPass(renderPass);
 // the camera starts at 0,0,0 so pull it back
 camera.position.z = 500;
-//camera.rotation.z = 90;
+
 
 // start the renderer
 renderer.setSize(WIDTH, HEIGHT);
 
-// 1. BloomPass: blurry, glowing effect
-// var bloomPass = new THREE.BloomPass(0, 25, 5, 256);
-// composer.addPass(bloomPass);
-// bloomPass.clear = true;
+//1. BloomPass: blurry, glowing effect
+var bloomPass = new THREE.BloomPass(3, 25, 5, 256);
+composer.addPass(bloomPass);
+bloomPass.clear = true;
 
 // 2. EffectFilm, which output the result in an old style TV screen fashion (with thin colourful stripes):
 var effectFilm = new THREE.FilmPass(0.8, 0.325, 256, false);
@@ -51,6 +51,7 @@ composer.addPass(effectFilm);
 $container.append(renderer.domElement);
 
 
+
 // set up the sphere vars
 var radius = 50, segments = 16, rings = 16;
 
@@ -59,14 +60,14 @@ var radius = 50, segments = 16, rings = 16;
 
 // create a new mesh with sphere geometry -
 // we will cover the sphereMaterial next!
-
+var col = new THREE.Color("rgb(10,45,2)");
 for (var i = 0; i <4; i++) {
 	if (rain) {
 		radius = 45;
 		segments = 5;
 		rings = 20;
 		var i5 = (i*225) - 350;
-		var col = new THREE.Color("rgb(235,108,2)");;
+		col.b = i * .45;
 		var sphere = new THREE.Mesh(
 	   	new THREE.BoxGeometry(radius, segments, rings),
 	    new THREE.MeshLambertMaterial( { color: col } ));
@@ -76,7 +77,7 @@ for (var i = 0; i <4; i++) {
 		sphere.position.x = i5;
 		sphere.position.y = 0;
 		sphere.position.z = 0;
-
+		MoveCamera(1, true);
 		sphere.scale.y = window.innerHeight;
 		//sphere.scale.x = window.innerWidth / 6;
 	}
@@ -105,9 +106,9 @@ for (var i = 0; i <4; i++) {
 var bgCol = new THREE.Color("rgb(0,100,255)");
 var vat = new THREE.MeshLambertMaterial({color: bgCol});
 var geometry = new THREE.PlaneGeometry(1800*2, 1600 * 2,1,1);
-var plane = new THREE.Mesh(geometry, vat);
-plane.position.z = - 100;
-scene.add(plane);
+var bgPlane = new THREE.Mesh(geometry, vat);
+bgPlane.position.z = - 100;
+scene.add(bgPlane);
 //position of object calling it should be passed in
 var SphereCreate = function (parent) {
 	var i5 = (i*225) - 350;
@@ -159,6 +160,12 @@ function FadeOutPad (parent) {
   	ease:  SteppedEase.config(24), yoyo:false} );
 }
 
+function MoveCamera(point, yo) {
+	var camPos = camera.position;
+	var camRot = camera.rotation;
+	TweenMax.to(camera.rotation, 12, {z: point,
+  	ease:  SteppedEase.config(144), yoyo:yo} );
+}
 
 
 
@@ -1043,8 +1050,8 @@ var Song = function (n, place, timeOfDay) { //enclose song
 
 						}
 						else {
-							var k = kinds[floor(random(kinds.length))];
-							//var k = 'lead';
+							//var k = kinds[floor(random(kinds.length))];
+							var k = 'lead';
 							fxAmount = floor(random(1,3));
 							synth = new innerSong.synthCreate(i, k, 'oo');
 							synth.make(k);
@@ -1207,6 +1214,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 						function(){ 
 							//drum = XOX('x*x*', 1/16);
 							//drum.fadeIn(4, 1);
+
 							for (var i = 0; i < syns.length; i++){
 								//assign each synth it's own score via scoredetails
 								//console.log("creating score details");
