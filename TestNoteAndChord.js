@@ -17,7 +17,7 @@ var objects = [];
 
 // create a WebGL renderer, camera
 // and a scene
-var renderer = new THREE.WebGLRenderer();
+var renderer = new THREE.WebGLRenderer({antialias:true});
 var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
                                 ASPECT,
                                 NEAR,
@@ -25,6 +25,7 @@ var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
 
 
 var scene = new THREE.Scene();
+var rain = false;
 var theta = 0;
 var renderPass = new THREE.RenderPass(scene, camera);
 var composer = new THREE.EffectComposer(renderer);
@@ -37,52 +38,76 @@ camera.position.z = 500;
 renderer.setSize(WIDTH, HEIGHT);
 
 // 1. BloomPass: blurry, glowing effect
-var bloomPass = new THREE.BloomPass(3, 25, 5, 256);
-composer.addPass(bloomPass);
-bloomPass.clear = true;
+// var bloomPass = new THREE.BloomPass(0, 25, 5, 256);
+// composer.addPass(bloomPass);
+// bloomPass.clear = true;
 
 // 2. EffectFilm, which output the result in an old style TV screen fashion (with thin colourful stripes):
 var effectFilm = new THREE.FilmPass(0.8, 0.325, 256, false);
 effectFilm.renderToScreen = true;
 composer.addPass(effectFilm);
 
-
 // attach the render-supplied DOM element
 $container.append(renderer.domElement);
 
-// create the sphere's material
-var sphereMaterial = new THREE.MeshLambertMaterial(
-{
-    color: 0xCC0000
-});
 
 // set up the sphere vars
 var radius = 50, segments = 16, rings = 16;
+
+//try a background mesh
+//var boxBack = new Three.Mesh( new THREE.Plane)
 
 // create a new mesh with sphere geometry -
 // we will cover the sphereMaterial next!
 
 for (var i = 0; i <4; i++) {
-	var i5 = (i*225) - 350;
-	var col = Math.random() * 0xffffff;
-	var sphere = new THREE.Mesh(
-   new THREE.SphereGeometry(radius, segments, rings),
-   new THREE.MeshLambertMaterial( { color: col } ));
-	sphere.material.transparent = true;
-	sphere.material.opacity = 0;
-	console.log(col + " " + i);
-	sphere.position.x = i5;
-	sphere.position.y = 0;
-	sphere.position.z = 0;
+	if (rain) {
+		radius = 45;
+		segments = 5;
+		rings = 20;
+		var i5 = (i*225) - 350;
+		var col = new THREE.Color("rgb(235,108,2)");;
+		var sphere = new THREE.Mesh(
+	   	new THREE.BoxGeometry(radius, segments, rings),
+	    new THREE.MeshLambertMaterial( { color: col } ));
+		sphere.material.transparent = true;
+		sphere.material.opacity = 0;
+		console.log(col + " " + i);
+		sphere.position.x = i5;
+		sphere.position.y = 0;
+		sphere.position.z = 0;
 
-	sphere.scale.y = window.innerHeight;
+		sphere.scale.y = window.innerHeight;
+		//sphere.scale.x = window.innerWidth / 6;
+	}
+	else {
+		var i5 = (i*225) - 350;
+		var col = new THREE.Color("rgb(235,108,2)");
+		var sphere = new THREE.Mesh(
+	   	new THREE.SphereGeometry(radius, segments, rings),
+	    new THREE.MeshLambertMaterial( { color: col } ));
+		sphere.material.transparent = true;
+		sphere.material.opacity = 0;
+		console.log(col + " " + i);
+		sphere.position.x = i5;
+		sphere.position.y = 0;
+		sphere.position.z = 0;
+
+		sphere.scale.y = window.innerHeight;
+	}
+	
 
 	objects.push(sphere);
 	scene.add(sphere);
 	// TweenMax.to(sphere.material, 4, {opacity:1,
  //  	ease: Power2.easeOut, yoyo:false} );
 }
-
+var bgCol = new THREE.Color("rgb(0,100,255)");
+var vat = new THREE.MeshLambertMaterial({color: bgCol});
+var geometry = new THREE.PlaneGeometry(1800*2, 1600 * 2,1,1);
+var plane = new THREE.Mesh(geometry, vat);
+plane.position.z = - 100;
+scene.add(plane);
 //position of object calling it should be passed in
 var SphereCreate = function (parent) {
 	var i5 = (i*225) - 350;
@@ -122,7 +147,7 @@ var SphereCreate = function (parent) {
 
 var FadeInPad = function (parent) {
 	TweenMax.to(parent.material, 2, {opacity:1,
-  	ease:  SteppedEase.config(24), OnComplete: FadeOutPad, OnCompleteParams:[parent]} );
+  	ease:  SteppedEase.config(24), yoyo:true} );
 }
 
 function KillSphere(s) {
@@ -150,7 +175,8 @@ var pointLight = new THREE.PointLight( 0x99FFFF);
 // set its position
 spotLight.position.x = 10;
 spotLight.position.y = 60;
-spotLight.position.z = 1070;
+spotLight.position.z = 500;
+pointLight.position.z = 3;
 
 // add to the scene
 scene.add(pointLight);
@@ -293,15 +319,15 @@ function draw() {
      if (go) {
      	if (cubeGo == 0){
      		theta += .001;
-     		camera.rotation.z = theta;
+     		//camera.rotation.z = theta;
      		var hug;
     		for (var i = 0; i < p0.publicFols.length; i++){
 				
 				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
 				//        if width greater than height, use wh * value, otherwise use ww2 * value
-			  	objects[i].scale.x = .125 + p0.publicFols[i].getValue() * 10;
+			  	objects[i].scale.x = 1 + p0.publicFols[i].getValue() * 10;
 			    //objects[i].scale.y = 1 + p0.publicFols[i].getValue() * 10;
-			    objects[i].rotation.x = theta;
+			    //objects[i].rotation.x = theta;
 
 			    //objects[i].rotation.z = theta;
 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
