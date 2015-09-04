@@ -27,7 +27,9 @@ var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
 
 
 var scene = new THREE.Scene();
-var rain = true;
+var rain = false;
+var night = true;
+var cloudy = true;
 var theta = 0;
 var renderPass = new THREE.RenderPass(scene, camera);
 var composer = new THREE.EffectComposer(renderer);
@@ -35,6 +37,7 @@ var composer = new THREE.EffectComposer(renderer);
 // create a point light
 var spotLight = new THREE.SpotLight( 0xFFFFFF );
 var pointLight = new THREE.PointLight( 0x99FFFF);
+
 
 // set its position
 spotLight.position.x = 10;
@@ -81,7 +84,7 @@ var radius = 50, segments = 16, rings = 16;
 
 // create a new mesh with sphere geometry -
 // we will cover the sphereMaterial next!
-var col = new THREE.Color("rgb(50,10,5)");
+var col = new THREE.Color(0x39506B);
 if (rain) {
 	//FadeColor(bgPlane, .92, .62, 1);
 	//col = new THREE.Color("rgb(50,10,5)");
@@ -89,26 +92,65 @@ if (rain) {
 	bgPlane.material.color = col;
 	//bgCol = new THREE.Color("rgb(20,10,200)");
 	pointLight.intensity = 1;
+	spotLight.intensity = .5;
 	camera.rotation.z = 270;
 	//MoveCamera(200, true);
 
 }
-else if (!rain) {
+else if (cloudy) {
+	bgCol = new THREE.Color("rgb(40,20,55)");
+	bgPlane.material.color = bgCol;
+	pointLight.intensity = 2;
+	MoveCamera(200, true);
+	spotLight.position.x = 0;
+	spotLight.position.y = 0;
+	spotLight.position.z = 1000;
+	if (night) { pointLight.position.z = 30; }
+	else if (!night) { pointLight.position.z = 300; }
+	
+}
+else if (!rain && !cloudy) {
 	bgCol = new THREE.Color("rgb(180,60,5)");
 	bgPlane.material.color = bgCol;
 	pointLight.intensity = 5;
 	//pointLight.color = new THREE.Color("rbg(200,40,10)");
 }
 for (var i = 0; i <4; i++) {
+	if (cloudy) {
+				var i5 = (i*225) - 350;
+				var col = new THREE.Color(0x39506B);
+		col.r = col.r + (i * .175);
+		//col.g = col.g + i * .02;
+		radius = 200;
+		segments = 12;
+		var sphere = new THREE.Mesh(
+	   	new THREE.PlaneGeometry(50, 50),
+	    new THREE.MeshLambertMaterial( { color: col } ));
+		sphere.material.transparent = true;
+		sphere.material.opacity = 0;
+		console.log(col + " " + i);
+		sphere.position.x = i5;
+		sphere.position.y = i5;
+		sphere.position.z = 0;
+		console.log ("CLOUDY!");
+		animateObj(sphere.position)
+		//sphere.scale.y = window.innerHeight;
+	}
 	if (rain) {
 		radius = 45;
 		segments = 5;
 		rings = 20;
-		var i5 = (i*225) - 350;
-		col.r = i * .001;
-		col.b = col.b + (i * .25);
-		var sphere = new THREE.Mesh(
-	   	new THREE.BoxGeometry(radius, segments, rings),
+		var i5 = (i*305) - 550;
+		
+		if (night) {
+			col.g = col.g + i * .022;
+		}
+		else if (!night) {
+			col.r = col.r + i * .02;
+		}
+		// col.b = col.b + (i * .25);
+		 var sphere = new THREE.Mesh(
+	   	new THREE.SphereGeometry(radius, segments, rings),
 	    new THREE.MeshLambertMaterial( { color: col } ));
 		sphere.material.transparent = true;
 		sphere.material.opacity = 0;
@@ -120,7 +162,7 @@ for (var i = 0; i <4; i++) {
 		sphere.scale.y = window.innerHeight;
 		//sphere.scale.x = window.innerWidth / 6;
 	}
-	else {
+	else if (!cloudy && !rain) {
 		var i5 = (i*225) - 350;
 		//col.r = col.r + (i * .075);
 		//col.g = col.g + i * .02;
@@ -133,7 +175,7 @@ for (var i = 0; i <4; i++) {
 		sphere.position.x = i5;
 		sphere.position.y = 0;
 		sphere.position.z = 0;
-		
+		console.log ("ELSE!!");
 		sphere.scale.y = window.innerHeight;
 	}
 	
@@ -152,9 +194,7 @@ var SphereCreate = function (parent) {
 		//partially transparent?
 	var col = parent.material.color.getHex();
 	//console.log("col" + col);
-	var sph = new THREE.Mesh(
-   		new THREE.SphereGeometry(radius, segments, rings),
-   		new THREE.MeshLambertMaterial( { color: col } ));
+	var sph = parent.clone();
 	sph.material.transparent = true;
 	sph.material.opacity = 0;
 	//position of object that called it
@@ -164,7 +204,7 @@ var SphereCreate = function (parent) {
 	sph.rotation.z = parent.rotation.z;
 
 	sph.scale.x = parent.scale.x;
-	sph.scale.y = window.innerHeight;
+	//sph.scale.y = window.innerHeight;
 	if (rain) {
 		tweenDir = parent.position.x + Math.random() * 1000;
 	}
@@ -175,13 +215,13 @@ var SphereCreate = function (parent) {
 	scene.add(sph);
 	//console.log(sph.position.x + sph + "sphere");
 	var p = 12;
-	TweenMax.to(sph.material, 1, {opacity:1,
+	TweenMax.to(sph.material, 1, {opacity:.6,
   	ease:  SteppedEase.config(12), yoyo:true} );
 	// TweenMax.to(sph.rotation, .5, {x: -300 + Math.random() * 1000, y:p++,
  //  	ease: SteppedEase.config(5),
  //  	yoyo:false, } );
 
-	TweenMax.to(sph.position, 2, {x: -300 + Math.random() * 1000, y:p++,
+	TweenMax.to(sph.position, 2, {x: -300 + Math.random() * 1000, y:-300 + Math.random() * 1000,
   	ease: SteppedEase.config(24),
   	yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
 
@@ -236,7 +276,7 @@ function applyValue (tween){
 };
 
 function animateObj(obj) {
-  TweenMax.to(obj, 1, {z: Math.random(), 
+  TweenMax.to(obj, 3, {z: -300 + Math.random() * 600, 
   	ease: RoughEase.ease.config({ template: Power0.easeNone, strength: 1, points: 20, taper: "none", randomize: true, clamp: false}),
   	repeat:1, yoyo:true, onComplete:animateObj, onCompleteParams:[obj]})
 }
@@ -253,6 +293,7 @@ scene.add(camera);
 
 // draw!
 renderer.render(scene, camera);
+renderer.shadowMapEnabled = false;
 var clock = new THREE.Clock()
 function render() {
     var delta = clock.getDelta();
@@ -735,7 +776,8 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  var arpie, functions = [], oct = [-12,-12,-12,0,0,0,12,12], steps = [], 
 				  newM, newS, newF, newC, pm, sto, beetsVar; 
 				  var o = objects[m];
-				  if (syns[m][1] == 'bass'){
+				  var syn = syns[m];
+				  if (syn[1] == 'bass'){
 				  //	if(syns[m][1].pre = 'xx') {
 				  		newM = function() {
 				  			//console.log('bass line' + syns[m][1] + syns[m][0]);
@@ -765,7 +807,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  	 functions = [newM, newF, pm, sto];
 				  }
 				 
-				else if (syns[m][1] == 'lead') {
+				else if (syn[1] == 'lead') {
 				  	if (!scores[m-1]) { 
 				  	  	arper = function(){
 				  			//console.log("arper arper bb");
@@ -882,7 +924,8 @@ var Song = function (n, place, timeOfDay) { //enclose song
 							console.log('lead newM' + syns[m][1] + syns[m][0]);
 							var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,4)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
-				  			syns[m][0].note.seq(nR, bV);var q = 0;
+				  			syns[m][0].note.seq(nR, bV);
+				  			var q = 0;
 				  			aSong = Seq( function() { 
 				  				q++;
 								//console.log("sequence" + q)
@@ -904,6 +947,12 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  				function(){
 				  					syns[m][0].note.seq(nR2, bV)
 				  				}, measures(rot)]).start().loop()
+				  			var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								//console.log("sequence" + q)
+								SphereCreate(o);
+							}, bV );
 				  		}, 
 					 	newF = function(){
 					 		var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,3)));
@@ -923,6 +972,12 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					  		var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
 					  		
 					  		syns[m][0].note.seq(nR, bV)
+					  		var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								//console.log("sequence" + q)
+								SphereCreate(o);
+							}, bV );
 				      ;}, 
 					    sto = function(){
 					  		syns[m][0].note.seq.stop()
@@ -936,6 +991,12 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			bV = Harmony.beetsReturn(4, 1);
 				  			//arp.target = syns[m][0];
 				  			syns[m][0].note.seq(nR, bV);
+				  			var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								//console.log("sequence" + q)
+								SphereCreate(o);
+							}, bV );
 				  			//syns[m][0].note.seq([12,12,12], 1/2)
 
 				  		},
@@ -949,6 +1010,12 @@ var Song = function (n, place, timeOfDay) { //enclose song
 							var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
 				  			syns[m][0].note.seq(nR, bV)
+				  			var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								//console.log("sequence" + q)
+								SphereCreate(o);
+							}, bV );
 					  ;}, 
 					  /// function for series of melodies
 				  		newS = function () {
@@ -963,12 +1030,24 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  				function(){
 				  					syns[m][0].note.seq(nR2, bV)
 				  				}, measures(rot)]).start()
+				  			var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								//console.log("sequence" + q)
+								SphereCreate(o);
+							}, bV );
 				  		}, 
 					 	newF = function(){
 					 		console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
 					  		var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
 					  		syns[m][0].note.seq(nR, bV)
+					  		var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								//console.log("sequence" + q)
+								SphereCreate(o);
+							}, bV );
 				      ;}, 
 					    pm = function(){
 					    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
@@ -977,6 +1056,12 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					  		var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
 					  		
 					  		syns[m][0].note.seq(nR, bV)
+					  		var q = 0;
+				  			aSong = Seq( function() { 
+				  				q++;
+								//console.log("sequence" + q)
+								SphereCreate(o);
+							}, bV );
 				      ;}, 
 					    sto = function(){
 					  		syns[m][0].note.seq.stop()
@@ -994,7 +1079,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				// } 
 				// elsse if syns is a lead enclosure
 			}
-				else if (syns[m][1] == 'pad'){ 
+				else if (syn[1] == 'pad'){ 
 						newM = function(){
 							var nR = Harmony.notesReturn(-12,2,4),
 					    	bV = Harmony.wholeBeetsReturn(floor(random(8)), floor(random(1,8)));
