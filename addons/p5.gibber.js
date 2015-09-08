@@ -166,8 +166,10 @@ param **Audio Event** : Object. The HTML5 audio event object.
     if( me.onBlock !== null ) me.onBlock( me.context )
     
     objs.unshift(0)
+
+    var buf = e.outputBuffer.length;
         
-		for(var i = 0, _bl = e.outputBuffer.length; i < _bl; i++){
+		for(var i = 0, _bl = buf; i < _bl; i++){
       
       for(var j = 0; j < sequencers.length; j++) { sequencers[j].tick(); }
       

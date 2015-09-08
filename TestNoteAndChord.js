@@ -25,11 +25,11 @@ var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
                                 NEAR,
                                 FAR  );
 
-
+camera.lookAt(new THREE.Vector3(0, 0, 0));
 var scene = new THREE.Scene();
 var rain = false;
-var night = true;
-var cloudy = true;
+var night = false;
+var cloudy = false;
 var theta = 0;
 var renderPass = new THREE.RenderPass(scene, camera);
 var composer = new THREE.EffectComposer(renderer);
@@ -37,6 +37,7 @@ var composer = new THREE.EffectComposer(renderer);
 // create a point light
 var spotLight = new THREE.SpotLight( 0xFFFFFF );
 var pointLight = new THREE.PointLight( 0x99FFFF);
+var ambientLight = new THREE.AmbientLight( 0x8A458A);
 
 
 // set its position
@@ -57,7 +58,7 @@ camera.position.z = 1000;
 renderer.setSize(WIDTH, HEIGHT);
 
 //1. BloomPass: blurry, glowing effect
-var bloomPass = new THREE.BloomPass(5, 25, 5, 256);
+var bloomPass = new THREE.BloomPass(5, 25, 10, 130);
 composer.addPass(bloomPass);
 bloomPass.clear = true;
 
@@ -94,6 +95,8 @@ if (rain) {
 	pointLight.intensity = 1;
 	spotLight.intensity = .5;
 	camera.rotation.z = 270;
+	pointLight.position.z = 300; 
+	spotLight.position.z = 1000;
 	//MoveCamera(200, true);
 
 }
@@ -104,15 +107,20 @@ else if (cloudy) {
 	MoveCamera(200, true);
 	spotLight.position.x = 0;
 	spotLight.position.y = 0;
-	spotLight.position.z = 1000;
-	if (night) { pointLight.position.z = 30; }
-	else if (!night) { pointLight.position.z = 300; }
+	spotLight.position.z = 500;
+	if (night) { pointLight.position.z = 300; }
+	else if (!night) { }
 	
 }
 else if (!rain && !cloudy) {
 	bgCol = new THREE.Color("rgb(180,60,5)");
 	bgPlane.material.color = bgCol;
-	pointLight.intensity = 5;
+	pointLight.intensity = 20;
+	ambientLight.intensity = 25;
+	ambientLight.color = bgCol;
+	spotLight.position.x = 10;
+	spotLight.position.y = 60;
+	spotLight.position.z = 500;
 	//pointLight.color = new THREE.Color("rbg(200,40,10)");
 }
 for (var i = 0; i <4; i++) {
@@ -124,17 +132,18 @@ for (var i = 0; i <4; i++) {
 		radius = 200;
 		segments = 12;
 		var sphere = new THREE.Mesh(
-	   	new THREE.PlaneGeometry(50, 50),
+	   	new THREE.SphereGeometry(radius, segments, rings),
 	    new THREE.MeshLambertMaterial( { color: col } ));
 		sphere.material.transparent = true;
 		sphere.material.opacity = 0;
 		console.log(col + " " + i);
-		sphere.position.x = i5;
+		//sphere.position.x = i5;
 		sphere.position.y = i5;
-		sphere.position.z = 0;
+		sphere.position.z = i5;
 		console.log ("CLOUDY!");
-		animateObj(sphere.position)
-		//sphere.scale.y = window.innerHeight;
+		animateObj(sphere.position,  Power2.easeOut)
+		sphere.scale.x = window.innerWidth / 2;
+		sphere.scale.y = window.innerHeight;
 	}
 	if (rain) {
 		radius = 45;
@@ -156,9 +165,9 @@ for (var i = 0; i <4; i++) {
 		sphere.material.opacity = 0;
 		console.log(col + " " + i);
 		sphere.position.x = i5;
-		sphere.position.y = 0;
+		sphere.position.y = 200;
 		sphere.position.z = 0;
-		animateObj(sphere.position)
+		animateObj(sphere.position, RoughEase.ease.config({ template: Power0.easeNone, strength: 1, points: 20, taper: "none", randomize: true, clamp: false}))
 		sphere.scale.y = window.innerHeight;
 		//sphere.scale.x = window.innerWidth / 6;
 	}
@@ -214,50 +223,73 @@ var SphereCreate = function (parent) {
 
 	scene.add(sph);
 	//console.log(sph.position.x + sph + "sphere");
-	var p = 12;
-	TweenMax.to(sph.material, 1, {opacity:.6,
-  	ease:  SteppedEase.config(12), yoyo:true} );
+	//var p = 12;
+	if (cloudy) {
+		TweenMax.to(sph.material, .1, {opacity:.1,
+  		ease:  SteppedEase.config(6), yoyo:true} );
+  		TweenMax.to(sph.position, 2, {z: -300 + Math.random() * 1000, y:-30 + Math.random() * 100,
+  		ease: SteppedEase.config(24),
+  		yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
+	}if (rain) {
+		TweenMax.to(sph.material, (7000/beepEM) * .01 , {opacity:.5,
+  		ease:  SteppedEase.config(6)} );
+		TweenMax.to(sph.position, (7000/beepEM) * .01, {z: Math.random() * 3000, x:-100 + Math.random() * 150,
+  		ease: SteppedEase.config(24),
+  		yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
+	}
+	else if (!cloudy && ! rain) {
+		TweenMax.to(sph.material, .1, {opacity:.75,
+  		ease:  SteppedEase.config(6), yoyo:true} );
+		TweenMax.to(sph.position, 2, {z: -300 + Math.random() * 1000, x:-1000 + Math.random() * 1500,
+  		ease: SteppedEase.config(24),
+  		yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
+	}
+	
 	// TweenMax.to(sph.rotation, .5, {x: -300 + Math.random() * 1000, y:p++,
  //  	ease: SteppedEase.config(5),
  //  	yoyo:false, } );
 
-	TweenMax.to(sph.position, 2, {x: -300 + Math.random() * 1000, y:-300 + Math.random() * 1000,
-  	ease: SteppedEase.config(24),
-  	yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
+	
 
 }
 
-var FadeInPad = function (parent) {
-	TweenMax.to(parent.material, 2, {opacity:1,
-  	ease:  SteppedEase.config(24), yoyo:true} );
+var FadeInPad = function (parent, time) {
+	var wholeBeat = 60/beepEM;
+
+	TweenMax.to(parent.material, wholeBeat * time, {opacity:.65,
+  	ease:RoughEase.ease.config({template:Quad.easeIn}), onComplete:tweenToZero, onCompleteParams: [parent, time] });
+  	console.log( "fade in pad" + parent + " " + time)
+}
+
+function tweenToZero (parent, time) {
+	//console.log(parent)
+	var wholeBeat = 60/beepEM;
+	TweenMax.to(parent.material, wholeBeat * time, {opacity:0,
+  	ease:RoughEase.ease.config({template:Quad.easeIn}) });
+  	console.log( "fade in pad" + parent + " " + time)
+}
+
+function BloomFade () {
+	TweenMax.to(bloomPass, 15, {strength: 1, kernelSize : 25,
+		sigma: 4, resolution: 256,
+
+  	ease: SteppedEase.config(240),
+  	repeat:-1, yoyo:true, onComplete:BloomFade})
 }
 
 function KillSphere(s) {
 	scene.remove(s);
 }
 
-function FadeOutPad (parent) {
-	TweenMax.to(parent.material, 2, {opacity:0,
-  	ease:  SteppedEase.config(24), yoyo:false} );
+function FadeOutPad (parent, time) {
+	var wholeBeat = 60/beepEM;
+	TweenMax.to(parent.material, wholeBeat * time, {opacity:0,
+  	ease:  SteppedEase.config(24)} );
 }
 
-function MoveCamera(point, tic) {
-	var p;
-	if (tic == 1) {
-		p = 2;
-		tick = 2;
-	}
-	else if (tic == 2) {
-		p = -2;
-		tick = 1;
-	}
-	for (var i = 0; i< objects.length; i++) {
-		//var camPos = camera.position;
-		var objRot = object[i].rotation;
-		TweenMax.to(objRot, 2, {z: point,
-  		ease:  Power2.easeOut, onComplete:MoveCamera, onCompleteParams:[p, tick]} );
-	}
-	
+
+function GenericTween () {
+
 }
 
 // function FadeColor(object, hH, sS, vV) {
@@ -275,12 +307,15 @@ function applyValue (tween){
 	 console.log(tween.h); 
 };
 
-function animateObj(obj) {
-  TweenMax.to(obj, 3, {z: -300 + Math.random() * 600, 
-  	ease: RoughEase.ease.config({ template: Power0.easeNone, strength: 1, points: 20, taper: "none", randomize: true, clamp: false}),
-  	repeat:1, yoyo:true, onComplete:animateObj, onCompleteParams:[obj]})
+function animateObj(obj, ez) {
+  TweenMax.to(obj, 3, {y: -900 + Math.random() * 600, 
+  	ease: ez,
+  	repeat:-1, yoyo:true, onComplete:animateObj, onCompleteParams:[obj]})
 }
 
+function visualizeMusic () {
+
+}
 
 
 // add the sphere to the scene
@@ -292,15 +327,43 @@ scene.add(camera);
 
 
 // draw!
-renderer.render(scene, camera);
+
 renderer.shadowMapEnabled = false;
-var clock = new THREE.Clock()
-function render() {
-    var delta = clock.getDelta();
-    composer.render(delta); //parameter must be set with render
-    requestAnimationFrame(render);
-}
-render();
+ var clock = new THREE.Clock()
+
+
+
+// var frameRate = { fR: 6, };
+// console.log(frameRate.fR);
+// //TweenMax.to(frameRate, 6, {fr:60, yoyo:true, ease: Power2.easeOut})
+// frameRateChange(frameRate);
+// function frameRateChange(obj) {
+//   TweenMax.to(obj, 30, {fR: 60, 
+//   	ease: RoughEase.ease.config({ template: Power0.easeNone, strength: 1, points: 20, taper: "none", randomize: true, clamp: false}),
+//   	repeat:-1, yoyo:true, onComplete:frameRateChange, onCompleteParams:[obj]})
+// }
+// function animate() {
+
+//     setTimeout( function() {
+    	
+    	
+//     	//var fr = frameRate.fr;
+//     	 //parameter must be set with render
+//         requestAnimationFrame( animate );
+
+//     }, 3750 / beepEM  );
+// 	var delta = clock.getDelta();
+// 	composer.render(delta);
+//     renderer.render(scene, camera);
+
+// }
+// animate();
+// setInterval( function () {
+    
+//         render();
+    
+//     }, 1000 / 60 );
+
 // init ();
 // function init (){
 // 	container = document.createElement( 'div' );
@@ -336,7 +399,11 @@ function setup() {
 	['Schizo', ['chance', 0,1], ['reverseChance',0,1], ['mix',0, 1],
     ['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,5], ['offset',25,1250 ], ['amount', 25,100]]];
 	NewSong(0);
+	//BloomFade();
 };
+
+// XOX DRUMS SECTION
+
 
 function CheckTheTime(time) //function check the time
  {
@@ -377,9 +444,13 @@ function MoveAround() {
 		var mover = floor(random(500)) - floor(random(1000));
 		var q = objects[i].position;
 		console.log(i + " " + q)
-		//animateObj(q);
+		animateObj(q, SteppedEase.config(36));
 		//TweenLite.to(q, 12, {x:mover, ease: SteppedEase.config(36)});
 	}
+}
+
+function ChangeVisuals () {
+
 }
 
 function NewSong(t) {
@@ -412,51 +483,51 @@ function GetThetas(i) {
 	return theta;
 
 }
-function draw() {
+// function draw() {
 	
-	// var mult = [10,20,14,16], ww2 = windowWidth / 2, wh = windowHeight,
-	 var p0 = pieces[0], p1 = pieces[1];
-	//var theta;
-	CheckTheTime(minute());
-	// noStroke();
- //    fill(bgCol);
- //    rect(0, 0, width, height); 
-     if (go) {
-     	if (cubeGo == 0){
-     		theta += .001;
-     		//camera.rotation.z = theta;
-     		var hug;
-    		for (var i = 0; i < p0.publicFols.length; i++){
+// 	// var mult = [10,20,14,16], ww2 = windowWidth / 2, wh = windowHeight,
+// 	 var p0 = pieces[0], p1 = pieces[1];
+// 	//var theta;
+// 	CheckTheTime(minute());
+// 	// noStroke();
+//  //    fill(bgCol);
+//  //    rect(0, 0, width, height); 
+//      if (go) {
+//      	if (cubeGo == 0){
+//      		//theta += .001;
+//      		//camera.rotation.z = theta;
+//      		//var hug;
+//     		for (var i = 0; i < p0.publicFols.length; i++){
 				
-				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
-				//        if width greater than height, use wh * value, otherwise use ww2 * value
-			  	objects[i].scale.x = 1 + p0.publicFols[i].getValue() * 10;
-			    //objects[i].scale.y = 1 + p0.publicFols[i].getValue() * 10;
-			    //objects[i].rotation.x = theta;
+// 				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
+// 				//        if width greater than height, use wh * value, otherwise use ww2 * value
+// 			  	objects[i].scale.x = .125 + p0.publicFols[i].getValue() * 10;
+// 			    //objects[i].scale.y = 1 + p0.publicFols[i].getValue() * 10;
+// 			    //objects[i].rotation.x = theta;
 
-			    //objects[i].rotation.z = theta;
-			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
-				// CoolSquare(col, value, ww2, wh, radius  );
-			}
-		}
-		else if (cubeGo == 1){
-			for (var i = 0; i < p1.publicFols.length; i++) {
-				// var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
-			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
-			 objects[i].scale.x = .125 + p1.publicFols[i].getValue() * 10;
-			 //    console.log(p1.publicFols[i].value + i);
-				//CoolSquare(col, value, ww2, wh, radius  );
-			}
-		}
-	}
- //    if (a < countdown)
- //  	{
- //  		lerpVar = (lerpVar += a % countdown) * .0001;
- //  	}
- //  	textSize(38)
- //  	fill(0)
- //  	text(str,0,24,48,48)
-};
+// 			    //objects[i].rotation.z = theta;
+// 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
+// 				// CoolSquare(col, value, ww2, wh, radius  );
+// 			}
+// 		}
+// 		else if (cubeGo == 1){
+// 			for (var i = 0; i < p1.publicFols.length; i++) {
+// 				// var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
+// 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
+// 			 objects[i].scale.x = .125 + p1.publicFols[i].getValue() * 10;
+// 			 //    console.log(p1.publicFols[i].value + i);
+// 				//CoolSquare(col, value, ww2, wh, radius  );
+// 			}
+// 		}
+// 	}
+//  //    if (a < countdown)
+//  //  	{
+//  //  		lerpVar = (lerpVar += a % countdown) * .0001;
+//  //  	}
+//  //  	textSize(38)
+//  //  	fill(0)
+//  //  	text(str,0,24,48,48)
+// };
 
 function CoolSquare(c, v, w, h, r){
 	rectMode(CENTER)
@@ -784,9 +855,18 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			var nR = Harmony.bassLineReturn();
 				  			bV = Harmony.beetsReturn(2, floor(random(1,2)));
 				  			syns[m][0].note.seq(nR, bV);
+				  			var q =0;
 				  			aSong = Seq( function() { 
-				  				FadeInPad(objects[m]);
+				  				console.log(q + " q " )
+				  				if (q >= bV.length) {
+
+				  					q = 0;
+				  					
+				  				}
+				  				FadeInPad(objects[m], bV[q]);
+				  				
 							}, bV );
+
 				  			
 				  		},
 				  		newF = function() {
@@ -836,7 +916,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			var q = 0;
 				  			aSong = Seq( function() { 
 				  				q++;
-								console.log("sequence" + q)
+								//console.log("sequence" + q)
 								SphereCreate(o);
 							}, bV );
 					  ;}, 
@@ -856,12 +936,12 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			var q = 0;
 				  			aSong = Seq( function() { 
 				  				q++;
-								console.log("sequence" + q);
+								//console.log("sequence" + q);
 								SphereCreate(o);
 							}, bV );
 				  		}, 
 					 	newF = function(){
-					 		console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
+					 		//console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
 					  		var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
 					  		syns[m][0].note.seq(nR, bV);
@@ -1085,20 +1165,50 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					    	bV = Harmony.wholeBeetsReturn(floor(random(8)), floor(random(1,8)));
 	
 				  			syns[m][0].note.seq(nR, bV)
-				  			FadeInPad(objects[m]);
+				  			var q =0;
+				  			aSong = Seq( function() { 
+				  				console.log(q + " q " )
+				  				if (q >= bV.length) {
+
+				  					q = 0;
+				  					
+				  				}
+				  				FadeInPad(objects[m], bV[q]);
+				  				
+							}, bV );
 					  ;}, 
 					 	newC = function(){
 					 		console.log('chords' + syns[m][1] + syns[m][0])
 					  		nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
 					  		bV = Harmony.beetsReturn(4, floor(random(1,4)));
 					  		syns[m][0].chord.seq(nR, bV)
-					  		FadeInPad(objects[m]);
+					  		var q =0;
+				  			aSong = Seq( function() { 
+				  				console.log(q + " q " )
+				  				if (q >= bV.length) {
+
+				  					q = 0;
+				  					
+				  				}
+				  				FadeInPad(objects[m], bV[q]);
+				  				
+							}, bV );
 				      ;}, 
 					    pm = function(){
 					  		var nR = [0,0,0,0,-1,-1,-1,-1], 
 					  		bV = Harmony.beetsReturn(4, floor(random(1,4)));
 					  		syns[m][0].note.seq(nR, bV)
-					  		FadeInPad(objects[m]);
+					  		var q =0;
+				  			aSong = Seq( function() { 
+				  				console.log(q + " q " )
+				  				if (q >= bV.length) {
+
+				  					q = 0;
+				  					
+				  				}
+				  				FadeInPad(objects[m], bV[q]);
+				  				
+							}, bV );
 				      ;}, 
 					    sto = function(){
 					  		syns[m][0].note.seq.stop()
@@ -1162,8 +1272,8 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				    //  console.log(n + i + mm);
 				    }
 				}
-				mezhuresAlreadyAdded.push(mezhures);
-				console.log(mezhuresAlreadyAdded[i]);
+				//mezhuresAlreadyAdded.push(mezhures);
+				//console.log(mezhuresAlreadyAdded[i]);
 				kindsAlreadyAdded.push(syns[m][1])
 				return steps;
 			};
@@ -1192,8 +1302,8 @@ var Song = function (n, place, timeOfDay) { //enclose song
 
 						}
 						else {
-							//var k = kinds[floor(random(kinds.length))];
-							var k = 'lead';
+							var k = kinds[floor(random(kinds.length))];
+							//var k = 'lead';
 							fxAmount = floor(random(3));
 							console.log(fxAmount + "fxamount");
 							synth = new innerSong.synthCreate(i, k, 'oo');
@@ -1460,6 +1570,56 @@ function add(a, b) {
     return curr;
 }
 
+function render() {
 
+	//var theta;
+	//CheckTheTime(minute());
+	// noStroke();
+ //    fill(bgCol);
+ //    rect(0, 0, width, height); 
+     if (go) {
+     	var p0 = pieces[0], p1 = pieces[1];
+     	if (cubeGo == 0){
+     		theta += .01;
+     		//camera.rotation.z = theta;
+     		//var hug;
+    		for (var i = 0; i < p0.publicFols.length; i++){
+				
+				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
+				//        if width greater than height, use wh * value, otherwise use ww2 * value
+			  	objects[i].scale.x = 3 + p0.publicFols[i].getValue() * 10;
+			   // objects[i].scale.y = 1 + p0.publicFols[i].getValue() * 100;
+			    // objects[i].rotation.x = theta * i;
+			    if (!cloudy && !rain) {
+			    	objects[i].rotation.z = theta / i;
+			    }
+			    //objects[i].rotation.z = theta;
+			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
+				// CoolSquare(col, value, ww2, wh, radius  );
+			}
+		}
+		else if (cubeGo == 1){
+			for (var i = 0; i < p1.publicFols.length; i++) {
+				// var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
+			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
+			 objects[i].scale.x = .125 + p1.publicFols[i].getValue() * 10;
+			 //    console.log(p1.publicFols[i].value + i);
+				//CoolSquare(col, value, ww2, wh, radius  );
+			}
+		}
+	}
+    var delta = clock.getDelta();
+    composer.render(delta);
+   // requestAnimationFrame(render);
+     setTimeout( function() {
+    	
+    	
+//     	//var fr = frameRate.fr;
+//     	 //parameter must be set with render
+         requestAnimationFrame( render );
+
+    }, 3500 / beepEM  );
+}
+render();
 
 
