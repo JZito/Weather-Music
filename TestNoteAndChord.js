@@ -20,6 +20,7 @@ var objects = [];
 // create a WebGL renderer, camera
 // and a scene
 var renderer = new THREE.WebGLRenderer();
+
 var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
                                 ASPECT,
                                 NEAR,
@@ -35,15 +36,16 @@ var renderPass = new THREE.RenderPass(scene, camera);
 var composer = new THREE.EffectComposer(renderer);
 
 // create a point light
-var spotLight = new THREE.SpotLight( 0xFFFFFF );
+var spotLight = new THREE.PointLight( 0xFFFFFF );
 var pointLight = new THREE.PointLight( 0x99FFFF);
 var ambientLight = new THREE.AmbientLight( 0x8A458A);
+camera.add(spotLight);
 
 
 // set its position
-spotLight.position.x = 10;
-spotLight.position.y = 60;
-spotLight.position.z = 500;
+// spotLight.position.x = 10;
+// spotLight.position.y = 60;
+// spotLight.position.z = 500;
 pointLight.position.z = 3;
 
 // add to the scene
@@ -115,12 +117,12 @@ else if (cloudy) {
 else if (!rain && !cloudy) {
 	bgCol = new THREE.Color("rgb(180,60,5)");
 	bgPlane.material.color = bgCol;
-	pointLight.intensity = 20;
-	ambientLight.intensity = 25;
+	pointLight.intensity = 5;
+	ambientLight.intensity = .5;
 	ambientLight.color = bgCol;
-	spotLight.position.x = 10;
-	spotLight.position.y = 60;
-	spotLight.position.z = 500;
+	ambientLight.color.b = .01;
+	ambientLight.color.g = .5;
+	
 	//pointLight.color = new THREE.Color("rbg(200,40,10)");
 }
 for (var i = 0; i <4; i++) {
@@ -134,6 +136,7 @@ for (var i = 0; i <4; i++) {
 		var sphere = new THREE.Mesh(
 	   	new THREE.SphereGeometry(radius, segments, rings),
 	    new THREE.MeshLambertMaterial( { color: col } ));
+
 		sphere.material.transparent = true;
 		sphere.material.opacity = 0;
 		console.log(col + " " + i);
@@ -141,7 +144,7 @@ for (var i = 0; i <4; i++) {
 		sphere.position.y = i5;
 		sphere.position.z = i5;
 		console.log ("CLOUDY!");
-		animateObj(sphere.position,  Power2.easeOut)
+		
 		sphere.scale.x = window.innerWidth / 2;
 		sphere.scale.y = window.innerHeight;
 	}
@@ -177,15 +180,19 @@ for (var i = 0; i <4; i++) {
 		//col.g = col.g + i * .02;
 		var sphere = new THREE.Mesh(
 	   	new THREE.SphereGeometry(radius, segments, rings),
-	    new THREE.MeshLambertMaterial( { color: col } ));
+	    new THREE.MeshPhongMaterial( { color: col } ));
+	    sphere.material.blending = THREE.SubtractiveBlending;
+	    sphere.material.shading = THREE.FlatShading;
 		sphere.material.transparent = true;
-		sphere.material.opacity = 0;
+		sphere.material.opacity = .5;
+		sphere.material.alphaTest = .5;
 		console.log(col + " " + i);
 		sphere.position.x = i5;
 		sphere.position.y = 0;
 		sphere.position.z = 0;
 		console.log ("ELSE!!");
 		sphere.scale.y = window.innerHeight;
+		animateObj(sphere.position,  Power2.easeOut)
 	}
 	
 
@@ -205,6 +212,8 @@ var SphereCreate = function (parent) {
 	//console.log("col" + col);
 	var sph = parent.clone();
 	sph.material.transparent = true;
+	sph.material.alphaTest = 0.5;
+	//sph.material.depthTest = false;
 	sph.material.opacity = 0;
 	//position of object that called it
 	sph.scale.y = parent.scale.y;
@@ -226,7 +235,7 @@ var SphereCreate = function (parent) {
 	//var p = 12;
 	if (cloudy) {
 		TweenMax.to(sph.material, .1, {opacity:.1,
-  		ease:  SteppedEase.config(6), yoyo:true} );
+  		ease:  SteppedEase.config(6)} );
   		TweenMax.to(sph.position, 2, {z: -300 + Math.random() * 1000, y:-30 + Math.random() * 100,
   		ease: SteppedEase.config(24),
   		yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
@@ -310,7 +319,7 @@ function applyValue (tween){
 function animateObj(obj, ez) {
   TweenMax.to(obj, 3, {y: -900 + Math.random() * 600, 
   	ease: ez,
-  	repeat:-1, yoyo:true, onComplete:animateObj, onCompleteParams:[obj]})
+  	yoyo:true, onComplete:animateObj, onCompleteParams:[obj]})
 }
 
 function visualizeMusic () {
@@ -477,64 +486,6 @@ function NewSong(t) {
 	MoveAround();
 };
 
-function GetThetas(i) {
-	var thetas = [-.02, -.01, .01, .02];
-	theta = thetas[i];
-	return theta;
-
-}
-// function draw() {
-	
-// 	// var mult = [10,20,14,16], ww2 = windowWidth / 2, wh = windowHeight,
-// 	 var p0 = pieces[0], p1 = pieces[1];
-// 	//var theta;
-// 	CheckTheTime(minute());
-// 	// noStroke();
-//  //    fill(bgCol);
-//  //    rect(0, 0, width, height); 
-//      if (go) {
-//      	if (cubeGo == 0){
-//      		//theta += .001;
-//      		//camera.rotation.z = theta;
-//      		//var hug;
-//     		for (var i = 0; i < p0.publicFols.length; i++){
-				
-// 				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
-// 				//        if width greater than height, use wh * value, otherwise use ww2 * value
-// 			  	objects[i].scale.x = .125 + p0.publicFols[i].getValue() * 10;
-// 			    //objects[i].scale.y = 1 + p0.publicFols[i].getValue() * 10;
-// 			    //objects[i].rotation.x = theta;
-
-// 			    //objects[i].rotation.z = theta;
-// 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
-// 				// CoolSquare(col, value, ww2, wh, radius  );
-// 			}
-// 		}
-// 		else if (cubeGo == 1){
-// 			for (var i = 0; i < p1.publicFols.length; i++) {
-// 				// var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
-// 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
-// 			 objects[i].scale.x = .125 + p1.publicFols[i].getValue() * 10;
-// 			 //    console.log(p1.publicFols[i].value + i);
-// 				//CoolSquare(col, value, ww2, wh, radius  );
-// 			}
-// 		}
-// 	}
-//  //    if (a < countdown)
-//  //  	{
-//  //  		lerpVar = (lerpVar += a % countdown) * .0001;
-//  //  	}
-//  //  	textSize(38)
-//  //  	fill(0)
-//  //  	text(str,0,24,48,48)
-// };
-
-function CoolSquare(c, v, w, h, r){
-	rectMode(CENTER)
-	fill(c);
-	strokeWeight(v);
-	rect(w, h, r, h);
-}
 
 // function DrawWeather() {
 // 	var // weatherID = String(floor(random()));
@@ -773,7 +724,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 		beepEM = floor(random(56,79));
 		Clock.bpm(beepEM);
 		var innerSong = (function () {
-			var inScore, arp, arps = [],score,  busses = [], mezhure, mezhures = [], 
+			var inScore, arp, arps = [], busFol, score,  mezhure, mezhures = [], 
 			mezhuresAlreadyAdded = [], scores = [], syn, kindsAlreadyAdded = [], 
 			fols = [], busses = [], syns = [], m = 4, scorePhrases = floor(random(32,112)), 
 			innerSongBus,
@@ -1238,11 +1189,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				    
 				    else if (i == 1) {
 				    	var n = function(){
-				    		 // fS = Follow (syns[m][0]);
-    						 // fols.push(fS);
-    						// pieces[t].NewFollow();
-    						 go = true;
-    						// if (syns[m][1] == 'rainTri')
+				    		go = true;
 				    	};
 				    	steps.push(n);
 				    }
@@ -1281,6 +1228,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 			return {
 				publicSyns: syns,
 				publicFols: fols,
+				publicBusFol: busFol,
 				// groupsynths is create a whole group of individual synthcreates
 				groupSynths: function(q) {
 					// opportunity to return different bus effects based on circumstance
@@ -1435,8 +1383,9 @@ var Song = function (n, place, timeOfDay) { //enclose song
 						syns[k][0].send(busses[k], 1);
 						f = Follow (busses[k]);
 						fols.push(f);
-						console.log(f);
+						//console.log(f);
 					}
+					
 				},
 				// FX: function(name, kind, syn) {
   		// 			var effects = [];
@@ -1464,6 +1413,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					Reverb('space') ) // right
 					innerSongBus.connect();
 					innerSongBus.amp(0)
+					busFol = Follow(innerSongBus);
 					l = Line(0, 1, 4)
 					score= Score([0,
 						function(){ 
@@ -1587,11 +1537,15 @@ function render() {
 				
 				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
 				//        if width greater than height, use wh * value, otherwise use ww2 * value
-			  	objects[i].scale.x = 3 + p0.publicFols[i].getValue() * 10;
+			  	objects[i].scale.x = 6 + p0.publicFols[i].getValue() * 10;
+			  //	console.log(p0.publicBusFol.getValue());
+			  	//bgPlane.material.opacity = .01 + p0.publicBusFol.getValue() * 10;
 			   // objects[i].scale.y = 1 + p0.publicFols[i].getValue() * 100;
 			    // objects[i].rotation.x = theta * i;
 			    if (!cloudy && !rain) {
 			    	objects[i].rotation.z = theta / i;
+			    	objects[i].rotation.y = theta * i;
+			    	objects[i].rotation.x = (theta / i) * theta +i;
 			    }
 			    //objects[i].rotation.z = theta;
 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
