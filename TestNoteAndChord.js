@@ -15,7 +15,9 @@ var VIEW_ANGLE = 45,
 // get the DOM element to attach to
 // - assume we've got jQuery to hand
 var $container = $('#container');
-var objects = [];
+var objects = [], transObjects = [];
+// opaquefloor determines amount of opacity volume sensitivity
+var opaqueFloor = 0;
 
 // create a WebGL renderer, camera
 // and a scene
@@ -51,6 +53,7 @@ pointLight.position.z = 3;
 // add to the scene
 scene.add(pointLight);
 scene.add(spotLight);
+scene.add(ambientLight);
 composer.addPass(renderPass);
 // the camera starts at 0,0,0 so pull it back
 camera.position.z = 1000;
@@ -77,6 +80,8 @@ var vat = new THREE.MeshLambertMaterial({color: bgCol});
 var geometry = new THREE.PlaneBufferGeometry(1800*2, 1600 * 2,1,1);
 var bgPlane = new THREE.Mesh(geometry, vat);
 bgPlane.position.z = - 100;
+bgPlane.material.transparent	= true;
+		bgPlane.material.opacity = 0;
 scene.add(bgPlane);
 
 // set up the sphere vars
@@ -88,132 +93,76 @@ var radius = 50, segments = 16, rings = 16;
 // create a new mesh with sphere geometry -
 // we will cover the sphereMaterial next!
 var col = new THREE.Color(0x39506B);
-if (rain) {
-	//FadeColor(bgPlane, .92, .62, 1);
-	//col = new THREE.Color("rgb(50,10,5)");
-	bgCol = new THREE.Color("rgb(20,10,200)");
-	bgPlane.material.color = col;
-	//bgCol = new THREE.Color("rgb(20,10,200)");
-	pointLight.intensity = 1;
-	spotLight.intensity = .5;
-	camera.rotation.z = 270;
-	pointLight.position.z = 300; 
-	spotLight.position.z = 1000;
-	//MoveCamera(200, true);
 
-}
-else if (cloudy) {
-	bgCol = new THREE.Color("rgb(40,20,55)");
-	bgPlane.material.color = bgCol;
-	pointLight.intensity = 2;
-	MoveCamera(200, true);
-	spotLight.position.x = 0;
-	spotLight.position.y = 0;
-	spotLight.position.z = 500;
-	if (night) { pointLight.position.z = 300; }
-	else if (!night) { }
-	
-}
-else if (!rain && !cloudy) {
-	bgCol = new THREE.Color("rgb(180,60,5)");
-	bgPlane.material.color = bgCol;
-	pointLight.intensity = 5;
-	ambientLight.intensity = .5;
-	ambientLight.color = bgCol;
-	ambientLight.color.b = .01;
-	ambientLight.color.g = .5;
-	
-	//pointLight.color = new THREE.Color("rbg(200,40,10)");
-}
-for (var i = 0; i <4; i++) {
-	if (cloudy) {
-				var i5 = (i*225) - 350;
-				var col = new THREE.Color(0x39506B);
-		col.r = col.r + (i * .175);
-		//col.g = col.g + i * .02;
-		radius = 200;
-		segments = 12;
+function createOriginalObjects () {
+	for (i = 0; i < 4; i++) {
+		var i5 = (i*525) - 750;
 		var sphere = new THREE.Mesh(
-	   	new THREE.SphereGeometry(radius, segments, rings),
-	    new THREE.MeshLambertMaterial( { color: col } ));
-
-		sphere.material.transparent = true;
-		sphere.material.opacity = 0;
-		console.log(col + " " + i);
+		   			new THREE.TorusGeometry(radius, segments, rings, 100),
+		    		new THREE.MeshLambertMaterial( { color: col } )
+		    	);
 		//sphere.position.x = i5;
-		sphere.position.y = i5;
-		sphere.position.z = i5;
-		console.log ("CLOUDY!");
-		
-		sphere.scale.x = window.innerWidth / 2;
-		sphere.scale.y = window.innerHeight;
-	}
-	if (rain) {
-		radius = 45;
-		segments = 5;
-		rings = 20;
-		var i5 = (i*305) - 550;
-		
-		if (night) {
-			col.g = col.g + i * .022;
-		}
-		else if (!night) {
-			col.r = col.r + i * .02;
-		}
-		// col.b = col.b + (i * .25);
-		 var sphere = new THREE.Mesh(
-	   	new THREE.SphereGeometry(radius, segments, rings),
-	    new THREE.MeshLambertMaterial( { color: col } ));
-		sphere.material.transparent = true;
-		sphere.material.opacity = 0;
-		console.log(col + " " + i);
-		sphere.position.x = i5;
-		sphere.position.y = 200;
-		sphere.position.z = 0;
-		animateObj(sphere.position, RoughEase.ease.config({ template: Power0.easeNone, strength: 1, points: 20, taper: "none", randomize: true, clamp: false}))
-		sphere.scale.y = window.innerHeight;
-		//sphere.scale.x = window.innerWidth / 6;
-	}
-	else if (!cloudy && !rain) {
-		var i5 = (i*225) - 350;
-		//col.r = col.r + (i * .075);
-		//col.g = col.g + i * .02;
-		var sphere = new THREE.Mesh(
-	   	new THREE.SphereGeometry(radius, segments, rings),
-	    new THREE.MeshPhongMaterial( { color: col } ));
-	    sphere.material.blending = THREE.SubtractiveBlending;
-	    sphere.material.shading = THREE.FlatShading;
-		sphere.material.transparent = true;
-		sphere.material.opacity = .5;
-		sphere.material.alphaTest = .5;
-		console.log(col + " " + i);
-		sphere.position.x = i5;
-		sphere.position.y = 0;
-		sphere.position.z = 0;
-		console.log ("ELSE!!");
-		sphere.scale.y = window.innerHeight;
-		animateObj(sphere.position,  Power2.easeOut)
+		sphere.material.transparent	= true;
+		sphere.material.opacity = 1;
+		sphere.material.depthWrite	= false;
+		objects.push(sphere);
+		scene.add(sphere);
+		transObjects.push(sphere);
+		sphere.material.color.r = (i*.75);
 	}
 	
-
-	objects.push(sphere);
-	scene.add(sphere);
-	// TweenMax.to(sphere.material, 4, {opacity:1,
- //  	ease: Power2.easeOut, yoyo:false} );
+	
 }
 
+var windowResize = THREEx.WindowResize(renderer, camera);
+
+function changeVisualsFull () {
+
+	}
+
+function changeVisualsPartial() {
+
+}
+
+function transparencyUpdate (objects, camera){
+	// update camera matrices
+	camera.updateMatrixWorld()
+	camera.matrixWorldInverse.getInverse( camera.matrixWorld )
+
+	var screenMatrix= new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+	var position	= new THREE.Vector3()
+	
+	// traverse the object
+	objects.forEach(function(object){
+		// update the matrixWorld of the object and its children
+		object.updateMatrixWorld()
+		// compute its position in screen space 
+		position.setFromMatrixPosition( object.matrixWorld );
+		position.applyProjection( screenMatrix );
+		// use the position.x as renderDepth
+		object.renderDepth	= position.z;
+	})
+}
 //position of object calling it should be passed in
-var SphereCreate = function (parent) {
-	var i5 = (i*225) - 350;
+var SphereCreate = function (parent, beats) {
+
+	var q = 0;
+	aSong = Seq( function() { 
+				q++;
+				console.log("sequence" + q)
+				//SphereCreate(o);
+	
+
+
+	}, beats );
+	//var i5 = (i*225) - 350;
+	//console.log(parent);
 	var tweenDir;
-		//color of object that called it
+	//color of object that called it
 		//partially transparent?
 	var col = parent.material.color.getHex();
 	//console.log("col" + col);
 	var sph = parent.clone();
-	sph.material.transparent = true;
-	sph.material.alphaTest = 0.5;
-	//sph.material.depthTest = false;
 	sph.material.opacity = 0;
 	//position of object that called it
 	sph.scale.y = parent.scale.y;
@@ -231,6 +180,7 @@ var SphereCreate = function (parent) {
 	}
 
 	scene.add(sph);
+	transObjects.push(sph);
 	//console.log(sph.position.x + sph + "sphere");
 	//var p = 12;
 	if (cloudy) {
@@ -286,8 +236,10 @@ function BloomFade () {
   	repeat:-1, yoyo:true, onComplete:BloomFade})
 }
 
-function KillSphere(s) {
+function KillSphere(s, seek ) {
+	//remove sphere from scene, stop 'seek'uence
 	scene.remove(s);
+	seek.stop();
 }
 
 function FadeOutPad (parent, time) {
@@ -408,10 +360,13 @@ function setup() {
 	['Schizo', ['chance', 0,1], ['reverseChance',0,1], ['mix',0, 1],
     ['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,5], ['offset',25,1250 ], ['amount', 25,100]]];
 	NewSong(0);
+	createOriginalObjects();
 	//BloomFade();
+
 };
 
 // XOX DRUMS SECTION
+
 
 
 function CheckTheTime(time) //function check the time
@@ -482,8 +437,8 @@ function NewSong(t) {
 	song.make();
 	pieces[t].groupSynths(3);
 	pieces[t].scoreCreate();
-	pieces[t].NewFollow();
-	MoveAround();
+	//pieces[t].NewFollow();
+	//MoveAround();
 };
 
 
@@ -724,7 +679,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 		beepEM = floor(random(56,79));
 		Clock.bpm(beepEM);
 		var innerSong = (function () {
-			var inScore, arp, arps = [], busFol, score,  mezhure, mezhures = [], 
+			var inScore, arp, arps = [], busFol = [], score,  mezhure, mezhures = [], 
 			mezhuresAlreadyAdded = [], scores = [], syn, kindsAlreadyAdded = [], 
 			fols = [], busses = [], syns = [], m = 4, scorePhrases = floor(random(32,112)), 
 			innerSongBus,
@@ -795,28 +750,30 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				//if pad exists twice, one be chords, one be slow lead for tensions
 				// if rhodes exists twice, have one return chords (intervals maybe), one return melody
 
-				  var arpie, functions = [], oct = [-12,-12,-12,0,0,0,12,12], steps = [], 
-				  newM, newS, newF, newC, pm, sto, beetsVar; 
-				  var o = objects[m];
-				  var syn = syns[m];
-				  if (syn[1] == 'bass'){
+				var arpie, functions = [], oct = [-12,-12,-12,0,0,0,12,12], steps = [], 
+				newM, newS, newF, newC, pm, sto, beetsVar; 
+				var o = objects[m];
+				var syn = syns[m];
+				if (syn[1] == 'bass'){
+				  	var aSong;
 				  //	if(syns[m][1].pre = 'xx') {
 				  		newM = function() {
 				  			//console.log('bass line' + syns[m][1] + syns[m][0]);
 				  			var nR = Harmony.bassLineReturn();
 				  			bV = Harmony.beetsReturn(2, floor(random(1,2)));
 				  			syns[m][0].note.seq(nR, bV);
-				  			var q =0;
-				  			aSong = Seq( function() { 
-				  				console.log(q + " q " )
-				  				if (q >= bV.length) {
+				  	// 		var q =0;
+				  	// 		aSong = Seq( function() { 
+				  	// 			console.log(q + " q " )
+				  	// 			if (q >= bV.length) {
 
-				  					q = 0;
+				  	// 				q = 0;
 				  					
-				  				}
-				  				FadeInPad(objects[m], bV[q]);
+				  	// 			}
+				  	// 			FadeInPad(objects[m], bV[q]);
+				  	// 			q++;
 				  				
-							}, bV );
+							// }, bV );
 
 				  			
 				  		},
@@ -840,7 +797,12 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				 
 				else if (syn[1] == 'lead') {
 				  	if (!scores[m-1]) { 
+				  		var sSong = Seq ( function() {
+
+				  		}, 1);
+
 				  	  	arper = function(){
+				  	  		aSong.stop();
 				  			//console.log("arper arper bb");
 				  			//var arpie = arps[m];
 				  			var time = Harmony.beetsReturn(2, floor(random(1,2)));
@@ -857,22 +819,25 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			//var arpie = arps[m];
 				  			console.log("arp stop other")
 				  			arpie.seq.stop();
+				  			
 				  		},
 				  		
 						newM = function(){
+							aSong.stop();
 							//console.log('lead newM' + syns[m][1] + syns[m][0]);
 							var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
 				  			syns[m][0].note.seq(nR, bV)
-				  			var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								//console.log("sequence" + q)
-								SphereCreate(o);
-							}, bV );
+				  	// 		var q = 0;
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	//console.log("sequence" + q)
+							// 	SphereCreate(o);
+							// }, bV );
 					  ;}, 
 					  /// function for series of melodies
 				  		newS = function () {
+				  			aSong.stop();
 				  			var count = 0, rot = rotations[floor(random(rotations.length))], 
 				  			bV = Harmony.wholeBeetsReturn(.5, floor(random(1,16))), 
 				  			nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length),
@@ -884,46 +849,50 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  				function(){
 				  					syns[m][0].note.seq(nR2, bV)
 				  				}, measures(rot)]).start() ;
-				  			var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								//console.log("sequence" + q);
-								SphereCreate(o);
-							}, bV );
+				  	// 		var q = 0;
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	//console.log("sequence" + q);
+							// 	SphereCreate(o);
+							// }, bV );
 				  		}, 
 					 	newF = function(){
+					 		aSong.stop();
 					 		//console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
 					  		var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
 					  		syns[m][0].note.seq(nR, bV);
 					  		var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								console.log("sequence" + q);
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	console.log("sequence" + q);
 								
-								SphereCreate(o);
-							}, bV );
+							// 	SphereCreate(o);
+							// }, bV );
 				        ;}, 
 					    pm = function(){
+					    	aSong.stop();
 					    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
 					    	var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
 					  		syns[m][0].note.seq(nR, bV)
 					  		var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								console.log("sequence" + q)
-								SphereCreate(o);
-							}, bV );
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	console.log("sequence" + q)
+							// 	SphereCreate(o);
+							// }, bV );
 				        ;}, 
 					    sto = function(){
 					  		syns[m][0].note.seq.stop()
+					  		aSong.stop();
 					    ;};	
 					
 					functions = [arper, arperStop, pm, newF, newS, newM, sto]; 
 				}// if scores[i] does not exist
 				else {
 					if (kindsAlreadyAdded.indexOf('lead') > -1) { 
+						var aSong;
 				  		//if lead already exists, use supportBeetsReturn
 				  	
 					  	arper = function(){
@@ -937,11 +906,11 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			var spee = beets[floor(random(8,beets.length))];
 				  			arpie.seq.speed = spee;
 				  			var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								//console.log("sequence" + q)
-								SphereCreate(o);
-							}, spee );
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	//console.log("sequence" + q)
+							// 	SphereCreate(o);
+							// }, spee );
 				  			//syns[m][0].note.seq([-12,-12,-12], 1/32);
 
 				  		},
@@ -949,6 +918,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			//var arpie = arps[0];
 				  			console.log("arp stop working")
 				  			arpie.seq.stop();
+				  			aSong.stop();
 				  		},
 
 						newM = function(){
@@ -956,12 +926,12 @@ var Song = function (n, place, timeOfDay) { //enclose song
 							var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,4)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
 				  			syns[m][0].note.seq(nR, bV);
-				  			var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								//console.log("sequence" + q)
-								SphereCreate(o);
-							}, bV );
+				  	// 		var q = 0;
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	//console.log("sequence" + q)
+							// 	SphereCreate(o);
+							// }, bV );
 					  ;}, 
 					  /// function for series of melodies
 				  		newS = function () {
@@ -978,23 +948,23 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  				function(){
 				  					syns[m][0].note.seq(nR2, bV)
 				  				}, measures(rot)]).start().loop()
-				  			var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								//console.log("sequence" + q)
-								SphereCreate(o);
-							}, bV );
+				  	// 		var q = 0;
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	//console.log("sequence" + q)
+							// 	SphereCreate(o);
+							// }, bV );
 				  		}, 
 					 	newF = function(){
 					 		var bV = Harmony.supportBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,3)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
 					  		syns[m][0].note.seq(nR, bV);
 					  		var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								//console.log("sequence" + q)
-								SphereCreate(o);
-							}, bV );
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	//console.log("sequence" + q)
+							// 	SphereCreate(o);
+							// }, bV );
 				      ;}, 
 					    pm = function(){
 					    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
@@ -1002,38 +972,42 @@ var Song = function (n, place, timeOfDay) { //enclose song
 							
 					  		var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
 					  		
-					  		syns[m][0].note.seq(nR, bV)
-					  		var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								//console.log("sequence" + q)
-								SphereCreate(o);
-							}, bV );
+					  		syns[m][0].note.seq(nR, bV);
+					  		//SphereCreate(bV);
+					  		//var q = 0;
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	//console.log("sequence" + q)
+							// 	SphereCreate(o);
+							// }, bV );
 				      ;}, 
 					    sto = function(){
 					  		syns[m][0].note.seq.stop()
+					  		//aSong.stop();
 					  ;};
 				  	functions = [arper, arperStop, newM, newS, newF, sto]; 
 					} // if lead exists enclosure  
 				  	else {	
+				  		var sSong;
 					  	arper = function(){
 				  			console.log("arper arper bb");
 				  			var nR = Harmony.notesReturn(0,1,8),
 				  			bV = Harmony.beetsReturn(4, 1);
 				  			//arp.target = syns[m][0];
 				  			syns[m][0].note.seq(nR, bV);
-				  			var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								//console.log("sequence" + q)
-								SphereCreate(o);
-							}, bV );
+				  	// 		var q = 0;
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	//console.log("sequence" + q)
+							// 	SphereCreate(o);
+							// }, bV );
 				  			//syns[m][0].note.seq([12,12,12], 1/2)
 
 				  		},
 				  		arperStop = function(){
 				  			console.log("arp stop other")
 				  			arp.seq.stop();
+				  			//aSong.stop();
 				  		},
 				  		
 						newM = function(){
@@ -1041,12 +1015,12 @@ var Song = function (n, place, timeOfDay) { //enclose song
 							var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
 				  			syns[m][0].note.seq(nR, bV)
-				  			var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								//console.log("sequence" + q)
-								SphereCreate(o);
-							}, bV );
+				  	// 		var q = 0;
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	//console.log("sequence" + q)
+							// 	SphereCreate(o);
+							// }, bV );
 					  ;}, 
 					  /// function for series of melodies
 				  		newS = function () {
@@ -1061,24 +1035,24 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  				function(){
 				  					syns[m][0].note.seq(nR2, bV)
 				  				}, measures(rot)]).start()
-				  			var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								//console.log("sequence" + q)
-								SphereCreate(o);
-							}, bV );
+				  	// 		var q = 0;
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	//console.log("sequence" + q)
+							// 	SphereCreate(o);
+							// }, bV );
 				  		}, 
 					 	newF = function(){
 					 		console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
 					  		var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
 					  		syns[m][0].note.seq(nR, bV)
-					  		var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								//console.log("sequence" + q)
-								SphereCreate(o);
-							}, bV );
+					  // 		var q = 0;
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	//console.log("sequence" + q)
+							// 	SphereCreate(o);
+							// }, bV );
 				      ;}, 
 					    pm = function(){
 					    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
@@ -1087,15 +1061,16 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					  		var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
 					  		
 					  		syns[m][0].note.seq(nR, bV)
-					  		var q = 0;
-				  			aSong = Seq( function() { 
-				  				q++;
-								//console.log("sequence" + q)
-								SphereCreate(o);
-							}, bV );
+					  // 		var q = 0;
+				  	// 		aSong = Seq( function() { 
+				  	// 			q++;
+							// 	//console.log("sequence" + q)
+							// 	SphereCreate(o);
+							// }, bV );
 				      ;}, 
 					    sto = function(){
 					  		syns[m][0].note.seq.stop()
+					  		//aSong.stop();
 					  ;};
 				} // else lead does not exist
 				   functions = [arper, newS, pm, newF, newM, sto, arperStop]; 
@@ -1111,59 +1086,37 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				// elsse if syns is a lead enclosure
 			}
 				else if (syn[1] == 'pad'){ 
+					var sSong;
 						newM = function(){
 							var nR = Harmony.notesReturn(-12,2,4),
 					    	bV = Harmony.wholeBeetsReturn(floor(random(8)), floor(random(1,8)));
 	
 				  			syns[m][0].note.seq(nR, bV)
-				  			var q =0;
-				  			aSong = Seq( function() { 
-				  				console.log(q + " q " )
-				  				if (q >= bV.length) {
+				  		
 
-				  					q = 0;
-				  					
-				  				}
-				  				FadeInPad(objects[m], bV[q]);
-				  				
-							}, bV );
+							
 					  ;}, 
 					 	newC = function(){
 					 		console.log('chords' + syns[m][1] + syns[m][0])
 					  		nR = Harmony.chordsReturn(random(floor(2,5)), floor(random(3,6))), 
 					  		bV = Harmony.beetsReturn(4, floor(random(1,4)));
 					  		syns[m][0].chord.seq(nR, bV)
-					  		var q =0;
-				  			aSong = Seq( function() { 
-				  				console.log(q + " q " )
-				  				if (q >= bV.length) {
+					  		
 
-				  					q = 0;
-				  					
-				  				}
-				  				FadeInPad(objects[m], bV[q]);
-				  				
-							}, bV );
+							
 				      ;}, 
 					    pm = function(){
 					  		var nR = [0,0,0,0,-1,-1,-1,-1], 
 					  		bV = Harmony.beetsReturn(4, floor(random(1,4)));
 					  		syns[m][0].note.seq(nR, bV)
-					  		var q =0;
-				  			aSong = Seq( function() { 
-				  				console.log(q + " q " )
-				  				if (q >= bV.length) {
+					  		
 
-				  					q = 0;
-				  					
-				  				}
-				  				FadeInPad(objects[m], bV[q]);
-				  				
-							}, bV );
+
 				      ;}, 
 					    sto = function(){
 					  		syns[m][0].note.seq.stop()
-					  		FadeOutPad(objects[m]);
+					  		//FadeOutPad(objects[m]);
+					  		//aSong.stop();
 					  ;};
 				   functions = [newM, newC, pm, sto]; 
 				}
@@ -1250,8 +1203,8 @@ var Song = function (n, place, timeOfDay) { //enclose song
 
 						}
 						else {
-							var k = kinds[floor(random(kinds.length))];
-							//var k = 'lead';
+							//var k = kinds[floor(random(kinds.length))];
+							var k = 'pad';
 							fxAmount = floor(random(3));
 							console.log(fxAmount + "fxamount");
 							synth = new innerSong.synthCreate(i, k, 'oo');
@@ -1385,7 +1338,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 						fols.push(f);
 						//console.log(f);
 					}
-					
+					busFol.push(Follow(innerSongBus));
 				},
 				// FX: function(name, kind, syn) {
   		// 			var effects = [];
@@ -1411,20 +1364,24 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					
 					//Schizo({chance:.95, pitchChance: 0, rate:ms(beeps/4), length:ms(beeps)}), 
 					Reverb('space') ) // right
+					// a = XOX( 'x***o***x***o*-*', 1/16 );
+					// a.send(busses[floor(random(4))], .5);
+					// a.send(innerSongBus, .5);
 					innerSongBus.connect();
 					innerSongBus.amp(0)
-					busFol = Follow(innerSongBus);
+					
 					l = Line(0, 1, 4)
 					score= Score([0,
 						function(){ 
 							//drum = XOX('x*x*', 1/16);
 							//drum.fadeIn(4, 1);
-
+							innerSong.NewFollow();
+							//busFol = Follow(busses[2]);
 							for (var i = 0; i < syns.length; i++){
 								//assign each synth it's own score via scoredetails
 								//console.log("creating score details");
 								//syns[i][0]._;
-								syns[i][0].connect(innerSongBus);
+								//syns[i][0].connect(innerSongBus);
 								var ss = scoreDetails(i);
 								scores.push(ss);
 		  						inScore = Score(ss).start();
@@ -1527,26 +1484,32 @@ function render() {
 	// noStroke();
  //    fill(bgCol);
  //    rect(0, 0, width, height); 
+ 	transparencyUpdate(transObjects, camera);
      if (go) {
      	var p0 = pieces[0], p1 = pieces[1];
      	if (cubeGo == 0){
      		theta += .01;
      		//camera.rotation.z = theta;
      		//var hug;
+     		 // console.log();
+     		  bgPlane.material.opacity = .1 +  (p0.publicBusFol[0].getValue() * .5);
     		for (var i = 0; i < p0.publicFols.length; i++){
 				
 				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
 				//        if width greater than height, use wh * value, otherwise use ww2 * value
-			  	objects[i].scale.x = 6 + p0.publicFols[i].getValue() * 10;
+			  	//objects[i].scale.x = 6 + p0.publicFols[i].getValue() * 10;
 			  //	console.log(p0.publicBusFol.getValue());
-			  	//bgPlane.material.opacity = .01 + p0.publicBusFol.getValue() * 10;
-			   // objects[i].scale.y = 1 + p0.publicFols[i].getValue() * 100;
+
+			  	objects[i].scale.y = 1 + p0.publicFols[i].getValue() * 100;
+			  	objects[i].scale.x = 1 + p0.publicFols[i].getValue() * 10;
+			    objects[i].material.opacity = opaqueFloor + p0.publicFols[i].getValue() * 4.5;
+			    //objects[i].position.y = 500 - (p0.publicFols[i].getValue() * 3200);
 			    // objects[i].rotation.x = theta * i;
-			    if (!cloudy && !rain) {
-			    	objects[i].rotation.z = theta / i;
-			    	objects[i].rotation.y = theta * i;
-			    	objects[i].rotation.x = (theta / i) * theta +i;
-			    }
+			    // if (!cloudy && !rain) {
+			     	objects[i].rotation.y = theta * i;
+			    	//objects[i].rotation.x = theta * i;
+			     	//objects[i].rotation.z = theta / i ;
+			    // }
 			    //objects[i].rotation.z = theta;
 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
 				// CoolSquare(col, value, ww2, wh, radius  );
@@ -1556,7 +1519,7 @@ function render() {
 			for (var i = 0; i < p1.publicFols.length; i++) {
 				// var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
-			 objects[i].scale.x = .125 + p1.publicFols[i].getValue() * 10;
+			// objects[i].scale.x = .125 + p1.publicFols[i].getValue() * 10;
 			 //    console.log(p1.publicFols[i].value + i);
 				//CoolSquare(col, value, ww2, wh, radius  );
 			}
@@ -1572,7 +1535,7 @@ function render() {
 //     	 //parameter must be set with render
          requestAnimationFrame( render );
 
-    }, 3500 / beepEM  );
+    }, 3750 / beepEM  );
 }
 render();
 
