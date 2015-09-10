@@ -92,7 +92,7 @@ var radius = 50, segments = 16, rings = 16;
 
 // create a new mesh with sphere geometry -
 // we will cover the sphereMaterial next!
-var col = new THREE.Color(0x39506B);
+var col = new THREE.Color(0xFF6600);
 
 function createOriginalObjects () {
 	for (i = 0; i < 4; i++) {
@@ -108,7 +108,7 @@ function createOriginalObjects () {
 		objects.push(sphere);
 		scene.add(sphere);
 		transObjects.push(sphere);
-		sphere.material.color.r = (i*.75);
+		sphere.material.color.b = (i*.05);
 	}
 	
 	
@@ -1493,6 +1493,7 @@ function render() {
      		//var hug;
      		 // console.log();
      		  bgPlane.material.opacity = .1 +  (p0.publicBusFol[0].getValue() * .5);
+     		  //	camera.rotation. = theta / i;
     		for (var i = 0; i < p0.publicFols.length; i++){
 				
 				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
@@ -1508,7 +1509,7 @@ function render() {
 			    // if (!cloudy && !rain) {
 			     	objects[i].rotation.y = theta * i;
 			    	//objects[i].rotation.x = theta * i;
-			     	//objects[i].rotation.z = theta / i ;
+			     
 			    // }
 			    //objects[i].rotation.z = theta;
 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
