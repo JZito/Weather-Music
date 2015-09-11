@@ -42,7 +42,8 @@ var composer = new THREE.EffectComposer(renderer);
 // create a point light
 var spotLight = new THREE.PointLight( 0xFFFFFF );
 var pointLight = new THREE.PointLight( 0x99FFFF);
-var ambientLight = new THREE.AmbientLight( 0x8A458A);
+pointLight.intensity = .15;
+var ambientLight = new THREE.AmbientLight( 0xffffff);
 camera.add(spotLight);
 
 
@@ -50,7 +51,7 @@ camera.add(spotLight);
 // spotLight.position.x = 10;
 // spotLight.position.y = 60;
 // spotLight.position.z = 500;
-pointLight.position.z = 3;
+//pointLight.position.z = 3;
 
 // add to the scene
 scene.add(pointLight);
@@ -99,13 +100,13 @@ var col = new THREE.Color(0xFF0000);
 function createOriginalObjects () {
 	for (i = 0; i < 4; i++) {
 		var i5 = (i*525) - 750;
-		var mesh = new THREE.SphereGeometry(50,5,20);
+		var mesh = new THREE.TorusGeometry(50,5,20,32);
 		var mat = new THREE.MeshPhongMaterial( {color:col});
 		var sphere = new THREE.Mesh(
 		   			mesh, mat
 		    	);
 		//sphere.position.x = i5;
-		sphere.material.color.setHSL(.65,1,.5);
+		sphere.material.color.setHSL(.24,1,.5);
 		sphere.material.transparent	= true;
 		sphere.material.opacity = 1;
 		sphere.material.depthWrite	= false;
@@ -180,36 +181,47 @@ function changeVisualsFull () {
 	}
 }
 
-document.addEventListener("mousedown", onMouseDown);
-//array of colors = color1:{h: .98, s: .39, l: .5 }, color2:
+document.addEventListener("mousedown", changeVisualsPartial);
 
-function onMouseDown() {
-	var colorTick = floor(random(4));
-	changeVisualsPartial (objects[floor(random(objects.length - 1))], colorTick )
-}
-var colorArray = [  {h:.03, s:1, l:.73},
-					{h:.09, s:1, l:.73},
-					{h:.93, s:.77, l:.67},
-					{h:.99, s:.5, l:.44}  ];
+// var conditionsArray =  {sunny : ,
+// 						cloudy: ,
+// 									};
 
-function changeVisualsPartial(obj, colorTicker) {
-
-	var hh = .75;
-	var ss = colorArray[colorTicker].s;
-	var ll = colorArray[colorTicker].l;
-	console.log(hh + " " + ss + " " + ll)
-	TweenMax.to(obj.material.color.getHSL(), 1, {
-		h: hh * i, s: ss, l: ll, ease:  Power2.easeIn, force3D: true,
-		onUpdate: setNewHSL, onUpdateParams: [ obj, "{self}", ] 
-	} );
-}
+var conditionsLiteral = {
+    weatherColors : { sunny : {first: {h:.03, s:1, l:.73 },
+    							second: { h:.09, s:1, l:.73 },
+    							 third: { h:.93, s:.77, l:.67 },
+    							  fourth: { h:.99, s:.5, l:.44 } }
+    							},
+    weatherBGColor : { sunny : "prop", cloudy : "blorp" }
+};
+// var colorArray = [  {h:.03, s:1, l:.73},
+// 					{h:.09, s:1, l:.73},
+// 					{h:.93, s:.77, l:.67},
+// 					{h:.99, s:.5, l:.44}  ] ;
 
 
+function changeVisualsPartial() {
+	var w = 'sunny';
+	
+	for (var i = 0; i < objects.length; i++) {
+		var tick = i;
+		var hh = conditionsLiteral.weatherColors.sunny.first.h;
+		var ss = conditionsLiteral.weatherColors.sunny.first.s;
+		var ll = conditionsLiteral.weatherColors.sunny.second.l;
+		console.log(i + "cool dude " + " . " + hh + " . " + ss + " " + ll)
+		TweenMax.to(objects[i].material.color.getHSL(), 10, {
+			h: hh, s: ss, l: ll, ease: RoughEase.ease.config({template:Quad.easeIn}),
+			onUpdate: setNewHSL, onUpdateParams: [ objects[i], "{self}",i ]} );
+		}
+	}
 
-function setNewHSL (obj, tween) {
+
+
+function setNewHSL (obj, tween, ticker) {
 
 	obj.material.color.setHSL(tween.target.h, tween.target.s, tween.target.l);
-	console.log(tween.target.h);
+	console.log(ticker + ". " + tween.target.h + " . " +  tween.target.s + " . " + tween.target.l);
 }
 
 function transparencyUpdate (objects, camera){
@@ -1596,14 +1608,14 @@ function render() {
 			  	objects[i].scale.y = 1 + i + p0.publicFols[i].getValue() * 100;
 			    objects[i].material.opacity = opaqueFloor + p0.publicFols[i].getValue() * 4.5;
 			    //objects[i].position.y = 500 - (p0.publicFols[i].getValue() * 3200);
-			     objects[i].rotation.x = (theta * i) ;
+			     objects[i].rotation.z = (theta * i) * Math.PI/180 ;
 			    // if (!cloudy && !rain) {
 			     	
-			     	if (i > 1) {
-			     		objects[i].scale.z = 1 + p0.publicFols[i].getValue() * 50;
-			     		objects[i].rotation.x = theta;
-			     	}
-			    	objects[i].rotation.x = theta * i;
+			     	// if (i > 1) {
+			     	// 	objects[i].scale.z = 1 + p0.publicFols[i].getValue() * 50;
+			     	// 	objects[i].rotation.x = theta;
+			     	// }
+			    	//objects[i].rotation.x = theta * i;
 			     
 			    // }
 			    //objects[i].rotation.z = theta;
@@ -1631,7 +1643,7 @@ function render() {
 //     	 //parameter must be set with render
          requestAnimationFrame( render );
 
-    }, 3750 / beepEM  );
+    }, 3750/beepEM );
 }
 render();
 
