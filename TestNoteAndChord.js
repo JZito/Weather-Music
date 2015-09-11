@@ -12,6 +12,8 @@ var VIEW_ANGLE = 45,
     NEAR = 0.1,
     FAR = 10000;
 
+  
+
 // get the DOM element to attach to
 // - assume we've got jQuery to hand
 var $container = $('#container');
@@ -75,7 +77,7 @@ composer.addPass(effectFilm);
 // attach the render-supplied DOM element
 $container.append(renderer.domElement);
 
-var bgCol = new THREE.Color("rgb(40,20,250)");
+var bgCol = new THREE.Color(0xc9e2ff);
 var vat = new THREE.MeshLambertMaterial({color: bgCol});
 var geometry = new THREE.PlaneBufferGeometry(1800*2, 1600 * 2,1,1);
 var bgPlane = new THREE.Mesh(geometry, vat);
@@ -92,36 +94,122 @@ var radius = 50, segments = 16, rings = 16;
 
 // create a new mesh with sphere geometry -
 // we will cover the sphereMaterial next!
-var col = new THREE.Color(0xFF6600);
+var col = new THREE.Color(0xFF0000);
 
 function createOriginalObjects () {
 	for (i = 0; i < 4; i++) {
 		var i5 = (i*525) - 750;
+		var mesh = new THREE.SphereGeometry(50,5,20);
+		var mat = new THREE.MeshPhongMaterial( {color:col});
 		var sphere = new THREE.Mesh(
-		   			new THREE.TorusGeometry(radius, segments, rings, 100),
-		    		new THREE.MeshLambertMaterial( { color: col } )
+		   			mesh, mat
 		    	);
 		//sphere.position.x = i5;
+		sphere.material.color.setHSL(.65,1,.5);
 		sphere.material.transparent	= true;
 		sphere.material.opacity = 1;
 		sphere.material.depthWrite	= false;
+		//sphere.mesh.geometry.dynamic = true;
 		objects.push(sphere);
 		scene.add(sphere);
 		transObjects.push(sphere);
-		sphere.material.color.b = (i*.05);
+		//sphere.material.color.b = (i*.05);
 	}
 	
 	
 }
 
+
+
+
+
+function getB() {
+	var a = floor(random(4000,7000));
+	var b = floor(random(2,25));
+
+	var coolBro = function (a,b) {
+		console.log( "cooool" + a + " " + b);
+	};
+	var dingDong = (function (a, b) {
+		console.log( "ding dong" );
+	});
+
+	var hipHop = function (a, b) {
+		console.log( "hip" + a + " " + b);
+	};
+	// var funcs = [coolBro, dingDong, hipHop];
+	// var func = funcs[floor(random(funcs.length))];
+	// console.log("get b");
+	return dingDong;
+}
+
+function generateGetMethod(attr) {
+	console.log(attr);
+	return function() {
+		return typeof this.getAttribute(attr) != 'undefined';
+	};
+}
+ 
+var accessors = {
+	sortable: {
+		get: generateGetMethod('sortable')
+	},
+	droppable: {
+		get: generateGetMethod('droppable')
+	},
+	doinkable: {
+		get: generateGetMethod('doinkable')
+	},
+	shroinkable: {
+		get: generateGetMethod('shroinkable')
+	}
+};
+
 var windowResize = THREEx.WindowResize(renderer, camera);
 
 function changeVisualsFull () {
-
+	var types = ['sortable', 'droppable', 'doinkable', 'shroinkable'];
+	console.log("change change");
+	generateGetMethod(types[floor(random(types.length))]);
+	for (var i = 0; i < objects.length; i++) {
+		//console.log(objects[i].mesh  + i + " change visuals");
+		//var obj = new THREE.Mesh ( var1, var2)
+		
+		// objects[i].mesh.geometry = new THREE.SphereGeometry(50,16,16);
+		// objects[i].mesh.geometry.verticesNeedUpdate = true;
 	}
+}
 
-function changeVisualsPartial() {
+document.addEventListener("mousedown", onMouseDown);
+//array of colors = color1:{h: .98, s: .39, l: .5 }, color2:
 
+function onMouseDown() {
+	var colorTick = floor(random(4));
+	changeVisualsPartial (objects[floor(random(objects.length - 1))], colorTick )
+}
+var colorArray = [  {h:.03, s:1, l:.73},
+					{h:.09, s:1, l:.73},
+					{h:.93, s:.77, l:.67},
+					{h:.99, s:.5, l:.44}  ];
+
+function changeVisualsPartial(obj, colorTicker) {
+
+	var hh = .75;
+	var ss = colorArray[colorTicker].s;
+	var ll = colorArray[colorTicker].l;
+	console.log(hh + " " + ss + " " + ll)
+	TweenMax.to(obj.material.color.getHSL(), 1, {
+		h: hh * i, s: ss, l: ll, ease:  Power2.easeIn, force3D: true,
+		onUpdate: setNewHSL, onUpdateParams: [ obj, "{self}", ] 
+	} );
+}
+
+
+
+function setNewHSL (obj, tween) {
+
+	obj.material.color.setHSL(tween.target.h, tween.target.s, tween.target.l);
+	console.log(tween.target.h);
 }
 
 function transparencyUpdate (objects, camera){
@@ -268,9 +356,10 @@ function applyValue (tween){
 	 console.log(tween.h); 
 };
 
-function animateObj(obj, ez) {
-  TweenMax.to(obj, 3, {y: -900 + Math.random() * 600, 
-  	ease: ez,
+function animateObj(obj) {
+	console.log("animte obj");
+  TweenMax.to(obj.position, 3, {z: -900 + Math.random() * 1200, 
+  	ease: SteppedEase.config(36),
   	yoyo:true, onComplete:animateObj, onCompleteParams:[obj]})
 }
 
@@ -361,6 +450,7 @@ function setup() {
     ['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,5], ['offset',25,1250 ], ['amount', 25,100]]];
 	NewSong(0);
 	createOriginalObjects();
+	//MoveAround();
 	//BloomFade();
 
 };
@@ -404,12 +494,13 @@ function CheckTheTime(time) //function check the time
 };
 
 function MoveAround() {
+	console.log("move around");
 	for (var i =0; i < objects.length; i++) {
-		var mover = floor(random(500)) - floor(random(1000));
+		 var mover = floor(random(500)) - floor(random(1000));
 		var q = objects[i].position;
-		console.log(i + " " + q)
-		animateObj(q, SteppedEase.config(36));
-		//TweenLite.to(q, 12, {x:mover, ease: SteppedEase.config(36)});
+		// console.log(i + " " + q)
+		animateObj(objects[i]);
+		//TweenMax.to(q, 12, {x:mover, ease: SteppedEase.config(36)});
 	}
 }
 
@@ -438,7 +529,7 @@ function NewSong(t) {
 	pieces[t].groupSynths(3);
 	pieces[t].scoreCreate();
 	//pieces[t].NewFollow();
-	//MoveAround();
+	
 };
 
 
@@ -1203,8 +1294,8 @@ var Song = function (n, place, timeOfDay) { //enclose song
 
 						}
 						else {
-							//var k = kinds[floor(random(kinds.length))];
-							var k = 'pad';
+							var k = kinds[floor(random(kinds.length))];
+							//var k = 'pad';
 							fxAmount = floor(random(3));
 							console.log(fxAmount + "fxamount");
 							synth = new innerSong.synthCreate(i, k, 'oo');
@@ -1501,14 +1592,18 @@ function render() {
 			  	//objects[i].scale.x = 6 + p0.publicFols[i].getValue() * 10;
 			  //	console.log(p0.publicBusFol.getValue());
 
-			  	objects[i].scale.y = 1 + p0.publicFols[i].getValue() * 100;
-			  	objects[i].scale.x = 1 + p0.publicFols[i].getValue() * 10;
+			  	objects[i].scale.x = 1 + i + p0.publicFols[i].getValue() * 25;
+			  	objects[i].scale.y = 1 + i + p0.publicFols[i].getValue() * 100;
 			    objects[i].material.opacity = opaqueFloor + p0.publicFols[i].getValue() * 4.5;
 			    //objects[i].position.y = 500 - (p0.publicFols[i].getValue() * 3200);
-			    // objects[i].rotation.x = theta * i;
+			     objects[i].rotation.x = (theta * i) ;
 			    // if (!cloudy && !rain) {
-			     	objects[i].rotation.y = theta * i;
-			    	//objects[i].rotation.x = theta * i;
+			     	
+			     	if (i > 1) {
+			     		objects[i].scale.z = 1 + p0.publicFols[i].getValue() * 50;
+			     		objects[i].rotation.x = theta;
+			     	}
+			    	objects[i].rotation.x = theta * i;
 			     
 			    // }
 			    //objects[i].rotation.z = theta;
