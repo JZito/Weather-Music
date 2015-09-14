@@ -43,7 +43,7 @@ var composer = new THREE.EffectComposer(renderer);
 var spotLight = new THREE.PointLight( 0xFFFFFF );
 var pointLight = new THREE.PointLight( 0x99FFFF);
 pointLight.intensity = .15;
-var ambientLight = new THREE.AmbientLight( 0xffffff);
+//var ambientLight = new THREE.AmbientLight( 0x00bfff);
 camera.add(spotLight);
 
 
@@ -56,7 +56,7 @@ camera.add(spotLight);
 // add to the scene
 scene.add(pointLight);
 scene.add(spotLight);
-scene.add(ambientLight);
+//scene.add(ambientLight);
 composer.addPass(renderPass);
 // the camera starts at 0,0,0 so pull it back
 camera.position.z = 1000;
@@ -70,15 +70,21 @@ var bloomPass = new THREE.BloomPass(5, 25, 10, 130);
 composer.addPass(bloomPass);
 bloomPass.clear = true;
 
+var mirrorPass = new THREE.ShaderPass( THREE.MirrorShader );
+composer.addPass(mirrorPass);
+mirrorPass.uniforms.side.value = 1;
+
 // 2. EffectFilm, which output the result in an old style TV screen fashion (with thin colourful stripes):
 var effectFilm = new THREE.FilmPass(0.8, 0.325, 256, false);
 effectFilm.renderToScreen = true;
 composer.addPass(effectFilm);
 
+
+
 // attach the render-supplied DOM element
 $container.append(renderer.domElement);
 
-var bgCol = new THREE.Color(0xc9e2ff);
+var bgCol = new THREE.Color(0xff8f75);
 var vat = new THREE.MeshLambertMaterial({color: bgCol});
 var geometry = new THREE.PlaneBufferGeometry(1800*2, 1600 * 2,1,1);
 var bgPlane = new THREE.Mesh(geometry, vat);
@@ -100,15 +106,15 @@ var col = new THREE.Color(0xFF0000);
 function createOriginalObjects () {
 	for (i = 0; i < 4; i++) {
 		var i5 = (i*525) - 750;
-		var mesh = new THREE.TorusGeometry(50,5,20,32);
+		var mesh = new THREE.SphereGeometry(50,5,20);
 		var mat = new THREE.MeshPhongMaterial( {color:col});
 		var sphere = new THREE.Mesh(
 		   			mesh, mat
 		    	);
-		//sphere.position.x = i5;
+	sphere.position.x = i5;
 		sphere.material.color.setHSL(.24,1,.5);
 		sphere.material.transparent	= true;
-		sphere.material.opacity = 1;
+		sphere.material.opacity = 0;
 		sphere.material.depthWrite	= false;
 		//sphere.mesh.geometry.dynamic = true;
 		objects.push(sphere);
@@ -187,19 +193,35 @@ document.addEventListener("mousedown", changeVisualsPartial);
 // 						cloudy: ,
 // 									};
 
-var conditionsLiteral = {
-    weatherColors : { sunny : {first: {h:.03, s:1, l:.73 },
-    							second: { h:.09, s:1, l:.73 },
-    							 third: { h:.93, s:.77, l:.67 },
-    							  fourth: { h:.99, s:.5, l:.44 } }
-    							},
-    weatherBGColor : { sunny : "prop", cloudy : "blorp" }
-};
+// var conditionsLiteral = {
+//     weatherColors : { sunny : {h:.03, s:1, l:.73 },
+//     							second: { h:.09, s:1, l:.73 },
+//     							 third: { h:.93, s:.77, l:.67 },
+//     							  fourth: { h:.99, s:.5, l:.44 } }
+//     							},
+//     weatherBGColor : { sunny : "prop", cloudy : "blorp" }
+// };
 // var colorArray = [  {h:.03, s:1, l:.73},
 // 					{h:.09, s:1, l:.73},
 // 					{h:.93, s:.77, l:.67},
 // 					{h:.99, s:.5, l:.44}  ] ;
 
+var cars = [
+    { name: 'Sunny', colors: [
+                { name: 'Colors', objectColors: [ [.03,1,.73], [.09,1,.73], [.93, .77, .67], [.99, .5, .44]  ], 
+                					bgColor: [.54,1,.5]
+                 },
+                // { name: 'CRV', features: },
+                // { name: 'Pilot', features:  }
+        ], 
+    },
+
+    { name: 'Cloudy', conditions: [
+                { name: 'Prius', features: ['green', 'superGreen'] },
+                { name: 'Camry', features: ['sporty', 'square'] },
+                { name: 'Corolla', features: ['cheap', 'superFly'] }
+        ]}
+];
 
 function changeVisualsPartial() {
 	var w = 'sunny';
@@ -1306,8 +1328,8 @@ var Song = function (n, place, timeOfDay) { //enclose song
 
 						}
 						else {
-							var k = kinds[floor(random(kinds.length))];
-							//var k = 'pad';
+							//var k = kinds[floor(random(kinds.length))];
+							var k = 'lead';
 							fxAmount = floor(random(3));
 							console.log(fxAmount + "fxamount");
 							synth = new innerSong.synthCreate(i, k, 'oo');
@@ -1595,7 +1617,7 @@ function render() {
      		//camera.rotation.z = theta;
      		//var hug;
      		 // console.log();
-     		  bgPlane.material.opacity = .1 +  (p0.publicBusFol[0].getValue() * .5);
+     		bgPlane.material.opacity = .1 +  (p0.publicBusFol[0].getValue() * .25);
      		  //	camera.rotation. = theta / i;
     		for (var i = 0; i < p0.publicFols.length; i++){
 				
@@ -1608,7 +1630,7 @@ function render() {
 			  	objects[i].scale.y = 1 + i + p0.publicFols[i].getValue() * 100;
 			    objects[i].material.opacity = opaqueFloor + p0.publicFols[i].getValue() * 4.5;
 			    //objects[i].position.y = 500 - (p0.publicFols[i].getValue() * 3200);
-			     objects[i].rotation.z = (theta * i) * Math.PI/180 ;
+			     //objects[i].rotation.z = (theta * i) * Math.PI/180 ;
 			    // if (!cloudy && !rain) {
 			     	
 			     	// if (i > 1) {
