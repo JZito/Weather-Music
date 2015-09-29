@@ -10,8 +10,8 @@ function setup () {
 	Clock.bpm(floor(random(55,75)))
 	songBus = Bus().fx.add( Reverb('large'))
 	drum = XOX('x*x*x*x-x*x*x*xox*x*x*x-x*x*xxxo', 1/16);
-	m = FM('magicBong')
-	m2 = Synth2('triTest')
+	m = Synth('rhodes')
+	m2 = Synth2('detuned')
 	//m1 = Synth('bleep')
 	//drum.send(songBus, .25)
 	m.send(songBus, 1)

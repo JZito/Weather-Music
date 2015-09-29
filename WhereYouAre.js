@@ -162,9 +162,7 @@ function CheckTheTime(time) //function check the time
 };
 
 function NewSong(t) {
-	var d = new Date();
-	var h = d.getHours();
-	console.log(h);
+	
 	song = new Song('ho', t);
 
 	song.make();
@@ -1018,9 +1016,9 @@ var Song = function (n, place) { //enclose song
 				currentSeqsToPush[0] = p;
 				currentSeqsToPush[1] = combo;
 				currentSeqs[p] = currentSeqsToPush;
-				//console.log(c + "c" + p + " name " + nR + "nr" + bR + "br")
-				//noteLog[c].push([synth.name, nR, bR])
-				//console.log(noteLog[c][p][0] + " notelog c p 0 ")
+				console.log(c + "c" + p + " name " + nR + "nr" + bR + "br")
+				noteLog[c].push([synth.name, nR, bR])
+				console.log(noteLog[c][p][0] + " notelog c p 0 ")
 
 				}
 			return {
@@ -1149,8 +1147,9 @@ var Song = function (n, place) { //enclose song
 				songCreate: function() {
 					var beeps = floor((60/beepEM) *1000);
 					console.log(beeps + 'bpm');
-					innerSongBus = Bus().fx.add( //Schizo({chance:.95, pitchChance: 0, rate:ms(beeps/4), length:ms(beeps)}), 
-					Reverb('large') ) // right
+					innerSongBus = Bus().fx.add( Crush('littleBit'),
+						//Schizo({chance:.95, pitchChance: 0, rate:ms(beeps/4), length:ms(beeps)}), 
+						Reverb('large') ) // right
 					innerSongBus.connect();
 					innerSongBus.amp(0)
 					l = Line(0, 1, 4);

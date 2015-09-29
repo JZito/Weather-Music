@@ -10241,6 +10241,12 @@ module.exports = function( Gibber ) {
   		wet: .75,
   		dry: .25,
   	},
+    totalWet: {
+      roomSize: .95,
+      damping: .7,
+      wet: .95,
+      dry: .2
+    },
     small : {
       roomSize: .6,
       damping: .75,
@@ -10281,6 +10287,17 @@ module.exports = function( Gibber ) {
         this.cutoff = this.lfo
       },
       resonance: 2
+    },
+    subtle: {presetInit : function() { 
+        //this.fx.add( Delay(1/4, .35), Reverb() ) 
+        this.lfo = Gibber.Audio.Oscillators.Sine( .0234375 )._
+        
+        this.lfo.amp = .075
+        this.lfo.frequency = 2
+        
+        this.cutoff = this.lfo
+      },
+      resonance: .05,
     }
 
   }
@@ -12256,6 +12273,9 @@ module.exports = function( Gibber ) {
     warble: { waveform:'Sine', attack:Clock.maxMeasures,
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Vibrato(2), Gibber.Audio.FX.Delay( 1/6, .75 ) ) } 
     },
+    // squarePad: {waveform:'Square', 
+    //   presetInit:function() {this.fx.add( Gibber.Audio.FX.)}
+    // }
   }
 
   Synths.Presets.Noise = {
@@ -12275,6 +12295,23 @@ module.exports = function( Gibber ) {
     amp:.4, 
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Tremolo({input : 0, frequency:2.5,
       amp:.5}), Gibber.Audio.FX.Reverb('space') ) }
+    },
+    detuned: {
+      waveform:'Saw',
+      useADSR:true, attack:2, decay:.1, sustain:2, release:2/1,
+      presetInit : function() { this.fx.add(  
+                                              Gibber.Audio.FX.Tremolo({input : .4, frequency:.45, amp:.25}),
+                                              Gibber.Audio.FX.StereoVerb('totalWet'),
+                                              Gibber.Audio.FX.Delay(1/.5, .51)
+                                              
+                              ),
+          this.pan = Sine( .002, 1 )._
+        },
+        glide:.995,cutoff: .0000001, resonance: .000000001, maxVoices:4,
+                               requireReleaseTrigger:false,
+                
+      
+      
     },
     pad4: { waveform:'Saw', maxVoices:4, attack:2, decay:2, cutoff:.3, filterMult:.35, 
     resonance:1.5, 
@@ -12302,14 +12339,15 @@ module.exports = function( Gibber ) {
   		resonance:5,
   		isLowPass: false,
   	},
+    
 
   	winsome : {
   		presetInit : function() { 
         //this.fx.add( Delay(1/4, .35), Reverb() ) 
-        this.lfo = Gibber.Audio.Oscillators.Sine( .234375 )._
+        this.lfo = Gibber.Audio.Oscillators.Sine( 5.0234375 )._
         
         this.lfo.amp = .075
-        this.lfo.frequency = 2
+        this.lfo.frequency = 4
         
         this.cutoff = this.lfo
         this.detune2 = this.lfo

@@ -927,7 +927,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  		}, 1);
 
 				  	  	arper = function(){
-				  	  		aSong.stop();
+				  	  		
 				  			//console.log("arper arper bb");
 				  			//var arpie = arps[m];
 				  			var time = Harmony.beetsReturn(2, floor(random(1,2)));
@@ -941,6 +941,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 
 				  		},
 				  		arperStop = function(){
+				  			if (scores[m-1] == arper) { console.log("hello arper stop")};
 				  			//var arpie = arps[m];
 				  			console.log("arp stop other")
 				  			arpie.seq.stop();
@@ -948,7 +949,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  		},
 				  		
 						newM = function(){
-							aSong.stop();
+							
 							//console.log('lead newM' + syns[m][1] + syns[m][0]);
 							var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length);
@@ -962,7 +963,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 					  ;}, 
 					  /// function for series of melodies
 				  		newS = function () {
-				  			aSong.stop();
+				  			
 				  			var count = 0, rot = rotations[floor(random(rotations.length))], 
 				  			bV = Harmony.wholeBeetsReturn(.5, floor(random(1,16))), 
 				  			nR = Harmony.melodyReturn(oct[floor(random(oct.length))], bV.length, bV.length),
@@ -982,7 +983,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 							// }, bV );
 				  		}, 
 					 	newF = function(){
-					 		aSong.stop();
+					 		
 					 		//console.log('lead newmelody return' + syns[m][1] + syns[m][0]);
 					  		var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.melodyReturn(oct[floor(random(oct.length))], 1, bV.length);
@@ -996,7 +997,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 							// }, bV );
 				        ;}, 
 					    pm = function(){
-					    	aSong.stop();
+					    	
 					    	console.log('notes lead pm' + syns[m][1] + syns[m][0]);
 					    	var bV = Harmony.wholeBeetsReturn(rotations[floor(random(rotations.length))], floor(random(1,8)));
 							var nR = Harmony.notesReturn(oct[floor(random(oct.length))], 4, bV.length);
@@ -1010,7 +1011,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				        ;}, 
 					    sto = function(){
 					  		syns[m][0].note.seq.stop()
-					  		aSong.stop();
+					  		//aSong.stop();
 					    ;};	
 					
 					functions = [arper, arperStop, pm, newF, newS, newM, sto]; 
@@ -1043,7 +1044,7 @@ var Song = function (n, place, timeOfDay) { //enclose song
 				  			//var arpie = arps[0];
 				  			console.log("arp stop working")
 				  			arpie.seq.stop();
-				  			aSong.stop();
+				  			//aSong.stop();
 				  		},
 
 						newM = function(){
