@@ -35,11 +35,11 @@ var renderPass = new THREE.RenderPass(scene, camera);
 var composer = new THREE.EffectComposer(renderer);
 
 // create a point light
-var spotLight = new THREE.PointLight( 0xFFFFFF );
-var pointLight = new THREE.PointLight( 0x99FFFF);
-pointLight.intensity = .15;
-//var ambientLight = new THREE.AmbientLight( 0x00bfff);
-camera.add(spotLight);
+//var spotLight = new THREE.PointLight( 0xFFFFFF );
+// var pointLight = new THREE.PointLight( 0x99FFFF);
+// pointLight.intensity = .15;
+// //var ambientLight = new THREE.AmbientLight( 0x00bfff);
+// camera.add(spotLight);
 
 
 // set its position
@@ -49,12 +49,14 @@ camera.add(spotLight);
 //pointLight.position.z = 3;
 
 // add to the scene
-scene.add(pointLight);
-scene.add(spotLight);
+// scene.add(pointLight);
+// scene.add(spotLight);
 //scene.add(ambientLight);
 composer.addPass(renderPass);
 // the camera starts at 0,0,0 so pull it back
-camera.position.z = 1000;
+camera.position.z = 0;
+camera.position.x = 0;
+camera.position.y = 0;
 
 
 // start the renderer
@@ -98,28 +100,68 @@ var radius = 50, segments = 16, rings = 16;
 // we will cover the sphereMaterial next!
 var col = new THREE.Color(0xFF0000);
 
-function createOriginalObjects () {
-	for (i = 0; i < 2; i++) {
-		var i5 = (i*525) - 750;
-		var mesh = new THREE.SphereGeometry(50,5,20);
-		var mat = new THREE.MeshPhongMaterial( {color:col});
-		var sphere = new THREE.Mesh( mesh, mat );
-		sphere.position.x = i * 299;
-		sphere.scale.y = i5;
-		sphere.position.z = 800;
-		sphere.material.color.setHSL(.14,i,.5);
-		sphere.material.transparent	= true;
-		sphere.material.opacity = 0;
-		sphere.material.depthWrite	= false;
-		//sphere.mesh.geometry.dynamic = true;
-		objects.push(sphere);
-		scene.add(sphere);
-		transObjects.push(sphere);
-		//sphere.material.color.b = (i*.05);
-	}
+// function createOriginalObjects () {
+// 	for (i = 0; i < 2; i++) {
+// 		var i5 = (i*525) - 750;
+// 		var mesh = new THREE.SphereGeometry(50,5,20);
+// 		var mat = new THREE.MeshPhongMaterial( {color:col});
+// 		var sphere = new THREE.Mesh( mesh, mat );
+// 		sphere.position.x = i * 299;
+// 		sphere.scale.y = i5;
+// 		sphere.position.z = 800;
+// 		sphere.material.color.setHSL(.14,i,.5);
+// 		sphere.material.transparent	= true;
+// 		sphere.material.opacity = 0;
+// 		sphere.material.depthWrite	= false;
+// 		//sphere.mesh.geometry.dynamic = true;
+// 		objects.push(sphere);
+// 		scene.add(sphere);
+// 		transObjects.push(sphere);
+// 		//sphere.material.color.b = (i*.05);
+// 	}
 	
 	
+// }
+
+//Define camera
+
+//Plane material
+var uniforms = {
+    resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) }
+};
+
+var planeMaterial = new THREE.ShaderMaterial( { 
+    uniforms: uniforms,
+    vertexShader: document.getElementById('vertexShader').textContent,
+    fragmentShader: document.getElementById('fragmentShader').textContent
+} );
+
+//Create plane
+var geometry = new THREE.PlaneGeometry(2800*2, 2600,1,1);
+var bgCol = new THREE.Color(0xfe8f22);
+var vat = new THREE.MeshLambertMaterial({color: bgCol});
+var plane = new THREE.Mesh(geometry, planeMaterial);
+plane.position.z = - 2000;
+scene.add(plane);
+
+var light = new THREE.SpotLight(0xfefe22);
+light.intensity = 2;
+light.position.y = 0;
+light.position.z = 1500;
+
+TweenMax.to(light, 5, { intensity: Math.random(),  ease: RoughEase.ease.config({template:Quad.easeIn}), onComplete:LightMove } );
+function LightMove () {
+	TweenMax.to(light, 5, { intensity: Math.random() * 3 , 
+  	 ease: RoughEase.ease.config({template:Quad.easeIn}),
+  	repeat:-1, onComplete:LightMove})
 }
+// TweenMax.to(camera.position, 5, {y: -800 + Math.random() * 800, x: -800 + Math.random() * 800, ease: SteppedEase.config(6), onComplete:CameraMove});
+// function CameraMove () {
+// 	TweenMax.to(camera.position, 5, { x: -800 + Math.random() * 800, y:  -800 + Math.random() * 800,
+//   	ease: SteppedEase.config(24),
+//   	repeat:-1, yoyo:true, onComplete:CameraMove})
+// }
+scene.add(light);
 
 var SphereCreate = function (parent) {
 
@@ -255,7 +297,7 @@ function setup () {
 	syns.push(m);
 	syns.push(m2);
 	NewScore();
-	createOriginalObjects();
+	//createOriginalObjects();
 	//syns.push(m1);
 
 }
@@ -274,6 +316,7 @@ function draw () {
   	songBus.fx[4].roomsize = ((1 - y) * .5) + .5 ;
 
   	songBus.fx[3].feedback = x < .99 ? x : .99;
+  	console.log(light.position.z);
   	//console.log(songBus.fx[4].roomsize + "room 2");
   	//console.log(songBus.fx[3].feedback + "feedback");
 }
@@ -309,39 +352,7 @@ function NewScore() {
 				bR = WholeBeetsReturnn(1);
 	 			nR = melodyReturn( floor(random(-2,2)), bR.length,   bR.length);
 	 			
-				syns[i].note.seq(nR, bR);
-				if(i == 0) {
-					var o = objects[0];
-					console.log(objects[0]);
-					var q = 0;
-					aSeq = Seq( function() { 
-						console.log( "0");
-					//q++;
-					//console.log("sequence" + q)
-						FadeInPad(o, bR[q] );
-						SphereCreate(o);
-						q++;
-						if (q >= bR.length) {
-							q = 0;
-						}
-					}, bR );
-				}
-				if ( i == 1) {
-					var m = objects[1];
-					console.log(objects[1]);
-					console.log( " 1");
-					var qq = 0;
-					aSeq1 = Seq( function() {
-						console.log(tick);
-						SphereCreate(m);
-						FadeInPad(m, bR[qq] );
-						qq++;
-						if (qq >= bR.length) {
-							qq = 0;
-						}
-					}, bR);
-				}
-				
+				syns[i].note.seq(nR, bR);				
  			}
 		}
 		else if (count == 3) {
@@ -356,9 +367,7 @@ function NewScore() {
 				syns[i].amp(lll);
 				//oldSyns.push(syns[i]);
 			}
-			aSeq.stop();
-			aSeq.kill();
-			aSeq1.kill();
+			
 			llll.kill();
 		}
 		else if (count == 4) {
