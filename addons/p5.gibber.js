@@ -12262,7 +12262,7 @@ module.exports = function( Gibber ) {
       presetInit: function() {this.fx.add( Gibber.Audio.FX.Crush('littleBit'), Gibber.Audio.FX.Flanger(), Gibber.Audio.FX.Tremolo(1/6, .75)    )   }
 
     },
-    triLead: { waveform:'Triangle', amp: .5, maxVoices:1, useADSR: true, attack:44, decay:1, release:1/4,glide:.95,
+    triLead: { waveform:'Triangle', amp: .5, maxVoices:1, useADSR: true, attack:1/3, decay:1, release:1/4,glide:.95,
                       requireReleaseTrigger: false, 
       presetInit: function() {this.fx.add( Gibber.Audio.FX.Vibrato(random(2), random(.65)),Gibber.Audio.FX.Crush('littleBit'),  Gibber.Audio.FX.Tremolo(2, .25))}
 
