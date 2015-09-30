@@ -27,8 +27,8 @@ var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
 
 camera.lookAt(new THREE.Vector3(0, 0, 0));
 var scene = new THREE.Scene();
-var rain = false;
-var night = false;
+var rain = true;
+var night = true;
 var cloudy = false;
 var theta = 0;
 var renderPass = new THREE.RenderPass(scene, camera);
@@ -65,9 +65,9 @@ var bloomPass = new THREE.BloomPass(5, 25, 10, 130);
 composer.addPass(bloomPass);
 bloomPass.clear = true;
 
-var mirrorPass = new THREE.ShaderPass( THREE.MirrorShader );
-composer.addPass(mirrorPass);
-mirrorPass.uniforms.side.value = 1;
+// var mirrorPass = new THREE.ShaderPass( THREE.MirrorShader );
+// composer.addPass(mirrorPass);
+// mirrorPass.uniforms.side.value = 1;
 
 // 2. EffectFilm, which output the result in an old style TV screen fashion (with thin colourful stripes):
 var effectFilm = new THREE.FilmPass(0.8, 0.325, 256, false);
@@ -99,15 +99,15 @@ var radius = 50, segments = 16, rings = 16;
 var col = new THREE.Color(0xFF0000);
 
 function createOriginalObjects () {
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < 2; i++) {
 		var i5 = (i*525) - 750;
 		var mesh = new THREE.SphereGeometry(50,5,20);
 		var mat = new THREE.MeshPhongMaterial( {color:col});
-		var sphere = new THREE.Mesh(
-		   			mesh, mat
-		    	);
-	sphere.position.x = i5;
-		sphere.material.color.setHSL(.24,1,.5);
+		var sphere = new THREE.Mesh( mesh, mat );
+		sphere.position.x = i * 299;
+		sphere.scale.y = i5;
+		sphere.position.z = 800;
+		sphere.material.color.setHSL(.14,i,.5);
 		sphere.material.transparent	= true;
 		sphere.material.opacity = 0;
 		sphere.material.depthWrite	= false;
@@ -120,30 +120,109 @@ function createOriginalObjects () {
 	
 	
 }
-function transparencyUpdate (objects, camera){
-	// update camera matrices
-	camera.updateMatrixWorld()
-	camera.matrixWorldInverse.getInverse( camera.matrixWorld )
 
-	var screenMatrix= new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
-	var position	= new THREE.Vector3()
+var SphereCreate = function (parent) {
+
 	
-	// traverse the object
-	objects.forEach(function(object){
-		// update the matrixWorld of the object and its children
-		object.updateMatrixWorld()
-		// compute its position in screen space 
-		position.setFromMatrixPosition( object.matrixWorld );
-		position.applyProjection( screenMatrix );
-		// use the position.x as renderDepth
-		object.renderDepth	= position.z;
-	})
+	//var i5 = (i*225) - 350;
+	//console.log(parent);
+	var tweenDir;
+	//color of object that called it
+		//partially transparent?
+	//	console.log(parent);
+	var col = parent.material.color.getHex();
+	//console.log("col" + col);
+	var sph = parent.clone();
+	sph.material.opacity = 0;
+	//position of object that called it
+	sph.scale.y = parent.scale.y;
+	sph.scale.x = parent.scale.x;
+	sph.position.x = parent.position.x;
+	sph.rotation.z = parent.rotation.z;
+
+	sph.scale.x = parent.scale.x;
+	//sph.scale.y = window.innerHeight;
+	if (rain) {
+		tweenDir = parent.position.z + Math.random() * 2000 - 1000;
+	}
+	else if (!rain) {
+		tweenDir = -800 + Math.random() * 800;
+	}
+
+	scene.add(sph);
+	transObjects.push(sph);
+	//console.log(sph.position.x + sph + "sphere");
+	//var p = 12;
+	if (cloudy) {
+		TweenMax.to(sph.material, .1, {opacity:.1,
+  		ease:  SteppedEase.config(6)} );
+  		TweenMax.to(sph.position, 2, {z: -300 + Math.random() * 1000, y:-30 + Math.random() * 100,
+  		ease: SteppedEase.config(24),
+  		yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
+	}if (rain) {
+		TweenMax.to(sph.material, (7000/beepEM) * .01 , {opacity:.5,
+  		ease:  SteppedEase.config(6)} );
+		TweenMax.to(sph.position, (7000/beepEM) * .01, {z: -Math.random() * 3000, y: Math.random() * 500 - 1000,
+  		ease: SteppedEase.config(24),
+  		yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
+	}
+	else if (!cloudy && ! rain) {
+		TweenMax.to(sph.material, .1, {opacity:.75,
+  		ease:  SteppedEase.config(6), yoyo:true} );
+		TweenMax.to(sph.position, 2, {z: -300 + Math.random() * 1000, x:-1000 + Math.random() * 1500,
+  		ease: SteppedEase.config(24),
+  		yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
+	}
+	
+	// TweenMax.to(sph.rotation, .5, {x: -300 + Math.random() * 1000, y:p++,
+ //  	ease: SteppedEase.config(5),
+ //  	yoyo:false, } );
+
+	
+
+}
+
+var FadeInPad = function (parent, time) {
+	var wholeBeat = 60/beepEM;
+
+	TweenMax.to(parent.material, wholeBeat * time, {opacity:.65,
+  	ease:RoughEase.ease.config({template:Quad.easeIn}), onComplete:tweenToZero, onCompleteParams: [parent, time] });
+  	console.log( "fade in pad" + parent + " " + time)
+}
+
+function tweenToZero (parent, time) {
+	//console.log(parent)
+	var wholeBeat = 60/beepEM;
+	TweenMax.to(parent.material, wholeBeat * time, {opacity:0,
+  	ease:RoughEase.ease.config({template:Quad.easeIn}) });
+  	console.log( "fade in pad" + parent + " " + time)
+}
+
+function BloomFade () {
+	TweenMax.to(bloomPass, 15, {strength: 1, kernelSize : 25,
+		sigma: 4, resolution: 256,
+
+  	ease: SteppedEase.config(240),
+  	repeat:-1, yoyo:true, onComplete:BloomFade})
+}
+
+function KillSphere(s) {
+	//remove sphere from scene, stop 'seek'uence
+	scene.remove(s);
+	//seek.stop();
+}
+
+function FadeOutPad (parent, time) {
+	var wholeBeat = 60/beepEM;
+	TweenMax.to(parent.material, wholeBeat * time, {opacity:0,
+  	ease:  SteppedEase.config(24)} );
 }
 
 
+
 // sandbox
-var ranNotes = [12,11,9,7,5,4,2,0,-1], follows = [], 
-beets = [, , , 1, 1/1.5, 1/2, 1/2, 1/2,1/2,1/3, 1/6, 1/4, 1/6, 1/4,1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8],
+var ranNotes = [12,11,9,7,5,4,2,0,-1], f,
+beets = [, , , 1, 1/1.5, 1/2, 1/2, 1/2,1/2,1/3, 1/6, 1/4, 1/6, 1/4,1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8], beepEM = 60,
 bR, nR, bR2, nR2, repeatCount = 1, stopper, syns = [], triggerNewMelody = false;
 
 var leadSynthPresets = ['bleepEcho', 'bleep', 'rhodesFade', 'rhodes', 'warble', 'squareLead', 'triLead' ];
@@ -153,7 +232,7 @@ function setup () {
 			nR = NotesReturn(bR.length), bR2 = WholeBeetsReturn(.5, floor(random(1,16))),
 			nR2 = NotesReturn(bR2.length);
 	canvas = createCanvas( windowWidth, windowHeight );
-	Clock.bpm(60)
+	Clock.bpm(beepEM)
 	songBus = Bus().fx.add( HPF({cutoff:.2}),StereoVerb('space'),Schizo('borderline'),Delay({time:1/2, feedback:.95, dry:0, wet:1}),StereoVerb('large'))
 	//drum = XOX('x       *               *       x       *               *     -*', 1/32);
 	// sine = Sine(.05, 2);
@@ -161,13 +240,12 @@ function setup () {
 	// drum.fx.add(Delay({time:1/16, feedback:.65, wet:.4}), HPF({cutoff:sine}))
 	// drum.connect(songBus)
 	//drum._;
-	m = Synth('rhodes')
+	m = Synth('bleep')
 	m.fx.add(Delay('nightChill'));
 	m2 = Synth('rhodesFade')
 	m2.fx.add(Delay('wobbler'));
 	m.pan(.25);
 	m2.pan(-.25);
-
 	//m1 = Synth('bleep')
 	
 	m.send(songBus, 1)
@@ -176,11 +254,8 @@ function setup () {
    // f = Follow();
 	syns.push(m);
 	syns.push(m2);
-	f = Follow(m);
-	f2 = Follow(m2);
-	//follows.push(f);
-	//follows.push(f2);
 	NewScore();
+	createOriginalObjects();
 	//syns.push(m1);
 
 }
@@ -211,6 +286,7 @@ function NewScore() {
 	var killSeq = false;
 	var oldSyns = [];
 	var llll, lll;
+	var aSeq, aSeq1;
 	console.log(" new score");
 	synsLength = syns.length;
 	a = Seq( function() { 
@@ -223,14 +299,49 @@ function NewScore() {
 			llll = new Line(0, .75, 3);
 			
 			songBus.amp(llll);
-
-			for (i = 0; i < synsLength; i++) {
-				songBus.fx[2].time = beets[floor(random(3, beets.length))];
-				songBus.fx[3].time = beets[floor(random(3, beets.length))];
+			songBus.fx[2].time = beets[floor(random(3, beets.length))];
+			songBus.fx[3].time = beets[floor(random(3, beets.length))];
+			for (var i = 0; i < synsLength; i++) {
+				var tick = i;
+				
+				//console.log(o);
+				
 				bR = WholeBeetsReturnn(1);
 	 			nR = melodyReturn( floor(random(-2,2)), bR.length,   bR.length);
 	 			
 				syns[i].note.seq(nR, bR);
+				if(i == 0) {
+					var o = objects[0];
+					console.log(objects[0]);
+					var q = 0;
+					aSeq = Seq( function() { 
+						console.log( "0");
+					//q++;
+					//console.log("sequence" + q)
+						FadeInPad(o, bR[q] );
+						SphereCreate(o);
+						q++;
+						if (q >= bR.length) {
+							q = 0;
+						}
+					}, bR );
+				}
+				if ( i == 1) {
+					var m = objects[1];
+					console.log(objects[1]);
+					console.log( " 1");
+					var qq = 0;
+					aSeq1 = Seq( function() {
+						console.log(tick);
+						SphereCreate(m);
+						FadeInPad(m, bR[qq] );
+						qq++;
+						if (qq >= bR.length) {
+							qq = 0;
+						}
+					}, bR);
+				}
+				
  			}
 		}
 		else if (count == 3) {
@@ -238,26 +349,26 @@ function NewScore() {
 			for (i = 0; i < synsLength; i++) {
 				console.log ("stopper" + syns[i])
 				//syns[i].amp(0);
-				syns[i].amp(lll);
 				syns[i].seq.stop();
-				//syns[i].fx[i].amp(lll);
 				
+				
+				//syns[i].fx[i].amp(lll);
+				syns[i].amp(lll);
 				//oldSyns.push(syns[i]);
 			}
-			
+			aSeq.stop();
+			aSeq.kill();
+			aSeq1.kill();
 			llll.kill();
 		}
 		else if (count == 4) {
-			//follows.length = 0;
 			for (i = 0; i < synsLength; i++) {
 				syns[i].kill();	
 			}
 			lll.kill();
-			
-			
+			syns.length = 0;
 		}
 		else if (count == 5) {
-			syns.length = 0;
 			//oldSyns.length = 0;
 			for (i = 0; i < synsLength; i++) {
 				var s = leadSynthPresets[floor(random(leadSynthPresets.length))];
@@ -265,7 +376,6 @@ function NewScore() {
 				//syn.amp = .25;
 				syn.attack = 1/4;
 				syns.push(syn); 
-				//follows.push(syn);
 				if (i == 0) {
 					syn.pan(.25);
 				}
@@ -395,11 +505,10 @@ function WholeBeetsReturnn(mul) {
 	var scoreBeets = [], sum;
 
 	for (var i = 0; i < 36; i++) {
-		var b = beets[floor(random(3,beets.length))] * mul;
-		scoreBeets.push(b);
+		scoreBeets.push(beets[floor(random(3, beets.length))] * mul);
 
 		sum = scoreBeets.reduce(add, 0 );
-		console.log(sum + " . " + i + " . " + b);
+		console.log(sum);
 		if (sum >= 2.5) { 
 
 
@@ -445,6 +554,25 @@ var melodyReturn = function (oct, lowRange, highRange) {
     // public
 };
 
+function transparencyUpdate (objects, camera){
+	// update camera matrices
+	camera.updateMatrixWorld()
+	camera.matrixWorldInverse.getInverse( camera.matrixWorld )
+
+	var screenMatrix= new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+	var position	= new THREE.Vector3()
+	
+	// traverse the object
+	objects.forEach(function(object){
+		// update the matrixWorld of the object and its children
+		object.updateMatrixWorld()
+		// compute its position in screen space 
+		position.setFromMatrixPosition( object.matrixWorld );
+		position.applyProjection( screenMatrix );
+		// use the position.x as renderDepth
+		object.renderDepth	= position.z;
+	})
+}
 scene.add(camera);
 
 
@@ -454,71 +582,71 @@ scene.add(camera);
 renderer.shadowMapEnabled = false;
  var clock = new THREE.Clock()
 
-// function render() {
+function render() {
 
-// 	//var theta;
-// 	//CheckTheTime(minute());
-// 	// noStroke();
-//  //    fill(bgCol);
-//  //    rect(0, 0, width, height); 
-//  	transparencyUpdate(transObjects, camera);
-//      //if (go) {
-//      //	var p0 = pieces[0], p1 = pieces[1];
-//      	//if (cubeGo == 0){
-//      		theta += .01;
-//      		//camera.rotation.z = theta;
-//      		//var hug;
-//      		 // console.log();
-//      		//bgPlane.material.opacity = .1 +  (follows[0].getValue() * .25);
-//      		  //	camera.rotation. = theta / i;
-//     		//for (var i = 0; i < follows.length; i++){
+	//var theta;
+	//CheckTheTime(minute());
+	// noStroke();
+ //    fill(bgCol);
+ //    rect(0, 0, width, height); 
+ 	transparencyUpdate(transObjects, camera);
+ //    if (go) {
+  //    	var p0 = pieces[0], p1 = pieces[1];
+  //    	if (cubeGo == 0){
+  //    		theta += .01;
+  //    		//camera.rotation.z = theta;
+  //    		//var hug;
+  //    		 // console.log();
+  //    		bgPlane.material.opacity = .1 +  (p0.publicBusFol[0].getValue() * .25);
+  //    		  //	camera.rotation. = theta / i;
+  //   		for (var i = 0; i < p0.publicFols.length; i++){
 				
-// 				//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
-// 				//        if width greater than height, use wh * value, otherwise use ww2 * value
-// 			  	//objects[i].scale.x = 6 + p0.publicFols[i].getValue() * 10;
-// 			  //	console.log(p0.publicBusFol.getValue());
+		// 		//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
+		// 		//        if width greater than height, use wh * value, otherwise use ww2 * value
+		// 	  	//objects[i].scale.x = 6 + p0.publicFols[i].getValue() * 10;
+		// 	  //	console.log(p0.publicBusFol.getValue());
 
-// 			  	// objects[i].scale.x = 1 + i + follows[i].getValue() * 25;
-// 			  	// objects[i].scale.y = 1 + i + follows[i].getValue() * 100;
-// 			   //  objects[i].material.opacity = opaqueFloor + follows[i].getValue() * 4.5;
-// 			    //objects[i].position.y = 500 - (p0.publicFols[i].getValue() * 3200);
-// 			     //objects[i].rotation.z = (theta * i) * Math.PI/180 ;
-// 			    // if (!cloudy && !rain) {
+		// 	  	objects[i].scale.x = 1 + i + p0.publicFols[i].getValue() * 25;
+		// 	  	objects[i].scale.y = 1 + i + p0.publicFols[i].getValue() * 100;
+		// 	    objects[i].material.opacity = opaqueFloor + p0.publicFols[i].getValue() * 4.5;
+		// 	    //objects[i].position.y = 500 - (p0.publicFols[i].getValue() * 3200);
+		// 	     //objects[i].rotation.z = (theta * i) * Math.PI/180 ;
+		// 	    // if (!cloudy && !rain) {
 			     	
-// 			     	// if (i > 1) {
-// 			     	// 	objects[i].scale.z = 1 + p0.publicFols[i].getValue() * 50;
-// 			     	// 	objects[i].rotation.x = theta;
-// 			     	// }
-// 			    	//objects[i].rotation.x = theta * i;
+		// 	     	// if (i > 1) {
+		// 	     	// 	objects[i].scale.z = 1 + p0.publicFols[i].getValue() * 50;
+		// 	     	// 	objects[i].rotation.x = theta;
+		// 	     	// }
+		// 	    	//objects[i].rotation.x = theta * i;
 			     
-// 			    // }
-// 			    //objects[i].rotation.z = theta;
-// 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
-// 				// CoolSquare(col, value, ww2, wh, radius  );
-// 		//	} for loop
-// 	//	}
-// 		//else if (cubeGo == 1){
-// 			//for (var i = 0; i < p1.publicFols.length; i++) {
-// 				// var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
-// 			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
-// 			// objects[i].scale.x = .125 + p1.publicFols[i].getValue() * 10;
-// 			 //    console.log(p1.publicFols[i].value + i);
-// 				//CoolSquare(col, value, ww2, wh, radius  );
-// 			//}
-// 		//}
-// 	//}
-//     var delta = clock.getDelta();
-//     composer.render(delta);
-//    // requestAnimationFrame(render);
-//      setTimeout( function() {
+		// 	    // }
+		// 	    //objects[i].rotation.z = theta;
+		// 	 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
+		// 		// CoolSquare(col, value, ww2, wh, radius  );
+		// 	}
+		// }
+	//	else if (cubeGo == 1){
+	//		for (var i = 0; i < p1.publicFols.length; i++) {
+				// var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
+			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
+			// objects[i].scale.x = .125 + p1.publicFols[i].getValue() * 10;
+			 //    console.log(p1.publicFols[i].value + i);
+				//CoolSquare(col, value, ww2, wh, radius  );
+	//		}
+	//	}
+//	}
+    var delta = clock.getDelta();
+    composer.render(delta);
+   // requestAnimationFrame(render);
+     setTimeout( function() {
     	
     	
-// //     	//var fr = frameRate.fr;
-// //     	 //parameter must be set with render
-//          requestAnimationFrame( render );
+//     	//var fr = frameRate.fr;
+//     	 //parameter must be set with render
+         requestAnimationFrame( render );
 
-//     }, 3750/60 );
-// }
-// render();
+    }, 3750/60 );
+}
+render();
 
 
