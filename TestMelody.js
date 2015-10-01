@@ -138,22 +138,37 @@ var planeMaterial = new THREE.ShaderMaterial( {
 
 //Create plane
 var geometry = new THREE.PlaneGeometry(2800*2, 2600,1,1);
-var bgCol = new THREE.Color(0xfe8f22);
-var vat = new THREE.MeshLambertMaterial({color: bgCol});
-var plane = new THREE.Mesh(geometry, planeMaterial);
+var bgCol = new THREE.Color(0x0066FF);
+var vat = new THREE.MeshPhongMaterial({color: bgCol});
+var plane = new THREE.Mesh(geometry, vat);
 plane.position.z = - 2000;
 scene.add(plane);
 
-var light = new THREE.SpotLight(0xfefe22);
-light.intensity = 2;
-light.position.y = 0;
-light.position.z = 1500;
+var light = new THREE.PointLight(0xfefe22);
+light.distance = 6000;
+light.intensity = .25;
+light.position.y = 1500;
+light.position.z = 2500;
+light.position.x = -1000;
 
 TweenMax.to(light, 5, { intensity: Math.random(),  ease: RoughEase.ease.config({template:Quad.easeIn}), onComplete:LightMove } );
 function LightMove () {
-	TweenMax.to(light, 5, { intensity: Math.random() * 3 , 
+	TweenMax.to(light, 2, { intensity: Math.random(), 
   	 ease: RoughEase.ease.config({template:Quad.easeIn}),
   	repeat:-1, onComplete:LightMove})
+}
+
+var light2 = new THREE.PointLight(0xff33cc);
+light2.intensity = .25;
+light2.position.y = -1500;
+light2.position.z = 2500;
+light2.position.x = 1000;
+
+TweenMax.to(light2, 5, { intensity: Math.random(),  ease: RoughEase.ease.config({template:Quad.easeIn}), onComplete:LightMove2 } );
+function LightMove2 () {
+	TweenMax.to(light2.position, 2, { x: -2000 +  Math.random() * 4000, 
+  	 ease: RoughEase.ease.config({template:Quad.easeIn}),
+  	repeat:-1, onComplete:LightMove2})
 }
 // TweenMax.to(camera.position, 5, {y: -800 + Math.random() * 800, x: -800 + Math.random() * 800, ease: SteppedEase.config(6), onComplete:CameraMove});
 // function CameraMove () {
@@ -162,6 +177,7 @@ function LightMove () {
 //   	repeat:-1, yoyo:true, onComplete:CameraMove})
 // }
 scene.add(light);
+scene.add(light2);
 
 var SphereCreate = function (parent) {
 
