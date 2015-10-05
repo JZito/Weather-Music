@@ -34,47 +34,47 @@ var theta = 0;
 var renderPass = new THREE.RenderPass(scene, camera);
 var composer = new THREE.EffectComposer(renderer);
 
+var windowResize = THREEx.WindowResize(renderer, camera);
+
 // create a point light
 //var spotLight = new THREE.PointLight( 0xFFFFFF );
 // var pointLight = new THREE.PointLight( 0x99FFFF);
 // pointLight.intensity = .15;
-var ambientLight = new THREE.PointLight( 0x404040);
-scene.add(ambientLight);
-ambientLight.intensity = .2;
-// camera.add(spotLight);
 
-
-// set its position
-// spotLight.position.x = 10;
-// spotLight.position.y = 60;
-// spotLight.position.z = 500;
-//pointLight.position.z = 3;
-
-// add to the scene
-// scene.add(pointLight);
-// scene.add(spotLight);
 
 composer.addPass(renderPass);
-// the camera starts at 0,0,0 so pull it back
-camera.position.z = 0;
-camera.position.x = 0;
-camera.position.y = 0;
-
 
 // start the renderer
 renderer.setSize(WIDTH, HEIGHT);
+renderer.autoClear = false;
 
 //1. BloomPass: blurry, glowing effect
-var bloomPass = new THREE.BloomPass(5, 25, 10, 130);
+var bloomPass = new THREE.BloomPass(5, 125, 20, 64);
 composer.addPass(bloomPass);
-bloomPass.clear = true;
+//bloomPass.clear = true;
+
+// hblur = new THREE.ShaderPass(THREE.HorizontalTiltShiftShader);
+// vblur = new THREE.ShaderPass(THREE.VerticalTiltShiftShader);
+// var bluriness = 5;
+
+// hblur.uniforms['h'].value = bluriness / window.innerWidth;
+// vblur.uniforms['v'].value = bluriness / window.innerHeight;
+// hblur.uniforms['r'].value = vblur.uniforms['r'].value = 0.5;
+
+// composer.addPass(hblur);
+// composer.addPass(vblur);
 
 // var mirrorPass = new THREE.ShaderPass( THREE.MirrorShader );
 // composer.addPass(mirrorPass);
-// mirrorPass.uniforms.side.value = 1;
+// mirrorPass.uniforms.side.value = 3;
+
+vignettePass = new THREE.ShaderPass(THREE.VignetteShader);
+vignettePass.uniforms["darkness"].value = .95;
+vignettePass.uniforms["offset"].value = 1.5;
+composer.addPass(vignettePass);
 
 // 2. EffectFilm, which output the result in an old style TV screen fashion (with thin colourful stripes):
-var effectFilm = new THREE.FilmPass(0.8, 0.325, 256, false);
+var effectFilm = new THREE.FilmPass(1, 0.325, 256, false);
 effectFilm.renderToScreen = true;
 composer.addPass(effectFilm);
 
@@ -141,40 +141,45 @@ var planeMaterial = new THREE.ShaderMaterial( {
 
 //Create plane
 var geometry = new THREE.PlaneBufferGeometry(2800*2, 2600,1,1);
-var bgCol = new THREE.Color(0x0066FF);
-var vat = new THREE.MeshPhongMaterial({color: bgCol});
+var bgCol = new THREE.Color(0x00ffff);
+var vat = new THREE.MeshPhongMaterial({color: bgCol, shininess: 3, shading: THREE.FlatShading});
 vat.blending = THREE.AdditiveBlending;
 var plane = new THREE.Mesh(geometry, vat);
 plane.position.z = - 2000;
 scene.add(plane);
 
-var light = new THREE.DirectionalLight(0xfefe22);
+var light = new THREE.DirectionalLight(0xA67A33);
 light.distance = 6000;
 light.intensity = .25;
-light.position.y = -1500;
-light.position.z = 2500;
-light.position.x = -3000;
+light.position.y = 9500;
+light.position.z = 1200;
+light.position.x = 3000;
 
-TweenMax.to(light.position, 5, { y: Math.random(),  ease: RoughEase.ease.config({template:Quad.easeIn}), onComplete:LightMove } );
-function LightMove () {
-	TweenMax.to(light.position, 2, { y: -2000 + Math.random() * 4000, 
-  	 ease: RoughEase.ease.config({template:Quad.easeIn}),
-  	onComplete:LightMove})
-}
+// TweenMax.to(light.position, 5, { y: Math.random(),  ease: RoughEase.ease.config({template:Quad.easeIn}), onComplete:LightMove } );
+// function LightMove () {
+// 	TweenMax.to(light.position, 2, { y: -2000 + Math.random() * 4000, 
+//   	 ease: RoughEase.ease.config({template:Quad.easeIn}),
+//   	onComplete:LightMove})
+// }
 
-var light2 = new THREE.DirectionalLight(0xff33cc);
+var light2 = new THREE.DirectionalLight(0x205D66);
 light.distance = 6000;
 light2.intensity = .25;
-light2.position.y = -1500;
-light2.position.z = 2500;
-light2.position.x = 3000;
+light2.position.y = -9500;
+light2.position.z = 1200;
+light2.position.x = -3000;
 
-TweenMax.to(light2.position, 5, { y: Math.random(),  ease: RoughEase.ease.config({template:Quad.easeIn}), onComplete:LightMove2 } );
-function LightMove2 () {
-	TweenMax.to(light2.position, 2, { y: -2000 +  Math.random() * 4000, 
-  	 ease: RoughEase.ease.config({template:Quad.easeIn}),
-  	onComplete:LightMove2})
-}
+
+var ambientLight = new THREE.PointLight( 0x2E3573);
+camera.add(ambientLight);
+scene.add(ambientLight);
+ambientLight.intensity = .2;
+// TweenMax.to(light2.position, 5, { y: Math.random(),  ease: RoughEase.ease.config({template:Quad.easeIn}), onComplete:LightMove2 } );
+// function LightMove2 () {
+// 	TweenMax.to(light2.position, 2, { y: -2000 +  Math.random() * 4000, 
+//   	 ease: RoughEase.ease.config({template:Quad.easeIn}),
+//   	onComplete:LightMove2})
+// }
 // TweenMax.to(camera.position, 5, {y: -800 + Math.random() * 800, x: -800 + Math.random() * 800, ease: SteppedEase.config(6), onComplete:CameraMove});
 // function CameraMove () {
 // 	TweenMax.to(camera.position, 5, { x: -800 + Math.random() * 800, y:  -800 + Math.random() * 800,
@@ -288,7 +293,7 @@ var ranNotes = [12,11,9,7,5,4,2,0,-1], f,
 beets = [, , , 1, 1/1.5, 1/2, 1/2, 1/2,1/2,1/3, 1/6, 1/4, 1/6, 1/4,1/3, 1/3,1/6], beepEM = 60,
 bR, nR, bR2, nR2, repeatCount = 1, stopper, syns = [], triggerNewMelody = false;
 
-var leadSynthPresets = ['bleepEcho', 'bleep', 'rhodesFade', 'rhodes', 'warble', 'squareLead' ];
+var leadSynthPresets = ['bleepEcho', 'bleep', 'rhodesFade', 'rhodes', 'warble', 'triLead' ];
 
 function setup () {
 	bR = WholeBeetsReturn(.5, floor(random(1,12))),
@@ -296,12 +301,14 @@ function setup () {
 			nR2 = NotesReturn(bR2.length);
 	canvas = createCanvas( windowWidth, windowHeight );
 	Clock.bpm(beepEM)
-	songBus = Bus().fx.add( HPF({cutoff:.2}),StereoVerb('space'),Schizo('borderline'),
-		Delay({time:1/2, feedback:.95, dry:0, wet:1}),StereoVerb('large'),Gain({amp:5})  )
-	syn0Bus = Bus().fx.add( Delay('endless') );
-	syn1Bus = Bus().fx.add ( Delay('endless') );
-	syn0Bus.pan(.5);
-	syn1Bus.pan(-.5);
+	songBus = Bus().fx.add( HPF({cutoff:.2, amp:1}),StereoVerb('space'),Schizo('borderline'),
+		Delay({time:1/2, feedback:.95, dry:0, wet:1}),StereoVerb('large'),Distortion(50)  )
+	syn0Bus = Bus().fx.add( Distortion(5), Delay('endless') );
+	syn1Bus = Bus().fx.add ( Distortion(5), Delay('endless') );
+	syn0Bus.pan(.35);
+	syn0Bus.amp(1);
+	syn1Bus.pan(-.35);
+	syn1Bus.amp(1);
 	//drum = XOX('x       *               *       x       *               *     -*', 1/32);
 	// sine = Sine(.05, 2);
 	// sine._;
@@ -351,11 +358,15 @@ function draw () {
  //  	console.log(light.position.z);
   	//console.log(songBus.fx[4].roomsize + "room 2");
   	//console.log(songBus.fx[3].feedback + "feedback");
-
   	light.intensity = follow0.getValue() * 2;
   	light2.intensity = follow1.getValue() * 2;
-  	ambientLight.intensity = follow2.getValue() * 2;
-  	console.log (" . . " + light.intensity + " . . " + light2.intensity + " . . " + ambientLight.intensity);
+  	ambientLight.intensity = follow2.getValue() * 2 + .025;
+ //  	if (notes) {
+ //  		light.position.y = -4000 + (followSyn0.getValue() * 2000);
+	// light2.position.y = -4000 + (followSyn1.getValue() * 2000);
+ //  	}
+  	
+  	//console.log (" . . " + light.intensity + " . . " + light2.intensity + " . . " + ambientLight.intensity);
 }
 function add(a, b) {
 	return a + b;
@@ -416,9 +427,10 @@ function NewScore() {
 			syns.length = 0;
 		}
 		else if (count == 5) {
+			var s = leadSynthPresets[floor(random(leadSynthPresets.length))];
 			//oldSyns.length = 0;
 			for (i = 0; i < synsLength; i++) {
-				var s = leadSynthPresets[floor(random(leadSynthPresets.length))];
+				
 				var syn = Synth(s);
 				//syn.amp = .25;
 				syn.attack = 1/4;
@@ -426,11 +438,13 @@ function NewScore() {
 				if (i == 0) {
 
 					//syn.pan(.25);
+					console.log("follow 0");
 					syn.connect(syn0Bus);
 					console.log(" 0 " + syn.pan) 
 				}
 				else if (i == 1) {
 					//syn.pan (-.25);
+					console.log("follow 1");
 					syn.connect(syn1Bus);
 				}
 				//syn.send(songBus, .85)
@@ -451,7 +465,7 @@ function CoinReturn() {
 }
 
 
-setInterval(NewScore, 30000)
+setInterval(NewScore, 60000)
 
 function WholeBeetsReturn(mul, len) {
 	//multiplier is to double, quadruple etc beat lengths
@@ -624,6 +638,8 @@ function render() {
 	//	}
 //	}
     var delta = clock.getDelta();
+    renderer.clear();
+
     composer.render(delta);
    // requestAnimationFrame(render);
      setTimeout( function() {

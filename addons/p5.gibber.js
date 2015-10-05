@@ -4181,17 +4181,18 @@ Float. Default = .5. The amount of dry signal that is output
 Gibberish.StereoReverb = function() {
   var tuning =	{
 		    combCount: 		    8,
-		    combTuning: 	    [1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617],
-                          
+		    // combTuning: 	    [1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617],
+          combTuning:       [1046, 1174, 1318, 1396, 1568, 1760, 1975, 2093],                  
 		    allPassCount: 	  4,
-		    allPassTuning: 	  [556, 441, 341, 225],
-		    allPassFeedback:  0.5,
+		   // allPassTuning: 	  [556, 441, 341, 225],
+		    allPassTuning: [  831, 495, 370, 277],
+        allPassFeedback:  0.95,
                           
-		    fixedGain: 		    0.015,
-		    scaleDamping: 	  0.4,
+		    fixedGain: 		    0.0175,
+		    scaleDamping: 	  0.2,
                           
-		    scaleRoom: 		    0.28,
-		    offsetRoom: 	    0.7,
+		    scaleRoom: 		    0.98,
+		    offsetRoom: 	    0.37,
                           
 		    stereoSpread: 	  23
 		},
@@ -12262,7 +12263,7 @@ module.exports = function( Gibber ) {
       presetInit: function() {this.fx.add( Gibber.Audio.FX.Crush('littleBit'), Gibber.Audio.FX.Flanger(), Gibber.Audio.FX.Tremolo(1/6, .75)    )   }
 
     },
-    triLead: { waveform:'Triangle', amp: .5, maxVoices:1, useADSR: true, attack:1/3, decay:1, release:1/4,glide:.95,
+    triLead: { waveform:'Triangle', amp: .5, maxVoices:1, useADSR: true, attack:1/1.5, decay:1, release:1/4,glide:.95,
                       requireReleaseTrigger: false, 
       presetInit: function() {this.fx.add( Gibber.Audio.FX.Vibrato(random(2), random(.65)),Gibber.Audio.FX.Crush('littleBit'),  Gibber.Audio.FX.Tremolo(2, .25))}
 
