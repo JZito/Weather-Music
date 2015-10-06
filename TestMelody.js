@@ -15,6 +15,7 @@ var $container = $('#container');
 var objects = [], transObjects = [];
 // opaquefloor determines amount of opacity volume sensitivity
 var opaqueFloor = 0;
+var theta;
 
 // create a WebGL renderer, camera
 // and a scene
@@ -113,13 +114,13 @@ var planeMaterial = new THREE.ShaderMaterial( {
 } );
 
 //Create plane
-var mesh = new THREE.SphereGeometry(50,16,16);
-var bgCol = new THREE.Color(0x00ffff);
-var vat = new THREE.MeshPhongMaterial({color: bgCol, shininess: 30, shading: THREE.FlatShading});
+var mesh = new THREE.SphereGeometry(50,5,16);
+var bgCol = new THREE.Color(0xffffff);
+var vat = new THREE.MeshPhongMaterial({color: bgCol, shininess: 3, shading: THREE.FlatShading});
 vat.blending = THREE.AdditiveBlending;
 var plane = new THREE.Mesh(mesh, vat);
 plane.position.z = - 500;
-plane.position.x = -100;
+plane.position.x = -50;
 plane.position.y = 0;
 plane.scale.x = 5;
 plane.scale.y = 5;
@@ -127,18 +128,18 @@ plane.scale.z = 5;
 scene.add(plane);
 
 var light = new THREE.DirectionalLight(0xA67A33);
-light.distance = 6000;
+light.distance = 3000;
 light.intensity = .25;
-light.position.y = 9500;
+light.position.y = 0;
 light.position.z = 1200;
-light.position.x = 3000;
+light.position.x = -2000;
 
 var light2 = new THREE.DirectionalLight(0x205D66);
-light.distance = 6000;
+light.distance = 3000;
 light2.intensity = .25;
-light2.position.y = -9500;
+light2.position.y = 0;
 light2.position.z = 1200;
-light2.position.x = -3000;
+light2.position.x = 2000;
 
 
 var ambientLight = new THREE.PointLight( 0x2E3573);
@@ -220,9 +221,17 @@ function draw () {
  //  	console.log(light.position.z);
   	//console.log(songBus.fx[4].roomsize + "room 2");
   	//console.log(songBus.fx[3].feedback + "feedback");
-  	light.intensity = follow0.getValue() * 20;
-  	light2.intensity = follow1.getValue() * 20;
-  	ambientLight.intensity = follow2.getValue() * 2 + .25;
+  	light.intensity = follow0.getValue() * 2;
+  	light2.intensity = follow1.getValue() * 2;
+  	ambientLight.intensity = follow2.getValue() * 5 + .05;
+  	theta += .005 + (follow2.getValue() * .5);
+  	console.log(theta);
+  	plane.rotation.z = theta;
+  	plane.rotation.x = theta - (2*theta);
+  	// plane.rotation.y = theta * 2;
+  	// plane.rotation.z = theta * .5;
+  	// light2.rotation.y = theta * .5;
+  	// light.rotation.y = theta * .5;
  //  	if (notes) {
  //  		light.position.y = -4000 + (followSyn0.getValue() * 2000);
 	// light2.position.y = -4000 + (followSyn1.getValue() * 2000);
