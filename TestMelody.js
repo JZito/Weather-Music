@@ -47,11 +47,13 @@ composer.addPass(renderPass);
 // start the renderer
 renderer.setSize(WIDTH, HEIGHT);
 renderer.autoClear = false;
+renderer.shadowMapEnabled = false;
+
 
 //1. BloomPass: blurry, glowing effect
 var bloomPass = new THREE.BloomPass(5, 125, 20, 64);
 composer.addPass(bloomPass);
-//bloomPass.clear = true;
+bloomPass.clear = true;
 
 // hblur = new THREE.ShaderPass(THREE.HorizontalTiltShiftShader);
 // vblur = new THREE.ShaderPass(THREE.VerticalTiltShiftShader);
@@ -68,10 +70,10 @@ composer.addPass(bloomPass);
 // composer.addPass(mirrorPass);
 // mirrorPass.uniforms.side.value = 3;
 
-vignettePass = new THREE.ShaderPass(THREE.VignetteShader);
-vignettePass.uniforms["darkness"].value = .95;
-vignettePass.uniforms["offset"].value = 1.5;
-composer.addPass(vignettePass);
+// vignettePass = new THREE.ShaderPass(THREE.VignetteShader);
+// vignettePass.uniforms["darkness"].value = .95;
+// vignettePass.uniforms["offset"].value = 1.5;
+// composer.addPass(vignettePass);
 
 // 2. EffectFilm, which output the result in an old style TV screen fashion (with thin colourful stripes):
 var effectFilm = new THREE.FilmPass(1, 0.325, 256, false);
@@ -96,37 +98,8 @@ $container.append(renderer.domElement);
 // set up the sphere vars
 var radius = 50, segments = 16, rings = 16;
 
-//try a background mesh
-//var boxBack = new Three.Mesh( new THREE.Plane)
-
-// create a new mesh with sphere geometry -
-// we will cover the sphereMaterial next!
 var col = new THREE.Color(0xFF0000);
 
-// function createOriginalObjects () {
-// 	for (i = 0; i < 2; i++) {
-// 		var i5 = (i*525) - 750;
-// 		var mesh = new THREE.SphereGeometry(50,5,20);
-// 		var mat = new THREE.MeshPhongMaterial( {color:col});
-// 		var sphere = new THREE.Mesh( mesh, mat );
-// 		sphere.position.x = i * 299;
-// 		sphere.scale.y = i5;
-// 		sphere.position.z = 800;
-// 		sphere.material.color.setHSL(.14,i,.5);
-// 		sphere.material.transparent	= true;
-// 		sphere.material.opacity = 0;
-// 		sphere.material.depthWrite	= false;
-// 		//sphere.mesh.geometry.dynamic = true;
-// 		objects.push(sphere);
-// 		scene.add(sphere);
-// 		transObjects.push(sphere);
-// 		//sphere.material.color.b = (i*.05);
-// 	}
-	
-	
-// }
-
-//Define camera
 
 //Plane material
 var uniforms = {
@@ -140,12 +113,17 @@ var planeMaterial = new THREE.ShaderMaterial( {
 } );
 
 //Create plane
-var geometry = new THREE.PlaneBufferGeometry(2800*2, 2600,1,1);
+var mesh = new THREE.SphereGeometry(50,16,16);
 var bgCol = new THREE.Color(0x00ffff);
-var vat = new THREE.MeshPhongMaterial({color: bgCol, shininess: 3, shading: THREE.FlatShading});
+var vat = new THREE.MeshPhongMaterial({color: bgCol, shininess: 30, shading: THREE.FlatShading});
 vat.blending = THREE.AdditiveBlending;
-var plane = new THREE.Mesh(geometry, vat);
-plane.position.z = - 2000;
+var plane = new THREE.Mesh(mesh, vat);
+plane.position.z = - 500;
+plane.position.x = -100;
+plane.position.y = 0;
+plane.scale.x = 5;
+plane.scale.y = 5;
+plane.scale.z = 5;
 scene.add(plane);
 
 var light = new THREE.DirectionalLight(0xA67A33);
@@ -154,13 +132,6 @@ light.intensity = .25;
 light.position.y = 9500;
 light.position.z = 1200;
 light.position.x = 3000;
-
-// TweenMax.to(light.position, 5, { y: Math.random(),  ease: RoughEase.ease.config({template:Quad.easeIn}), onComplete:LightMove } );
-// function LightMove () {
-// 	TweenMax.to(light.position, 2, { y: -2000 + Math.random() * 4000, 
-//   	 ease: RoughEase.ease.config({template:Quad.easeIn}),
-//   	onComplete:LightMove})
-// }
 
 var light2 = new THREE.DirectionalLight(0x205D66);
 light.distance = 6000;
@@ -171,122 +142,13 @@ light2.position.x = -3000;
 
 
 var ambientLight = new THREE.PointLight( 0x2E3573);
-camera.add(ambientLight);
-scene.add(ambientLight);
+
 ambientLight.intensity = .2;
-// TweenMax.to(light2.position, 5, { y: Math.random(),  ease: RoughEase.ease.config({template:Quad.easeIn}), onComplete:LightMove2 } );
-// function LightMove2 () {
-// 	TweenMax.to(light2.position, 2, { y: -2000 +  Math.random() * 4000, 
-//   	 ease: RoughEase.ease.config({template:Quad.easeIn}),
-//   	onComplete:LightMove2})
-// }
-// TweenMax.to(camera.position, 5, {y: -800 + Math.random() * 800, x: -800 + Math.random() * 800, ease: SteppedEase.config(6), onComplete:CameraMove});
-// function CameraMove () {
-// 	TweenMax.to(camera.position, 5, { x: -800 + Math.random() * 800, y:  -800 + Math.random() * 800,
-//   	ease: SteppedEase.config(24),
-//   	repeat:-1, yoyo:true, onComplete:CameraMove})
-// }
+
 scene.add(light);
 scene.add(light2);
-
-// var SphereCreate = function (parent) {
-
-	
-// 	//var i5 = (i*225) - 350;
-// 	//console.log(parent);
-// 	var tweenDir;
-// 	//color of object that called it
-// 		//partially transparent?
-// 	//	console.log(parent);
-// 	var col = parent.material.color.getHex();
-// 	//console.log("col" + col);
-// 	var sph = parent.clone();
-// 	sph.material.opacity = 0;
-// 	//position of object that called it
-// 	sph.scale.y = parent.scale.y;
-// 	sph.scale.x = parent.scale.x;
-// 	sph.position.x = parent.position.x;
-// 	sph.rotation.z = parent.rotation.z;
-
-// 	sph.scale.x = parent.scale.x;
-// 	//sph.scale.y = window.innerHeight;
-// 	if (rain) {
-// 		tweenDir = parent.position.z + Math.random() * 2000 - 1000;
-// 	}
-// 	else if (!rain) {
-// 		tweenDir = -800 + Math.random() * 800;
-// 	}
-
-// 	scene.add(sph);
-// 	transObjects.push(sph);
-// 	//console.log(sph.position.x + sph + "sphere");
-// 	//var p = 12;
-// 	if (cloudy) {
-// 		TweenMax.to(sph.material, .1, {opacity:.1,
-//   		ease:  SteppedEase.config(6)} );
-//   		TweenMax.to(sph.position, 2, {z: -300 + Math.random() * 1000, y:-30 + Math.random() * 100,
-//   		ease: SteppedEase.config(24),
-//   		yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
-// 	}if (rain) {
-// 		TweenMax.to(sph.material, (7000/beepEM) * .01 , {opacity:.5,
-//   		ease:  SteppedEase.config(6)} );
-// 		TweenMax.to(sph.position, (7000/beepEM) * .01, {z: -Math.random() * 3000, y: Math.random() * 500 - 1000,
-//   		ease: SteppedEase.config(24),
-//   		yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
-// 	}
-// 	else if (!cloudy && ! rain) {
-// 		TweenMax.to(sph.material, .1, {opacity:.75,
-//   		ease:  SteppedEase.config(6), yoyo:true} );
-// 		TweenMax.to(sph.position, 2, {z: -300 + Math.random() * 1000, x:-1000 + Math.random() * 1500,
-//   		ease: SteppedEase.config(24),
-//   		yoyo:false, onComplete:KillSphere, onCompleteParams:[sph] } );
-// 	}
-	
-// 	// TweenMax.to(sph.rotation, .5, {x: -300 + Math.random() * 1000, y:p++,
-//  //  	ease: SteppedEase.config(5),
-//  //  	yoyo:false, } );
-
-	
-
-// }
-
-var FadeInPad = function (parent, time) {
-	var wholeBeat = 60/beepEM;
-
-	TweenMax.to(parent.material, wholeBeat * time, {opacity:.65,
-  	ease:RoughEase.ease.config({template:Quad.easeIn}), onComplete:tweenToZero, onCompleteParams: [parent, time] });
-  	console.log( "fade in pad" + parent + " " + time)
-}
-
-function tweenToZero (parent, time) {
-	//console.log(parent)
-	var wholeBeat = 60/beepEM;
-	TweenMax.to(parent.material, wholeBeat * time, {opacity:0,
-  	ease:RoughEase.ease.config({template:Quad.easeIn}) });
-  	console.log( "fade in pad" + parent + " " + time)
-}
-
-function BloomFade () {
-	TweenMax.to(bloomPass, 15, {strength: 1, kernelSize : 25,
-		sigma: 4, resolution: 256,
-
-  	ease: SteppedEase.config(240),
-  	repeat:-1, yoyo:true, onComplete:BloomFade})
-}
-
-function KillSphere(s) {
-	//remove sphere from scene, stop 'seek'uence
-	scene.remove(s);
-	//seek.stop();
-}
-
-function FadeOutPad (parent, time) {
-	var wholeBeat = 60/beepEM;
-	TweenMax.to(parent.material, wholeBeat * time, {opacity:0,
-  	ease:  SteppedEase.config(24)} );
-}
-
-
+camera.add(ambientLight);
+scene.add(ambientLight);
 
 // sandbox
 var ranNotes = [12,11,9,7,5,4,2,0,-1], f,
@@ -301,8 +163,8 @@ function setup () {
 			nR2 = NotesReturn(bR2.length);
 	canvas = createCanvas( windowWidth, windowHeight );
 	Clock.bpm(beepEM)
-	songBus = Bus().fx.add( HPF({cutoff:.2, amp:1}),StereoVerb('space'),Schizo('borderline'),
-		Delay({time:1/2, feedback:.95, dry:0, wet:1}),StereoVerb('large'),Distortion(50)  )
+	songBus = Bus().fx.add( HPF({cutoff:.2, amp:1}),StereoVerb('totalWet'),Schizo('borderline'),
+		Delay({time:1/2, feedback:.95, dry:0, wet:1}),StereoVerb('space'),Distortion(50)  )
 	syn0Bus = Bus().fx.add( Distortion(5), Delay('endless') );
 	syn1Bus = Bus().fx.add ( Distortion(5), Delay('endless') );
 	syn0Bus.pan(.35);
@@ -358,9 +220,9 @@ function draw () {
  //  	console.log(light.position.z);
   	//console.log(songBus.fx[4].roomsize + "room 2");
   	//console.log(songBus.fx[3].feedback + "feedback");
-  	light.intensity = follow0.getValue() * 2;
-  	light2.intensity = follow1.getValue() * 2;
-  	ambientLight.intensity = follow2.getValue() * 2 + .025;
+  	light.intensity = follow0.getValue() * 20;
+  	light2.intensity = follow1.getValue() * 20;
+  	ambientLight.intensity = follow2.getValue() * 2 + .25;
  //  	if (notes) {
  //  		light.position.y = -4000 + (followSyn0.getValue() * 2000);
 	// light2.position.y = -4000 + (followSyn1.getValue() * 2000);
@@ -438,7 +300,7 @@ function NewScore() {
 				if (i == 0) {
 
 					//syn.pan(.25);
-					console.log("follow 0");
+					//console.log("follow 0");
 					syn.connect(syn0Bus);
 					console.log(" 0 " + syn.pan) 
 				}
@@ -581,73 +443,20 @@ function transparencyUpdate (objects, camera){
 
 // draw!
 
-renderer.shadowMapEnabled = false;
- var clock = new THREE.Clock()
+var clock = new THREE.Clock()
 
 function render() {
+	transparencyUpdate(transObjects, camera);
 
-	//var theta;
-	//CheckTheTime(minute());
-	// noStroke();
- //    fill(bgCol);
- //    rect(0, 0, width, height); 
- 	transparencyUpdate(transObjects, camera);
- //    if (go) {
-  //    	var p0 = pieces[0], p1 = pieces[1];
-  //    	if (cubeGo == 0){
-  //    		theta += .01;
-  //    		//camera.rotation.z = theta;
-  //    		//var hug;
-  //    		 // console.log();
-  //    		bgPlane.material.opacity = .1 +  (p0.publicBusFol[0].getValue() * .25);
-  //    		  //	camera.rotation. = theta / i;
-  //   		for (var i = 0; i < p0.publicFols.length; i++){
-				
-		// 		//var value = p0.publicFols[i].getValue() * mult[i], col = colors[i],
-		// 		//        if width greater than height, use wh * value, otherwise use ww2 * value
-		// 	  	//objects[i].scale.x = 6 + p0.publicFols[i].getValue() * 10;
-		// 	  //	console.log(p0.publicBusFol.getValue());
-
-		// 	  	objects[i].scale.x = 1 + i + p0.publicFols[i].getValue() * 25;
-		// 	  	objects[i].scale.y = 1 + i + p0.publicFols[i].getValue() * 100;
-		// 	    objects[i].material.opacity = opaqueFloor + p0.publicFols[i].getValue() * 4.5;
-		// 	    //objects[i].position.y = 500 - (p0.publicFols[i].getValue() * 3200);
-		// 	     //objects[i].rotation.z = (theta * i) * Math.PI/180 ;
-		// 	    // if (!cloudy && !rain) {
-			     	
-		// 	     	// if (i > 1) {
-		// 	     	// 	objects[i].scale.z = 1 + p0.publicFols[i].getValue() * 50;
-		// 	     	// 	objects[i].rotation.x = theta;
-		// 	     	// }
-		// 	    	//objects[i].rotation.x = theta * i;
-			     
-		// 	    // }
-		// 	    //objects[i].rotation.z = theta;
-		// 	 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
-		// 		// CoolSquare(col, value, ww2, wh, radius  );
-		// 	}
-		// }
-	//	else if (cubeGo == 1){
-	//		for (var i = 0; i < p1.publicFols.length; i++) {
-				// var value = p1.publicFols[i].getValue() * mult[i], col = colors[i],
-			 //    radius = ( ww2 > wh ? wh * value: ww2 * value);
-			// objects[i].scale.x = .125 + p1.publicFols[i].getValue() * 10;
-			 //    console.log(p1.publicFols[i].value + i);
-				//CoolSquare(col, value, ww2, wh, radius  );
-	//		}
-	//	}
-//	}
     var delta = clock.getDelta();
+    
     renderer.clear();
 
     composer.render(delta);
-   // requestAnimationFrame(render);
-     setTimeout( function() {
+    
+    setTimeout( function() {
     	
-    	
-//     	//var fr = frameRate.fr;
-//     	 //parameter must be set with render
-         requestAnimationFrame( render );
+        requestAnimationFrame( render );
 
     }, 3750/60 );
 }

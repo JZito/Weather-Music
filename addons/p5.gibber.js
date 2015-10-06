@@ -4182,10 +4182,10 @@ Gibberish.StereoReverb = function() {
   var tuning =	{
 		    combCount: 		    8,
 		    // combTuning: 	    [1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617],
-          combTuning:       [1046, 1174, 1318, 1396, 1568, 1760, 1975, 2093],                  
+          combTuning:       [1046, 1176, 1320, 1385, 1571, 1754, 1960, 2100],                  
 		    allPassCount: 	  4,
 		   // allPassTuning: 	  [556, 441, 341, 225],
-		    allPassTuning: [  831, 495, 370, 277],
+		    allPassTuning: [  828, 455, 367, 285],
         allPassFeedback:  0.95,
                           
 		    fixedGain: 		    0.0175,
@@ -4223,7 +4223,7 @@ Gibberish.StereoReverb = function() {
           _outR = outR = r * .015;
 						
 			for(var i = 0; i < 8; i++) { // parallel
-				outL += combsL[ i ]( _outL, roomSize * .98, (damping * .4)); // .98 is scaleRoom + offsetRoom, .4 is scaleDamping
+				outL += combsL[ i ]( _outL, roomSize * .99, (damping * .4)); // .98 is scaleRoom + offsetRoom, .4 is scaleDamping
         outR += combsR[ i ]( _outR, roomSize * .98, (damping * .4));       
 			}
 							
@@ -10238,13 +10238,13 @@ module.exports = function( Gibber ) {
   FX.Presets.StereoVerb = {
   	space : {
   		roomSize: .99,
-  		damping: .23,
+  		damping: .1,
   		wet: .75,
   		dry: .25,
   	},
     totalWet: {
       roomSize: .95,
-      damping: .7,
+      damping: .1,
       wet: .95,
       dry: .2
     },
