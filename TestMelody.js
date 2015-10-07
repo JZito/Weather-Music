@@ -1,18 +1,34 @@
+
 var WIDTH =  window.innerWidth,
     HEIGHT =  window.innerHeight;
 
+
+var plane;
 // set some camera attributes
 var VIEW_ANGLE = 45,
     ASPECT = WIDTH / HEIGHT,
     NEAR = 0.1,
     FAR = 10000;
 
+var targetRotation = 0;
+			var targetRotationOnMouseDown = 0;
+
+			var mouseX = 0;
+			var mouseXOnMouseDown = 0;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
   
 
 // get the DOM element to attach to
 // - assume we've got jQuery to hand
 var $container = $('#container');
 var objects = [], transObjects = [];
+var colors = [ [0x50b0cf, 0xffd55d, 0xff655d], [ 0x5E76D6, 0xFFED5D, 0xFFA65D ], [ 0x775FD8, 0xFFC15D, 0xF8FE5C ], [ 0xA355D5, 0xbcf659, 0xFFDC5D ], 
+				[ 0XE754A4, 0x50DD80, 0xFFFB5D ]
+				//[ 0x, 0x, 0x ], [ 0x, 0x, 0x ], [ 0x, 0x, 0x ], [ 0x, 0x, 0x ], [ 0x, 0x, 0x ], [ 0x, 0x, 0x ], [ 0x, 0x, 0x ], [ 0x, 0x, 0x ]
+
+];
 // opaquefloor determines amount of opacity volume sensitivity
 var opaqueFloor = 0;
 var theta;
@@ -52,9 +68,13 @@ renderer.shadowMapEnabled = false;
 
 
 //1. BloomPass: blurry, glowing effect
-var bloomPass = new THREE.BloomPass(5, 125, 20, 64);
+//var bloomPass = new THREE.BloomPass(5, 125, 20, 64);
+//var bloomPass = new THREE.BloomPass(3, 75, 12, 128);
+var bloomPass = new THREE.BloomPass(5, 75, 20, 20);
 composer.addPass(bloomPass);
 bloomPass.clear = true;
+
+
 
 // hblur = new THREE.ShaderPass(THREE.HorizontalTiltShiftShader);
 // vblur = new THREE.ShaderPass(THREE.VerticalTiltShiftShader);
@@ -69,7 +89,7 @@ bloomPass.clear = true;
 
 // var mirrorPass = new THREE.ShaderPass( THREE.MirrorShader );
 // composer.addPass(mirrorPass);
-// mirrorPass.uniforms.side.value = 3;
+// mirrorPass.uniforms.side.value = 1;
 
 // vignettePass = new THREE.ShaderPass(THREE.VignetteShader);
 // vignettePass.uniforms["darkness"].value = .95;
@@ -103,22 +123,23 @@ var col = new THREE.Color(0xFF0000);
 
 
 //Plane material
-var uniforms = {
-    resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) }
-};
+// var uniforms = {
+//     resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) }
+// };
 
-var planeMaterial = new THREE.ShaderMaterial( { 
-    uniforms: uniforms,
-    vertexShader: document.getElementById('vertexShader').textContent,
-    fragmentShader: document.getElementById('fragmentShader').textContent
-} );
+// var planeMaterial = new THREE.ShaderMaterial( { 
+//     uniforms: uniforms,
+//     vertexShader: document.getElementById('vertexShader').textContent,
+//     fragmentShader: document.getElementById('fragmentShader').textContent
+// } );
 
 //Create plane
-var mesh = new THREE.SphereGeometry(50,5,16);
+var mesh = new THREE.SphereGeometry(50,5,12);
 var bgCol = new THREE.Color(0xffffff);
 var vat = new THREE.MeshPhongMaterial({color: bgCol, shininess: 3, shading: THREE.FlatShading});
 vat.blending = THREE.AdditiveBlending;
-var plane = new THREE.Mesh(mesh, vat);
+plane = new THREE.Mesh(mesh, vat);
+plane.material.transparent = true;
 plane.position.z = - 500;
 plane.position.x = -50;
 plane.position.y = 0;
@@ -126,15 +147,16 @@ plane.scale.x = 5;
 plane.scale.y = 5;
 plane.scale.z = 5;
 scene.add(plane);
+//transObjects.push(plane);
 
-var light = new THREE.DirectionalLight(0xA67A33);
+var light = new THREE.DirectionalLight( colors[0][1]);
 light.distance = 3000;
 light.intensity = .25;
 light.position.y = 0;
 light.position.z = 1200;
 light.position.x = -2000;
 
-var light2 = new THREE.DirectionalLight(0x205D66);
+var light2 = new THREE.DirectionalLight(colors[0][2]);
 light.distance = 3000;
 light2.intensity = .25;
 light2.position.y = 0;
@@ -142,9 +164,42 @@ light2.position.z = 1200;
 light2.position.x = 2000;
 
 
-var ambientLight = new THREE.PointLight( 0x2E3573);
+var ambientLight = new THREE.PointLight(colors[0][0]);
 
 ambientLight.intensity = .2;
+
+////// css MESH ZONE
+
+// create the plane mesh
+var material = new THREE.MeshBasicMaterial({ wireframe: true });
+var geometry = new THREE.PlaneGeometry();
+var planeMesh= new THREE.Mesh( geometry, material );
+planeMesh.scale.x = 50;
+planeMesh.material.transparent = true;
+planeMesh.material.opacity = .5;
+// add it to the WebGL scene
+// glScene.add(planeMesh);
+
+//create the dom Element
+// var cssScene = new THREE.Scene()
+// var element = document.getElementById("share");
+// //element.src = 'ball.png';
+// // create the object3d for this element
+// var cssObject = new THREE.CSS3DObject( element );
+// // we reference the same position and rotation 
+// cssObject.position = planeMesh.position;
+// cssObject.rotation = planeMesh.rotation;
+// cssObject.scale = planeMesh.scale;
+
+// // add it to the css scene
+// cssScene.add(cssObject);
+
+// var cssRenderer = new THREE.CSS3DRenderer();
+// cssRenderer.setSize( window.innerWidth, window.innerHeight );
+// cssRenderer.domElement.style.position = 'absolute';
+// cssRenderer.domElement.style.top = 0;
+
+////////
 
 scene.add(light);
 scene.add(light2);
@@ -154,11 +209,23 @@ scene.add(ambientLight);
 // sandbox
 var ranNotes = [12,11,9,7,5,4,2,0,-1], f,
 beets = [, , , 1, 1/1.5, 1/2, 1/2, 1/2,1/2,1/3, 1/6, 1/4, 1/6, 1/4,1/3, 1/3,1/6], beepEM = 60,
-bR, nR, bR2, nR2, repeatCount = 1, stopper, syns = [], triggerNewMelody = false;
+bR, nR, bR2, nR2, repeatCount = 1, stopper, syns = [], triggerNewMelody = false, busses = [],
+effectsTypes = [], effectsProperties = [];
 
+function init () {
+	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+	document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+	document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+}
+init();
 var leadSynthPresets = ['bleepEcho', 'bleep', 'rhodesFade', 'rhodes', 'warble', 'triLead' ];
 
 function setup () {
+	effectsTypes = [ [LPF, 'rising']  , [Delay, 'endless', 'wobbler', 'nightChill'],
+		[Schizo, 'sane', 'borderline', 'pitchless'], [Vibrato, 'light'], [Distortion, 'rip']];
+	effectsProperties = [ ['LPF', ['cutoff',0,1], ['resonance', 0,5] ]  , ['Delay', ['time',0,1], ['feedback', .4,.95]],
+		['Schizo', ['chance', 0,1], ['reverseChance',0,1], ['mix',0, 1],
+    	['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,5], ['offset',25,1250 ], ['amount', 25,100]], ['Distortion', ['amount', 5, 50]] ];
 	bR = WholeBeetsReturn(.5, floor(random(1,12))),
 			nR = NotesReturn(bR.length), bR2 = WholeBeetsReturn(.5, floor(random(1,16))),
 			nR2 = NotesReturn(bR2.length);
@@ -178,7 +245,7 @@ function setup () {
 	// drum.fx.add(Delay({time:1/16, feedback:.65, wet:.4}), HPF({cutoff:sine}))
 	// drum.connect(songBus)
 	//drum._;
-	m = Synth('bleep')
+	m = Synth('rhodesFade')
 	//m.fx.add();
 	m2 = Synth('rhodesFade')
 	m2.fx.add();
@@ -190,6 +257,8 @@ function setup () {
 	m2.send(syn1Bus, 1)
 	syn0Bus.connect(songBus);
 	syn1Bus.connect(songBus);
+	busses.push(syn0Bus);
+	busses.push(syn1Bus);
 	songBus.amp(1);
    // f = Follow();
 	syns.push(m);
@@ -221,13 +290,17 @@ function draw () {
  //  	console.log(light.position.z);
   	//console.log(songBus.fx[4].roomsize + "room 2");
   	//console.log(songBus.fx[3].feedback + "feedback");
-  	light.intensity = follow0.getValue() * 2;
-  	light2.intensity = follow1.getValue() * 2;
-  	ambientLight.intensity = follow2.getValue() * 5 + .05;
-  	theta += .005 + (follow2.getValue() * .5);
-  	console.log(theta);
+  	//plane.scale.z = (follow0.getValue() * )
+  	plane.material.opacity = (follow2.getValue() * .25) +.5;
+  	light.intensity = follow0.getValue() * 1.15;
+  	light2.intensity = follow1.getValue() * 1.15;
+  	ambientLight.intensity = follow2.getValue() * 2 + .05;
+  	theta += .0025 ;
+  	//console.log(light.position.x + " . " + light.position.y + " . " + light2.position.x + " . " + light2.position.y + " . " );
   	plane.rotation.z = theta;
-  	plane.rotation.x = theta - (2*theta);
+  	plane.rotation.x = theta + (follow2.getValue() * .5);
+  	plane.rotation.y = plane.rotation.y += ( (targetRotation *.125) - plane.rotation.y ) * 0.05;
+  	console.log(plane.rotation.y);
   	// plane.rotation.y = theta * 2;
   	// plane.rotation.z = theta * .5;
   	// light2.rotation.y = theta * .5;
@@ -239,8 +312,148 @@ function draw () {
   	
   	//console.log (" . . " + light.intensity + " . . " + light2.intensity + " . . " + ambientLight.intensity);
 }
+
 function add(a, b) {
 	return a + b;
+}
+
+function MoveLights (l) {
+	// make lights move in relation to each other, light moves one number, light2 moves its additive inverse
+	//i think the math works so y should never be larger than x but I have check both just in case
+	var lxPosition = light.position.x;
+	var lyPosition = light2.position.y;
+	var xAxisAmount, yAxisAmount, X2AxisAmount, y2AxisAmount, amount, amount2;
+	
+	if (lxPosition >= 10000 || lyPosition >= 10000) { 
+		console.log ("grater than");
+		amount = Math.random() * -10000 ;
+		amount2 = amount + 10000;
+		
+
+	}
+	else if (lxPosition <= -10000 || lyPosition <= -10000 ) {
+		console.log("less than");
+		amount = Math.random() * -10000 ;
+		amount2 = amount + 10000;
+
+	}
+	else {
+		var destination = random(-12000, 12000);
+		console.log(destination);
+		amount = Math.random() * destination;
+		amount2 = (-1 * amount);
+	}
+		xAxisAmount = amount;
+		yAxisAmount = amount * .85;
+		x2AxisAmount = amount2;
+		y2AxisAmount = amount2 * .85;
+	// l.position.axis <= -10000)  {
+	//  add numbers to negative, subtract numbers from positive
+// } 
+	//l is light.position to move
+	TweenMax.to(light.position, 10, { x: xAxisAmount, y: yAxisAmount,
+			 ease: RoughEase.ease.config({template:Quad.easeIn}) } );
+	TweenMax.to(light2.position, 10, { x: x2AxisAmount, y: y2AxisAmount,
+			 ease: RoughEase.ease.config({template:Quad.easeIn}) } );
+}
+
+function ChangeColors () {
+	var tick = floor(random(colors.length));
+	light.color.setHex (colors[tick][1] );
+	light2.color.setHex ( colors[tick][2] );
+	ambientLight.color.setHex ( colors[tick][0] );
+}
+
+function ChangeEffects (place) {
+
+	var clear = false, coin = CoinReturn(), theBus = busses[place], anotherCoin = CoinReturn(),
+	boop =	floor(random(theBus.fx.length));
+	//	if (anotherCoin == 1) {
+	var effector = theBus.fx[boop];
+	if (effector){
+		var index, n = effector.name, fxPL=effectsProperties.length;
+		//get the place of the effector.name in the presets/properties array
+		for (var i = 0; i < fxPL; i++) {
+			// 
+			if (effectsProperties[i][0] == n) {
+		    	index = i;
+		    	break;
+		  	}	
+		}
+		// get random number length of the effects properties of this particular effect
+		var g = floor(random(1,effectsProperties[index].length)),
+		// it is the property to change
+		low = effectsProperties[index][g][1], high = effectsProperties[index][g][2];
+		it = effectsProperties[index][g][0];
+		// if this only has two entries (min, max ((plus its name at [0]))
+		if (effectsProperties[index][g].length <= 3){
+			q = random(low, high) ;
+		}
+		//if it has more than two, it's probably specific/time based so choose a specific entry
+		else if (effectsProperties[index][g].length >= 4) {
+			q = effectsProperties[index][g][4];
+		//	q = random(effectsProperties[index][g][1],effectsProperties[index][g][2]) ;
+
+		}
+		console.log(effector + " . " + it + " it")
+		effector.it =q;
+		//fols[place] = Follow(busses[place]);
+	}
+	else if (!effector) {
+		console.log ("no effector     " + boop)
+	}
+}
+
+var SphereCreate = function () {
+
+	//var i5 = (i*225) - 350;
+	//console.log(parent);
+	var tweenDir;
+	//color of object that called it
+		//partially transparent?
+	var col = plane.material.color.getHex();
+	//console.log("col" + col);
+	var sph = plane.clone();
+	
+	sph.material.transparent = true;
+	sph.material.opacity = .15;
+	//position of object that called it
+	sph.scale.y = plane.scale.y;
+	sph.scale.x = plane.scale.x;
+	sph.position.x = plane.position.x;
+	sph.rotation.z = plane.rotation.z;
+
+	// sph.scale.x = parent.scale.x;
+	//sph.scale.y = window.innerHeight;
+	console.log(sph);
+	scene.add(sph);
+	//transObjects.push(sph);
+	//console.log(sph.position.x + sph + "sphere");
+	//var p = 12;
+	
+	// TweenMax.to(sph.material, 6, { opacity:0,
+	// 	ease:  SteppedEase.config(12)} );
+	TweenMax.to(sph.position, 6, { z: -200 *(Math.random() * 4000), x:-5000 + (Math.random() * 10000),
+		ease: SteppedEase.config(48),
+		onComplete:KillSphere, onCompleteParams:[sph] } );
+	// TweenMax.to(sph.scale, 6, { x: sph.scale.x * 25, y: sph.scale.y * 25,
+	// 	ease: SteppedEase.config(36)});
+
+
+	
+	
+	// TweenMax.to(sph.rotation, .5, {x: -300 + Math.random() * 1000, y:p++,
+ //  	ease: SteppedEase.config(5),
+ //  	yoyo:false, } );
+
+	
+
+}
+
+function KillSphere(s) {
+	//remove sphere from scene
+	scene.remove(s);
+	//transObjects.remove(s);
 }
 
 function NewScore() {
@@ -257,7 +470,8 @@ function NewScore() {
 		//Updater();
 
 		if (count == 0) {
-
+			MoveLights();
+			ChangeColors();	
 			llll = new Line(0, .75, 3);
 			
 			songBus.amp(llll);
@@ -272,7 +486,12 @@ function NewScore() {
 	 			nR = melodyReturn( floor(random(-2,2)), bR.length,   bR.length);
 	 			
 				syns[i].note.seq(nR, bR);
-				syns[i].note.seq.repeat( 1 )				
+				syns[i].note.seq.repeat( 1 )
+				syns[i].note.values.filters.push( function( args, pattern ) {
+				    SphereCreate();
+				    return args
+				})
+
  			}
 		}
 		else if (count == 3) {
@@ -299,8 +518,10 @@ function NewScore() {
 		}
 		else if (count == 5) {
 			var s = leadSynthPresets[floor(random(leadSynthPresets.length))];
+			
 			//oldSyns.length = 0;
 			for (i = 0; i < synsLength; i++) {
+				ChangeEffects(i);
 				
 				var syn = Synth(s);
 				//syn.amp = .25;
@@ -336,7 +557,7 @@ function CoinReturn() {
 }
 
 
-setInterval(NewScore, 60000)
+setInterval(NewScore, 30000)
 
 function WholeBeetsReturn(mul, len) {
 	//multiplier is to double, quadruple etc beat lengths
@@ -455,7 +676,7 @@ function transparencyUpdate (objects, camera){
 var clock = new THREE.Clock()
 
 function render() {
-	transparencyUpdate(transObjects, camera);
+	//transparencyUpdate(transObjects, camera);
 
     var delta = clock.getDelta();
     
@@ -471,4 +692,65 @@ function render() {
 }
 render();
 
+function onDocumentMouseDown( event ) {
 
+	event.preventDefault();
+
+	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+	document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+	document.addEventListener( 'mouseout', onDocumentMouseOut, false );
+
+	mouseXOnMouseDown = event.clientX - windowHalfX;
+	targetRotationOnMouseDown = targetRotation;
+
+}
+
+function onDocumentMouseMove( event ) {
+
+	mouseX = event.clientX - windowHalfX;
+
+	targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.02;
+
+}
+
+function onDocumentMouseUp( event ) {
+
+	document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+	document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+	document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+
+}
+
+function onDocumentMouseOut( event ) {
+
+	document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+	document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+	document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+
+}
+
+function onDocumentTouchStart( event ) {
+
+	if ( event.touches.length === 1 ) {
+
+		event.preventDefault();
+
+		mouseXOnMouseDown = event.touches[ 0 ].pageX - windowHalfX;
+		targetRotationOnMouseDown = targetRotation;
+
+	}
+
+}
+
+function onDocumentTouchMove( event ) {
+
+	if ( event.touches.length === 1 ) {
+
+		event.preventDefault();
+
+		mouseX = event.touches[ 0 ].pageX - windowHalfX;
+		targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.05;
+
+	}
+
+}

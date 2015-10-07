@@ -8,16 +8,19 @@
   <script language="javascript" src="addons/threex.transparency.js"></script>
   <script language="javascript" src="addons/THREEx.WindowResize.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+  <script language="javascript" src="addons/share.min.js"></script>
+
+
+
   <script language="javascript" src="addons/p5.gibber.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
   <script src="js/shaders/BleachBypassShader.js"></script>
 		<script src="js/shaders/ColorifyShader.js"></script>
 		<script src="js/shaders/ConvolutionShader.js"></script>
+    <script src="js/CSS3DRenderer.js"></script>
 		<script src="js/shaders/CopyShader.js"></script>
-		<script src="js/shaders/BokehShader.js"></script>
+		
 		<script src="js/shaders/FilmShader.js"></script>
-    <script src="js/shaders/VerticalTiltShiftShader.js"></script>
-    <script src="js/shaders/HorizontalTiltShiftShader.js"></script>
 		<script src="js/ColorConverter.js"></script>
 		<script src="js/shaders/HorizontalBlurShader.js"></script>
 		<script src="js/shaders/SepiaShader.js"></script>
@@ -28,7 +31,6 @@
 		<script src="js/postprocessing/EffectComposer.js"></script>
 
 		<script src="js/postprocessing/RenderPass.js"></script>
-    <script src="js/postprocessing/BokehPass.js"></script>
 		<script src="js/postprocessing/BloomPass.js"></script>
 		<script src="js/postprocessing/FilmPass.js"></script>
 		<script src="js/postprocessing/DotScreenPass.js"></script>
@@ -38,33 +40,57 @@
  
 
   <!-- this line removes any default padding and style. you might only need one of these values set. -->
-  <style> body {
+<style> 
+    body {
 				margin: 0px;
-				background-color: #99ffff;
+				background-color: #ffffff;
 				overflow: hidden;
-			} </style>
+		} 
+    .share-button {margin: auto; position: absolute; left: 0; bottom: 0;  z-index: 100;}
+</style>
 </head>
 
 <body>
+
+ <div class="share-button" id="share"></div>
+   <script>
+
+   config = {
+  //protocol:    // the protocol you'd prefer to use. [Default: your current protocol]
+  url: 'http://127.0.0.0/p5/mi',        // the url you'd like to share. [Default: `window.location.href`]
+  // title:       // title to be shared alongside your link [Default: See below in defaults section]
+  // description: // text to be shared alongside your link, [Default: See below in defaults section]   
+  // image:       // image to be shared [Default: See below in defaults section]
+  ui: {
+    flyout: 'top right',           // change the flyout direction of the shares. chose from `top left`, `top center`, `top right`, `bottom left`, `bottom right`, `bottom center`, `middle left`, or `middle right` [Default: `top center`]
+    // button_font:       // include the Lato font set from the Google Fonts API. [Default: `true`]
+     button_text: 'share',        // change the text of the button, [Default: `Share`]
+    // icon_font:         // include the minified Entypo font set. [Default: `true`]
+  },
+  networks: {
+    googlePlus: {
+      
+    },
+    twitter: {
+      
+    },
+    facebook: {
+     
+    },
+    pinterest: {
+     
+    },
+    reddit: {
+      // enabled: // Enable Reddit. [Default: true]
+      // url: // the url you'd like to share to Reddit [Default: config.url]
+      // title: // title to be shared alongside your link to Reddit [Default: config.title]
+    },
+  }
+}
+    var share = new Share(".share-button", config );
+  </script>
 <div id="container">
-  <script id="vertexShader" type="x-shader/x-vertex">
-      void main() {
-        gl_Position = vec4( position,1);
-      }
-    </script>
-    <script id="fragmentShader" type="x-shader/x-fragment">
-      uniform vec2 resolution;
-      void main() {
-        vec2 coord = gl_FragCoord.xy;
-        float xmid = resolution.x/2.0;
-        float ymid = resolution.y/2.0;
-    float x = (coord.x - xmid)/resolution.x;
-        float y = (coord.y-ymid)/resolution.y;
-    float r = sqrt(x*x + y*y)+0.5;
-        vec4 color = vec4(1.0-vec2(r),1.3-r,1.0);
-        gl_FragColor = color;
-      }
-    </script>
+ 
  <script language="javascript" type="text/javascript" src="TestMelody.js"></script>
 </body>
 </html>

@@ -10207,6 +10207,12 @@ module.exports = function( Gibber ) {
       dry:.4
     }
   };
+
+  FX.Presets.Distortion = {
+    rip: {
+      amount: 50
+    }
+  };
   
   FX.Presets.Reverb = {
   	space : {
