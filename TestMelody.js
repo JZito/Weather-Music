@@ -3,7 +3,7 @@ var WIDTH =  window.innerWidth,
     HEIGHT =  window.innerHeight;
 
 
-var plane;
+var plane, rot, audioRotationVar = 0.1;
 // set some camera attributes
 var VIEW_ANGLE = 45,
     ASPECT = WIDTH / HEIGHT,
@@ -207,6 +207,7 @@ camera.add(ambientLight);
 scene.add(ambientLight);
 
 // sandbox
+var looping;
 var ranNotes = [12,11,9,7,5,4,2,0,-1], f,
 beets = [, , , 1, 1/1.5, 1/2, 1/2, 1/2,1/2,1/3, 1/6, 1/4, 1/6, 1/4,1/3, 1/3,1/6], beepEM = 60,
 bR, nR, bR2, nR2, repeatCount = 1, stopper, syns = [], triggerNewMelody = false, busses = [],
@@ -232,7 +233,7 @@ function setup () {
 	canvas = createCanvas( windowWidth, windowHeight );
 	Clock.bpm(beepEM)
 	songBus = Bus().fx.add( HPF({cutoff:.2, amp:1}),StereoVerb('totalWet'),Schizo('borderline'),
-		Delay({time:1/2, feedback:.95, dry:0, wet:1}),StereoVerb('space'),Distortion(50)  )
+		Delay({time:1/2, feedback:.95, dry:0, wet:1}),StereoVerb({roomsize:.99,dry:1, damping:0, wet:0}),Distortion(50),Delay('endless')  );
 	syn0Bus = Bus().fx.add( Distortion(5), Delay('endless') );
 	syn1Bus = Bus().fx.add ( Distortion(5), Delay('endless') );
 	syn0Bus.pan(.35);
@@ -259,14 +260,16 @@ function setup () {
 	syn1Bus.connect(songBus);
 	busses.push(syn0Bus);
 	busses.push(syn1Bus);
-	songBus.amp(1);
+	songBus.amp(0);
    // f = Follow();
 	syns.push(m);
 	syns.push(m2);
-	NewScore();
 	follow2 = Follow(songBus);
 	follow1 = Follow(syn1Bus);
 	follow0 = Follow(syn0Bus);
+	NewScore();
+	StartScore();
+	
 
 	//createOriginalObjects();
 	//syns.push(m1);
@@ -274,6 +277,8 @@ function setup () {
 }
 
 function draw () {
+	console.log(follow2.getValue() + " . " + follow1.getValue() + " " + follow0.getValue() )
+	//console.log(songBus.amp.value);
 	//console.log(f);
 	//CheckTheTime(minute());
 	//console.log(m.frequency)
@@ -291,6 +296,8 @@ function draw () {
   	//console.log(songBus.fx[4].roomsize + "room 2");
   	//console.log(songBus.fx[3].feedback + "feedback");
   	//plane.scale.z = (follow0.getValue() * )
+  	
+  	rot = plane.rotation.y += ( (targetRotation *.15) - plane.rotation.y ) * 0.05;
   	plane.material.opacity = (follow2.getValue() * .25) +.5;
   	light.intensity = follow0.getValue() * 1.15;
   	light2.intensity = follow1.getValue() * 1.15;
@@ -299,8 +306,12 @@ function draw () {
   	//console.log(light.position.x + " . " + light.position.y + " . " + light2.position.x + " . " + light2.position.y + " . " );
   	plane.rotation.z = theta;
   	plane.rotation.x = theta + (follow2.getValue() * .5);
-  	plane.rotation.y = plane.rotation.y += ( (targetRotation *.125) - plane.rotation.y ) * 0.05;
-  	console.log(plane.rotation.y);
+  	plane.rotation.y = plane.rotation.y += ( (targetRotation *.15) - plane.rotation.y ) * 0.05;
+
+  	DragCompensate (plane.rotation.y);
+  
+  	songBus.fx[6].feedback = rot;
+  	//console.log(plane.rotation.y + " . " + rot + " . " + audioRotationVar);
   	// plane.rotation.y = theta * 2;
   	// plane.rotation.z = theta * .5;
   	// light2.rotation.y = theta * .5;
@@ -311,6 +322,19 @@ function draw () {
  //  	}
   	
   	//console.log (" . . " + light.intensity + " . . " + light2.intensity + " . . " + ambientLight.intensity);
+}
+
+function DragCompensate ( p ) {
+	var planeRot = p; 
+	if (plane.rotation.y >= 1) {
+  		audioRotationVar = -rot;
+  	}
+  	else if (plane.rotation.y <= -1) {
+  		audioRotationVar = rot;
+  	}
+  	else if (plane.rotation.y < 10 || plane.rotation.y > -10 ) {
+  		audioRotationVar = rot;
+  	}
 }
 
 function add(a, b) {
@@ -472,9 +496,12 @@ function NewScore() {
 		if (count == 0) {
 			MoveLights();
 			ChangeColors();	
-			llll = new Line(0, .75, 3);
+			songBus.amp = 0;
+			//songBus.pan(1);
+			//llll = new Line(0, .75, 3);
+			TweenMax.to(songBus.amp, 6,{ value:1} );
 			
-			songBus.amp(llll);
+
 			songBus.fx[2].time = beets[floor(random(3, beets.length))];
 			songBus.fx[3].time = beets[floor(random(3, beets.length))];
 			for (var i = 0; i < synsLength; i++) {
@@ -488,10 +515,9 @@ function NewScore() {
 				syns[i].note.seq(nR, bR);
 				syns[i].note.seq.repeat( 1 )
 				syns[i].note.values.filters.push( function( args, pattern ) {
-				    SphereCreate();
+				   	SphereCreate();
 				    return args
 				})
-
  			}
 		}
 		else if (count == 3) {
@@ -503,17 +529,17 @@ function NewScore() {
 				
 				
 				//syns[i].fx[i].amp(lll);
-				syns[i].amp(lll);
+				//syns[i].amp(lll);
 				//oldSyns.push(syns[i]);
 			}
 			
-			llll.kill();
+			//llll.kill();
 		}
 		else if (count == 4) {
 			for (i = 0; i < synsLength; i++) {
 				syns[i].kill();	
 			}
-			lll.kill();
+			//lll.kill();
 			syns.length = 0;
 		}
 		else if (count == 5) {
@@ -543,6 +569,7 @@ function NewScore() {
 				console.log(s + i);
 			}
 			a.stop();
+			//StopScore();
 		}
 
 		
@@ -556,8 +583,16 @@ function CoinReturn() {
 	return coin;
 }
 
+function StartScore() { 
+	looping = setInterval(NewScore, 30000);
+}
 
-setInterval(NewScore, 30000)
+function StopScore () {
+	console.log("WebCamTexture.Stop()");
+	clearInterval(looping);
+}
+ 
+//setInterval(NewScore, 30000)
 
 function WholeBeetsReturn(mul, len) {
 	//multiplier is to double, quadruple etc beat lengths
@@ -754,3 +789,42 @@ function onDocumentTouchMove( event ) {
 	}
 
 }
+
+// function setMute () { 
+// 	if (isMute) {
+// 		TweenMax.to (Gibber.Master, .25 {amp:0, ease:Power1.easeOut });
+// 		stopSequence();
+// 	}
+// 	else {
+// 		TweenMax.to (Gibber.Master, .25 { amp:0, ease:Power1.easeOut  });
+
+// 	}	
+
+// }
+//  sketch.setMute = (function(_this) {
+//     return function(isMute) {
+//       if (isMute) {
+//         TweenLite.to(_this.gibber.Master, .3, {
+//           amp: 0
+//         });
+//         sketch.noLoop();
+//         return sketch.mute = true;
+//       } else {
+//         TweenLite.to(_this.gibber.Master, .3, {
+//           amp: 1
+//         });
+//         sketch.loop();
+//         return sketch.mute = false;
+//       }
+//     };
+//   })(this);
+//   return sketch.isMobile = (function(_this) {
+//     return function() {
+//       if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+//         console.log('is mobile');
+//         return true;
+//       }
+//       return false;
+//     };
+//   })(this);
+// };
