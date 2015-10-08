@@ -254,13 +254,12 @@ function setup () {
 	m2.pan(-.25);
 	//m1 = Synth('bleep')
 	
-	m.send(syn0Bus, 1)
-	m2.send(syn1Bus, 1)
+	m.connect(syn0Bus)
+	m2.connect(syn1Bus)
 	syn0Bus.connect(songBus);
 	syn1Bus.connect(songBus);
 	busses.push(syn0Bus);
 	busses.push(syn1Bus);
-	songBus.amp(0);
    // f = Follow();
 	syns.push(m);
 	syns.push(m2);
@@ -496,10 +495,9 @@ function NewScore() {
 		if (count == 0) {
 			MoveLights();
 			ChangeColors();	
-			songBus.amp = 0;
 			//songBus.pan(1);
 			//llll = new Line(0, .75, 3);
-			TweenMax.to(songBus.amp, 6,{ value:1} );
+			//TweenMax.to(songBus.amp, 6,{ value:1} );
 			
 
 			songBus.fx[2].time = beets[floor(random(3, beets.length))];

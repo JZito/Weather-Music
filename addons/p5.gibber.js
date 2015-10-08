@@ -4181,11 +4181,11 @@ Float. Default = .5. The amount of dry signal that is output
 Gibberish.StereoReverb = function() {
   var tuning =	{
 		    combCount: 		    8,
-		    // combTuning: 	    [1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617],
-          combTuning:       [1046, 1176, 1320, 1385, 1571, 1754, 1960, 2100],                  
+		     combTuning: 	    [1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617],
+        //  combTuning:       [1046, 1176, 1320, 1385, 1571, 1754, 1960, 2100],                  
 		    allPassCount: 	  4,
-		   // allPassTuning: 	  [556, 441, 341, 225],
-		    allPassTuning: [  828, 455, 367, 285],
+		    allPassTuning: 	  [556, 441, 341, 225],
+		    //allPassTuning: [  828, 455, 367, 285],
         allPassFeedback:  0.95,
                           
 		    fixedGain: 		    0.0175,
