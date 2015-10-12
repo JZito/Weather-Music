@@ -3,7 +3,7 @@ var WIDTH =  window.innerWidth,
     HEIGHT =  window.innerHeight;
 
 
-var plane, rot, audioRotationVar = 0.1;
+var plane, cleanScale, audioRotationVar = 0.1;
 // set some camera attributes
 var VIEW_ANGLE = 45,
     ASPECT = WIDTH / HEIGHT,
@@ -11,13 +11,13 @@ var VIEW_ANGLE = 45,
     FAR = 10000;
 
 var targetRotation = 0;
-			var targetRotationOnMouseDown = 0;
+var targetRotationOnMouseDown = 0;
 
-			var mouseX = 0;
-			var mouseXOnMouseDown = 0;
+var mouseX = 0;
+var mouseXOnMouseDown = 0;
 
-			var windowHalfX = window.innerWidth / 2;
-			var windowHalfY = window.innerHeight / 2;
+var windowHalfX = window.innerWidth / 2;
+var windowHalfY = window.innerHeight / 2;
   
 
 // get the DOM element to attach to
@@ -50,7 +50,6 @@ var cloudy = false;
 var theta = 0;
 var renderPass = new THREE.RenderPass(scene, camera);
 var composer = new THREE.EffectComposer(renderer);
-
 var windowResize = THREEx.WindowResize(renderer, camera);
 
 // create a point light
@@ -70,7 +69,7 @@ renderer.shadowMapEnabled = false;
 //1. BloomPass: blurry, glowing effect
 //var bloomPass = new THREE.BloomPass(5, 125, 20, 64);
 //var bloomPass = new THREE.BloomPass(3, 75, 12, 128);
-var bloomPass = new THREE.BloomPass(5, 75, 20, 20);
+var bloomPass = new THREE.BloomPass(5, 25, 5, 256);
 composer.addPass(bloomPass);
 bloomPass.clear = true;
 
@@ -117,7 +116,7 @@ $container.append(renderer.domElement);
 // scene.add(bgPlane);
 
 // set up the sphere vars
-var radius = 50, segments = 16, rings = 16;
+var radius = 50, segments = 5, rings = 16;
 
 var col = new THREE.Color(0xFF0000);
 
@@ -135,11 +134,12 @@ var col = new THREE.Color(0xFF0000);
 
 //Create plane
 var mesh = new THREE.SphereGeometry(50,5,12);
+var direction;
 var bgCol = new THREE.Color(0xffffff);
-var vat = new THREE.MeshPhongMaterial({color: bgCol, shininess: 3, shading: THREE.FlatShading});
+var vat = new THREE.MeshPhongMaterial({color: bgCol, shininess: 3, transparent:true, shading: THREE.FlatShading});
 vat.blending = THREE.AdditiveBlending;
 plane = new THREE.Mesh(mesh, vat);
-plane.material.transparent = true;
+//plane.material.transparent = true;
 plane.position.z = - 500;
 plane.position.x = -50;
 plane.position.y = 0;
@@ -232,8 +232,9 @@ function setup () {
 			nR2 = NotesReturn(bR2.length);
 	canvas = createCanvas( windowWidth, windowHeight );
 	Clock.bpm(beepEM)
-	songBus = Bus().fx.add( HPF({cutoff:.2, amp:1}),StereoVerb('totalWet'),Schizo('borderline'),
-		Delay({time:1/2, feedback:.95, dry:0, wet:1}),StereoVerb({roomsize:.99,dry:1, damping:0, wet:0}),Distortion(50),Delay('endless')  );
+	songBus = Bus().fx.add( 
+		Delay({time:1/2, feedback:.95, dry:0, wet:1}),StereoVerb({roomsize:.99,dry:1, damping:.5, wet:0}),Distortion(50),
+		Delay('endless'),HPF({cutoff:.1, amp:1, resonance:4}), Crush({ sampleRate: 1, bitDepth:16 })  );
 	syn0Bus = Bus().fx.add( Distortion(5), Delay('endless') );
 	syn1Bus = Bus().fx.add ( Distortion(5), Delay('endless') );
 	syn0Bus.pan(.35);
@@ -266,6 +267,7 @@ function setup () {
 	follow2 = Follow(songBus);
 	follow1 = Follow(syn1Bus);
 	follow0 = Follow(syn0Bus);
+	followMain = Follow(Gibber.Master);
 	NewScore();
 	StartScore();
 	
@@ -274,9 +276,9 @@ function setup () {
 	//syns.push(m1);
 
 }
-
+var scaler;
 function draw () {
-	console.log(follow2.getValue() + " . " + follow1.getValue() + " " + follow0.getValue() )
+	//console.log(follow2.getValue() + " . " + follow1.getValue() + " " + follow0.getValue() + " . " + followMain.getValue())
 	//console.log(songBus.amp.value);
 	//console.log(f);
 	//CheckTheTime(minute());
@@ -296,20 +298,43 @@ function draw () {
   	//console.log(songBus.fx[3].feedback + "feedback");
   	//plane.scale.z = (follow0.getValue() * )
   	
-  	rot = plane.rotation.y += ( (targetRotation *.15) - plane.rotation.y ) * 0.05;
-  	plane.material.opacity = (follow2.getValue() * .25) +.5;
-  	light.intensity = follow0.getValue() * 1.15;
-  	light2.intensity = follow1.getValue() * 1.15;
-  	ambientLight.intensity = follow2.getValue() * 2 + .05;
-  	theta += .0025 ;
+  	//rot = plane.rotation.y += ( (targetRotation *.15) - plane.rotation.y ) * 0.05;
+  	plane.material.opacity = followMain.getValue() +.1;
+  	light.intensity = follow0.getValue() * 10 ;
+  	light2.intensity = follow1.getValue() * 10;
+  	console.log(followMain.getValue());
+  	ambientLight.intensity = (follow2.getValue() * .8) + .25;
+  	theta += .00125 ;
   	//console.log(light.position.x + " . " + light.position.y + " . " + light2.position.x + " . " + light2.position.y + " . " );
-  	plane.rotation.z = theta;
-  	plane.rotation.x = theta + (follow2.getValue() * .5);
-  	plane.rotation.y = plane.rotation.y += ( (targetRotation *.15) - plane.rotation.y ) * 0.05;
-
-  	DragCompensate (plane.rotation.y);
-  
-  	songBus.fx[6].feedback = rot;
+  	//plane.rotation.z = theta;
+  	plane.rotation.y = theta ;
+  	plane.rotation.x = theta * .5;
+  	plane.rotation.z = theta + (followMain.getValue() * .15);
+  	if (scaler < -10) {
+  		scaler = -10;
+  	}
+  	else {
+  		scaler = (plane.scale.x += (targetRotation *.45) - plane.scale.x) < 10 ? plane.scale.x :10;
+  	
+  	}
+  	plane.scale.x = scaler;
+  	cleanScale = (plane.scale.x * 5 ) < 50 ? cleanScale : 50;
+  	console.log(light.intensity + " . " +light2.intensity + " . " + cleanScale + ". " + plane.scale.x);
+  	
+  	//audioVar = plane.rotation.y += direction*( (targetRotation *.15) - plane.rotation.y ) * 0.05;
+  	//DragCompensate (plane.rotation.y);
+  	// if (cleanScale < 0 ) {
+  	// 	cleanScale = (-1 * cleanScale);
+  	// }
+  	// songBus.fx[2].gain = cleanScale < 50 ? songBus.fx[2].gain : 50;
+  	// songBus.fx[3].feedback = (cleanScale * .0175) < .98 ? (cleanScale * .0175) : .99;
+  	
+  	// songBus.fx[4].sampleRate = (cleanScale * .0175);
+  	// songBus.fx[4].bitDepth = 16 * (-1 * -cleanScale + .01);
+  	// bloomPass.resolution = 256 * (-1 * -cleanScale);
+  	// console.log(cleanScale);
+  	//songBus.fx[3].reverseChance = (rot * .0175);
+  	
   	//console.log(plane.rotation.y + " . " + rot + " . " + audioRotationVar);
   	// plane.rotation.y = theta * 2;
   	// plane.rotation.z = theta * .5;
@@ -323,17 +348,16 @@ function draw () {
   	//console.log (" . . " + light.intensity + " . . " + light2.intensity + " . . " + ambientLight.intensity);
 }
 
+function inverse(number) {
+    return (10 - (Math.round(number/100)));
+}
+
 function DragCompensate ( p ) {
-	var planeRot = p; 
-	if (plane.rotation.y >= 1) {
-  		audioRotationVar = -rot;
-  	}
-  	else if (plane.rotation.y <= -1) {
-  		audioRotationVar = rot;
-  	}
-  	else if (plane.rotation.y < 10 || plane.rotation.y > -10 ) {
-  		audioRotationVar = rot;
-  	}
+	// var planeRot = p; 
+	// if (plane.rotation.y % 10) {
+ //  		console.log ("!!!!");
+ //  		direction = -direction;
+ //  	}
 }
 
 function add(a, b) {
@@ -438,27 +462,26 @@ var SphereCreate = function () {
 	//console.log("col" + col);
 	var sph = plane.clone();
 	
-	sph.material.transparent = true;
-	sph.material.opacity = .15;
 	//position of object that called it
 	sph.scale.y = plane.scale.y;
 	sph.scale.x = plane.scale.x;
-	sph.position.x = plane.position.x;
+	sph.position.z = -4000;
+	sph.position.x = plane.position.x + (-200 + Math.random() * 400);
 	sph.rotation.z = plane.rotation.z;
 
 	// sph.scale.x = parent.scale.x;
 	//sph.scale.y = window.innerHeight;
-	console.log(sph);
 	scene.add(sph);
 	//transObjects.push(sph);
 	//console.log(sph.position.x + sph + "sphere");
 	//var p = 12;
 	
-	// TweenMax.to(sph.material, 6, { opacity:0,
-	// 	ease:  SteppedEase.config(12)} );
-	TweenMax.to(sph.position, 6, { z: -200 *(Math.random() * 4000), x:-5000 + (Math.random() * 10000),
-		ease: SteppedEase.config(48),
-		onComplete:KillSphere, onCompleteParams:[sph] } );
+	// TweenMax.to(sph.material, 2, { opacity:.25,
+	// 	ease:  SteppedEase.config(24)} );
+	// TweenMax.to(sph.position, 6, {x:-1500 + (Math.random() * 3000),
+	// 	ease: SteppedEase.config(72),
+	// 	 } );
+	TweenMax.to(sph.material, 3, { opacity:0 , onComplete:KillSphere, onCompleteParams:[sph]} )
 	// TweenMax.to(sph.scale, 6, { x: sph.scale.x * 25, y: sph.scale.y * 25,
 	// 	ease: SteppedEase.config(36)});
 
@@ -474,10 +497,15 @@ var SphereCreate = function () {
 }
 
 function KillSphere(s) {
-	//remove sphere from scene
+	var spher = s;
 	scene.remove(s);
+	//remove sphere from scene
+	// TweenMax.to(spher.material, 1, { opacity:0,
+	// 	ease:  SteppedEase.config(12), onComplete:AlsoKillSPhere , onCompleteParams:[spher]} );
+	
 	//transObjects.remove(s);
 }
+
 
 function NewScore() {
 	var count = 0;
@@ -495,6 +523,8 @@ function NewScore() {
 		if (count == 0) {
 			MoveLights();
 			ChangeColors();	
+			syn0Bus.amp(1);
+			syn1Bus.amp(1);
 			//songBus.pan(1);
 			//llll = new Line(0, .75, 3);
 			//TweenMax.to(songBus.amp, 6,{ value:1} );
@@ -513,7 +543,7 @@ function NewScore() {
 				syns[i].note.seq(nR, bR);
 				syns[i].note.seq.repeat( 1 )
 				syns[i].note.values.filters.push( function( args, pattern ) {
-				   	SphereCreate();
+				 //  	SphereCreate();
 				    return args
 				})
  			}
@@ -544,6 +574,8 @@ function NewScore() {
 			var s = leadSynthPresets[floor(random(leadSynthPresets.length))];
 			
 			//oldSyns.length = 0;
+			syn0Bus.amp(0);
+			syn1Bus.amp(0);
 			for (i = 0; i < synsLength; i++) {
 				ChangeEffects(i);
 				

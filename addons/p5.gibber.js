@@ -10288,12 +10288,12 @@ module.exports = function( Gibber ) {
         //this.fx.add( Delay(1/4, .35), Reverb() ) 
         this.lfo = Gibber.Audio.Oscillators.Sine( .234375 )._
         
-        this.lfo.amp = .075
+        this.lfo.amp = .975
         this.lfo.frequency = 2
         
         this.cutoff = this.lfo
       },
-      resonance: 2
+      resonance: 4
     },
     subtle: {presetInit : function() { 
         //this.fx.add( Delay(1/4, .35), Reverb() ) 
