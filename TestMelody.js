@@ -25,10 +25,7 @@ var windowHalfY = window.innerHeight / 2;
 var $container = $('#container');
 var objects = [], transObjects = [];
 var colors = [ [0x50b0cf, 0xffd55d, 0xff655d], [ 0x5E76D6, 0xFFED5D, 0xFFA65D ], [ 0x775FD8, 0xFFC15D, 0xF8FE5C ], [ 0xA355D5, 0xbcf659, 0xFFDC5D ], 
-				[ 0XE754A4, 0x50DD80, 0xFFFB5D ]
-				//[ 0x, 0x, 0x ], [ 0x, 0x, 0x ], [ 0x, 0x, 0x ], [ 0x, 0x, 0x ], [ 0x, 0x, 0x ], [ 0x, 0x, 0x ], [ 0x, 0x, 0x ], [ 0x, 0x, 0x ]
-
-];
+				[ 0XE754A4, 0x50DD80, 0xFFFB5D ] ];
 // opaquefloor determines amount of opacity volume sensitivity
 var opaqueFloor = 0;
 var theta;
@@ -55,23 +52,11 @@ var renderPass = new THREE.RenderPass(scene, camera);
 var composer = new THREE.EffectComposer(renderer);
 var windowResize = THREEx.WindowResize(renderer, camera);
 
-// create a point light
-//var spotLight = new THREE.PointLight( 0xFFFFFF );
-// var pointLight = new THREE.PointLight( 0x99FFFF);
-// pointLight.intensity = .15;
-
-
 composer.addPass(renderPass);
 
 // start the renderer
 renderer.setSize(WIDTH, HEIGHT);
-//renderer.autoClear = false;
-//renderer.shadowMapEnabled = false;
 
-
-//1. BloomPass: blurry, glowing effect
-//var bloomPass = new THREE.BloomPass(5, 125, 20, 64);
-//var bloomPass = new THREE.BloomPass(3, 75, 12, 128);
 var bloomPass = new THREE.BloomPass(5, 48, 24, 50);
 composer.addPass(bloomPass);
 bloomPass.clear = true;
@@ -79,27 +64,6 @@ bloomPass.clear = true;
 
 
 // hblur = new THREE.ShaderPass(THREE.HorizontalTiltShiftShader);
-// vblur = new THREE.ShaderPass(THREE.VerticalTiltShiftShader);
-// var bluriness = 5;
-
-// hblur.uniforms['h'].value = bluriness / window.innerWidth;
-// vblur.uniforms['v'].value = bluriness / window.innerHeight;
-// hblur.uniforms['r'].value = vblur.uniforms['r'].value = 0.5;
-
-// composer.addPass(hblur);
-// composer.addPass(vblur);
-
-// var mirrorPass = new THREE.ShaderPass( THREE.MirrorShader );
-// composer.addPass(mirrorPass);
-// mirrorPass.uniforms.side.value = 1;
-
-// vignettePass = new THREE.ShaderPass(THREE.VignetteShader);
-// vignettePass.uniforms["darkness"].value = .95;
-// vignettePass.uniforms["offset"].value = 1.5;
-// composer.addPass(vignettePass);
-
-// 2. EffectFilm, which output the result in an old style TV screen fashion (with thin colourful stripes):
-//var effectFilm = new THREE.FilmPass(1, 0.325, 256, false);
 var effectFilm = new THREE.FilmPass(1, .05, 128, false);
 effectFilm.renderToScreen = true;
 composer.addPass(effectFilm);
@@ -109,32 +73,11 @@ composer.addPass(effectFilm);
 // attach the render-supplied DOM element
 $container.append(renderer.domElement);
 
-// var bgCol = new THREE.Color(0xff8f75);
-// var vat = new THREE.MeshLambertMaterial({color: bgCol});
-// var geometry = new THREE.PlaneBufferGeometry(1800*2, 1600 * 2,1,1);
-// vat.blending = THREE.SubtractiveBlending;
-// var bgPlane = new THREE.Mesh(geometry, vat);
-// bgPlane.position.z = - 100;
-// bgPlane.material.transparent	= true;
-// 		bgPlane.material.opacity = 0;
-// scene.add(bgPlane);
 
 // set up the sphere vars
 var radius = 50, segments = 5, rings = 16;
 
 var col = new THREE.Color(0xFF0000);
-
-
-//Plane material
-// var uniforms = {
-//     resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth,window.innerHeight) }
-// };
-
-// var planeMaterial = new THREE.ShaderMaterial( { 
-//     uniforms: uniforms,
-//     vertexShader: document.getElementById('vertexShader').textContent,
-//     fragmentShader: document.getElementById('fragmentShader').textContent
-// } );
 
 //Create plane
 var mesh = new THREE.SphereGeometry(50,5,12);
@@ -171,43 +114,15 @@ light2.position.x = 2000;
 
 
 var ambientLight = new THREE.PointLight(colors[0][0]);
-
 ambientLight.intensity = .2;
-
-////// css MESH ZONE
-
-// create the plane mesh
-
-// add it to the WebGL scene
-// glScene.add(planeMesh);
-
-//create the dom Element
-// var cssScene = new THREE.Scene()
-// var element = document.getElementById("share");
-// //element.src = 'ball.png';
-// // create the object3d for this element
-// var cssObject = new THREE.CSS3DObject( element );
-// // we reference the same position and rotation 
-// cssObject.position = planeMesh.position;
-// cssObject.rotation = planeMesh.rotation;
-// cssObject.scale = planeMesh.scale;
-
-// // add it to the css scene
-// cssScene.add(cssObject);
-
-// var cssRenderer = new THREE.CSS3DRenderer();
-// cssRenderer.setSize( window.innerWidth, window.innerHeight );
-// cssRenderer.domElement.style.position = 'absolute';
-// cssRenderer.domElement.style.top = 0;
-
-////////
 
 scene.add(light);
 scene.add(light2);
 camera.add(ambientLight);
 scene.add(ambientLight);
 
-// sandbox
+//////////////// MUSIC
+
 var looping;
 var ranNotes = [12,11,9,7,5,4,2,0,-1], f,
 beets = [, , , 1, 1/1.5, 1/2, 1/2, 1/2,1/2,1/3, 1/6, 1/4, 1/6, 1/4,1/3, 1/3,1/6], beepEM = 60,
@@ -243,7 +158,7 @@ function setup () {
 	syn0Bus.amp(1);
 	syn1Bus.pan(-.35);
 	syn1Bus.amp(1);
-	//drum = XOX('x       *               *       x       *               *     -*', 1/32);
+	drum = XOX('x       *               *       x       *               *     -*', 1/32);
 	// sine = Sine(.05, 2);
 	// sine._;
 	// drum.fx.add(Delay({time:1/16, feedback:.65, wet:.4}), HPF({cutoff:sine}))
