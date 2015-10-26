@@ -1,3 +1,8 @@
+if rotation has reached number divisible by 10 (?)
+flip the switch, number now reduces
+
+
+
 TO DO
 
 //tween light positions
@@ -13,3 +18,89 @@ add volume on/off
 add visuals on/off
 
 make object interactive/draggable ? top of scale ?  like, reduced way down ? (5000 * .001)
+
+
+
+<html>
+<head>
+  <script language="javascript" type="text/javascript" src="addons/p5.js"></script>
+  <!-- uncomment lines below to include extra p5 libraries -->
+	<script language="javascript" src="addons/p5.dom.js"></script>
+	 <script language="javascript" src="addons/three.min.js"></script>
+  <script language="javascript" src="addons/p5.sound.js"></script>
+  <script language="javascript" src="addons/threex.transparency.js"></script>
+  <script language="javascript" src="addons/THREEx.WindowResize.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+
+   <link rel="stylesheet" type="text/css" href="jssocials-0.2.0/font-awesome.css" />
+    <link rel="stylesheet" type="text/css" href="jssocials-0.2.0/jssocials.css" />
+    <link rel="stylesheet" type="text/css" href="jssocials-0.2.0/jssocials-theme-flat.css" />
+
+  <script language="javascript" src="addons/p5.gibber.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
+  <script src="js/shaders/BleachBypassShader.js"></script>
+		<script src="js/shaders/ColorifyShader.js"></script>
+		<script src="js/shaders/ConvolutionShader.js"></script>
+		<script src="js/shaders/CopyShader.js"></script>
+		<script src="js/shaders/BokehShader.js"></script>
+		<script src="js/shaders/FilmShader.js"></script>
+    <script src="js/shaders/VerticalTiltShiftShader.js"></script>
+    <script src="js/shaders/HorizontalTiltShiftShader.js"></script>
+		<script src="js/ColorConverter.js"></script>
+		<script src="js/shaders/HorizontalBlurShader.js"></script>
+		<script src="js/shaders/SepiaShader.js"></script>
+		<script src="js/shaders/MirrorShader.js"></script>
+		<script src="js/shaders/VerticalBlurShader.js"></script>
+		<script src="js/shaders/VignetteShader.js"></script>
+
+		<script src="js/postprocessing/EffectComposer.js"></script>
+
+		<script src="js/postprocessing/RenderPass.js"></script>
+    <script src="js/postprocessing/BokehPass.js"></script>
+		<script src="js/postprocessing/BloomPass.js"></script>
+		<script src="js/postprocessing/FilmPass.js"></script>
+		<script src="js/postprocessing/DotScreenPass.js"></script>
+		<script src="js/postprocessing/TexturePass.js"></script>
+		<script src="js/postprocessing/ShaderPass.js"></script>
+		<script src="js/postprocessing/MaskPass.js"></script>
+ 
+
+  <!-- this line removes any default padding and style. you might only need one of these values set. -->
+  <style> body {
+				margin: 0px;
+				background-color: #ffffff;
+				overflow: hidden;
+			} </style>
+</head>
+
+<body>
+<div id="share"></div>
+
+   <script src="jssocials.min.js"></script>
+    <script>
+        $("#share").jsSocials({
+            shares: ["email", "twitter", "facebook", "googleplus", "linkedin", "pinterest"]
+        });
+    </script>
+<div id="container">
+  <script id="vertexShader" type="x-shader/x-vertex">
+      void main() {
+        gl_Position = vec4( position,1);
+      }
+    </script>
+    <script id="fragmentShader" type="x-shader/x-fragment">
+      uniform vec2 resolution;
+      void main() {
+        vec2 coord = gl_FragCoord.xy;
+        float xmid = resolution.x/2.0;
+        float ymid = resolution.y/2.0;
+    float x = (coord.x - xmid)/resolution.x;
+        float y = (coord.y-ymid)/resolution.y;
+    float r = sqrt(x*x + y*y)+0.5;
+        vec4 color = vec4(1.0-vec2(r),1.3-r,1.0);
+        gl_FragColor = color;
+      }
+    </script>
+ <script language="javascript" type="text/javascript" src="TestMelody.js"></script>
+</body>
+</html>

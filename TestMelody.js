@@ -42,7 +42,10 @@ var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
                                 NEAR,
                                 FAR  );
 
-camera.lookAt(new THREE.Vector3(0, 0, 0));
+//camera.lookAt(new THREE.Vector3(0, 0, 0));
+camera.position.x = 0;
+camera.position.y = 0;
+camera.position.z = 50;
 var scene = new THREE.Scene();
 var rain = true;
 var night = true;
@@ -62,14 +65,14 @@ composer.addPass(renderPass);
 
 // start the renderer
 renderer.setSize(WIDTH, HEIGHT);
-renderer.autoClear = false;
-renderer.shadowMapEnabled = false;
+//renderer.autoClear = false;
+//renderer.shadowMapEnabled = false;
 
 
 //1. BloomPass: blurry, glowing effect
 //var bloomPass = new THREE.BloomPass(5, 125, 20, 64);
 //var bloomPass = new THREE.BloomPass(3, 75, 12, 128);
-var bloomPass = new THREE.BloomPass(5, 25, 5, 256);
+var bloomPass = new THREE.BloomPass(5, 48, 24, 50);
 composer.addPass(bloomPass);
 bloomPass.clear = true;
 
@@ -96,7 +99,8 @@ bloomPass.clear = true;
 // composer.addPass(vignettePass);
 
 // 2. EffectFilm, which output the result in an old style TV screen fashion (with thin colourful stripes):
-var effectFilm = new THREE.FilmPass(1, 0.325, 256, false);
+//var effectFilm = new THREE.FilmPass(1, 0.325, 256, false);
+var effectFilm = new THREE.FilmPass(1, .05, 128, false);
 effectFilm.renderToScreen = true;
 composer.addPass(effectFilm);
 
@@ -147,6 +151,8 @@ plane.scale.x = 5;
 plane.scale.y = 5;
 plane.scale.z = 5;
 scene.add(plane);
+
+
 //transObjects.push(plane);
 
 var light = new THREE.DirectionalLight( colors[0][1]);
@@ -171,12 +177,7 @@ ambientLight.intensity = .2;
 ////// css MESH ZONE
 
 // create the plane mesh
-var material = new THREE.MeshBasicMaterial({ wireframe: true });
-var geometry = new THREE.PlaneGeometry();
-var planeMesh= new THREE.Mesh( geometry, material );
-planeMesh.scale.x = 50;
-planeMesh.material.transparent = true;
-planeMesh.material.opacity = .5;
+
 // add it to the WebGL scene
 // glScene.add(planeMesh);
 
@@ -211,7 +212,7 @@ var looping;
 var ranNotes = [12,11,9,7,5,4,2,0,-1], f,
 beets = [, , , 1, 1/1.5, 1/2, 1/2, 1/2,1/2,1/3, 1/6, 1/4, 1/6, 1/4,1/3, 1/3,1/6], beepEM = 60,
 bR, nR, bR2, nR2, repeatCount = 1, stopper, syns = [], triggerNewMelody = false, busses = [],
-effectsTypes = [], effectsProperties = [];
+effectsTypes = [], effectsProperties = [], follow0, follow1, follow2, followMain;
 
 function init () {
 	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
@@ -219,6 +220,7 @@ function init () {
 	document.addEventListener( 'touchmove', onDocumentTouchMove, false );
 }
 init();
+
 var leadSynthPresets = ['bleepEcho', 'bleep', 'rhodesFade', 'rhodes', 'warble', 'triLead' ];
 
 function setup () {
@@ -226,15 +228,15 @@ function setup () {
 		[Schizo, 'sane', 'borderline', 'pitchless'], [Vibrato, 'light'], [Distortion, 'rip']];
 	effectsProperties = [ ['LPF', ['cutoff',0,1], ['resonance', 0,5] ]  , ['Delay', ['time',0,1], ['feedback', .4,.95]],
 		['Schizo', ['chance', 0,1], ['reverseChance',0,1], ['mix',0, 1],
-    	['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,5], ['offset',25,1250 ], ['amount', 25,100]], ['Distortion', ['amount', 5, 50]] ];
+    	['length', 1/4,1/3,1/8,1/16,1/2]], ['Vibrato', ['rate',.01,5], ['offset',25,1250 ], ['amount', 25,100]], ['Distortion', ['amount', 5, 10]] ];
 	bR = WholeBeetsReturn(.5, floor(random(1,12))),
 			nR = NotesReturn(bR.length), bR2 = WholeBeetsReturn(.5, floor(random(1,16))),
 			nR2 = NotesReturn(bR2.length);
 	canvas = createCanvas( windowWidth, windowHeight );
 	Clock.bpm(beepEM)
 	songBus = Bus().fx.add( 
-		Delay({time:1/2, feedback:.95, dry:0, wet:1}),StereoVerb({roomsize:.99,dry:1, damping:.5, wet:0}),Distortion(50),
-		Delay('endless'),HPF({cutoff:.1, amp:1, resonance:4}), Crush({ sampleRate: 1, bitDepth:16 })  );
+		Delay({time:1/2, feedback:.95, dry:0, wet:1}),StereoVerb({roomsize:.99,dry:1, damping:.05, wet:0}),Distortion(5),
+		Delay('endless'),LPF({cutoff:.2, amp:1, resonance:4}), Crush({ sampleRate: 1, bitDepth:16 })  );
 	syn0Bus = Bus().fx.add( Distortion(5), Delay('endless') );
 	syn1Bus = Bus().fx.add ( Distortion(5), Delay('endless') );
 	syn0Bus.pan(.35);
@@ -299,39 +301,8 @@ function draw () {
   	//plane.scale.z = (follow0.getValue() * )
   	
   	//rot = plane.rotation.y += ( (targetRotation *.15) - plane.rotation.y ) * 0.05;
-  	plane.material.opacity = followMain.getValue() +.1;
-  	light.intensity = follow0.getValue() * 10 ;
-  	light2.intensity = follow1.getValue() * 10;
-  	console.log(followMain.getValue());
-  	ambientLight.intensity = (follow2.getValue() * .8) + .25;
-  	theta += .00125 ;
-  	//console.log(light.position.x + " . " + light.position.y + " . " + light2.position.x + " . " + light2.position.y + " . " );
-  	//plane.rotation.z = theta;
-  	plane.rotation.y = theta ;
-  	plane.rotation.x = theta * .5;
-  	plane.rotation.z = theta + (followMain.getValue() * .15);
-  	if (scaler < -10) {
-  		scaler = -10;
-  	}
-  	else {
-  		scaler = (plane.scale.x += (targetRotation *.45) - plane.scale.x) < 10 ? plane.scale.x :10;
-  	
-  	}
-  	plane.scale.x = scaler;
-  	cleanScale = (plane.scale.x * 5 ) < 50 ? cleanScale : 50;
-  	console.log(light.intensity + " . " +light2.intensity + " . " + cleanScale + ". " + plane.scale.x);
-  	
-  	//audioVar = plane.rotation.y += direction*( (targetRotation *.15) - plane.rotation.y ) * 0.05;
-  	//DragCompensate (plane.rotation.y);
-  	// if (cleanScale < 0 ) {
-  	// 	cleanScale = (-1 * cleanScale);
-  	// }
-  	// songBus.fx[2].gain = cleanScale < 50 ? songBus.fx[2].gain : 50;
-  	// songBus.fx[3].feedback = (cleanScale * .0175) < .98 ? (cleanScale * .0175) : .99;
-  	
-  	// songBus.fx[4].sampleRate = (cleanScale * .0175);
-  	// songBus.fx[4].bitDepth = 16 * (-1 * -cleanScale + .01);
-  	// bloomPass.resolution = 256 * (-1 * -cleanScale);
+
+  //		console.log(songBus.fx[2].gain + " . " + songBus.fx[3].feedback + " . " + bloomPass.strength + ". " + songBus.fx[4].sampleRate);
   	// console.log(cleanScale);
   	//songBus.fx[3].reverseChance = (rot * .0175);
   	
@@ -716,42 +687,98 @@ var melodyReturn = function (oct, lowRange, highRange) {
     // public
 };
 
-function transparencyUpdate (objects, camera){
-	// update camera matrices
-	camera.updateMatrixWorld()
-	camera.matrixWorldInverse.getInverse( camera.matrixWorld )
+// function transparencyUpdate (objects, camera){
+// 	// update camera matrices
+// 	camera.updateMatrixWorld()
+// 	camera.matrixWorldInverse.getInverse( camera.matrixWorld )
 
-	var screenMatrix= new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
-	var position	= new THREE.Vector3()
+// 	var screenMatrix= new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+// 	var position	= new THREE.Vector3()
 	
-	// traverse the object
-	objects.forEach(function(object){
-		// update the matrixWorld of the object and its children
-		object.updateMatrixWorld()
-		// compute its position in screen space 
-		position.setFromMatrixPosition( object.matrixWorld );
-		position.applyProjection( screenMatrix );
-		// use the position.x as renderDepth
-		object.renderDepth	= position.z;
-	})
-}
+// 	// traverse the object
+// 	objects.forEach(function(object){
+// 		// update the matrixWorld of the object and its children
+// 		object.updateMatrixWorld()
+// 		// compute its position in screen space 
+// 		position.setFromMatrixPosition( object.matrixWorld );
+// 		position.applyProjection( screenMatrix );
+// 		// use the position.x as renderDepth
+// 		object.renderDepth	= position.z;
+// 	})
+// }
 
 // draw!
 
 var clock = new THREE.Clock()
 
+function animate () {
+	
+        plane.material.opacity = followMain.getValue() + .1;
+	  	light.intensity = follow0.getValue() * 10 ;
+	  	light2.intensity = follow1.getValue() * 10;
+	  	ambientLight.intensity = ( follow2.getValue() * .8 ) + .25;
+	  	theta += .00125 ;
+	  	//console.log(light.position.x + " . " + light.position.y + " . " + light2.position.x + " . " + light2.position.y + " . " );
+	  	//plane.rotation.z = theta;
+	  	plane.rotation.y = theta ;
+	  	plane.rotation.x = theta * .5;
+	  	plane.rotation.z = theta + ( followMain.getValue() * .15 );
+	  	
+	  	//switch statement?
+	  	scaler = ( plane.scale.x += ( targetRotation * .45 ) - plane.scale.x ) < 10 ? plane.scale.x :10;
+	  	
+	  	if ( scaler < -10 ) {
+	  		scaler = -10;
+	  	}
+	  	
+	  	plane.scale.x = scaler;
+	  	//plane.scale.y = scaler * .5 + 10;
+	  	
+	  	cleanScale = (scaler * 5 ) < 50 ? ( scaler * 5 ) : 50;
+		
+
+		//cleanscale flips to preven negatives
+		if (cleanScale < 0 ) {
+	  	 	cleanScale = (-1 * cleanScale);
+	  	}
+	  	
+	  	
+	  	
+	  	//songBus.fx[2].gain = cleanScale * .5;
+	  	songBus.fx[3].feedback = (cleanScale * .0195) < .94 ? (cleanScale * .0195) : .95;
+	  	
+	  	songBus.fx[1].dry = 1 - (cleanScale * .02);
+	  	songBus.fx[1].wet = 0 + (cleanScale * .02);
+	  	//songBus.fx[4].sampleRate = 1 - (cleanScale  * .02);
+	  
+	  	songBus.fx[4].sampleRate = (cleanScale * .0175);
+	  	songBus.fx[4].bitDepth = 16 - (cleanScale * .32);
+	  	//bloomPass.uniforms[ "resolution" ].value = 50 - cleanScale ;
+	  	bloomPass.resolution = 50 - cleanScale ;
+	  	bloomPass.kernelSize = 25 - (cleanScale * .5 );
+	  	//bloomPass.uniforms[ "kernelSize" ].value = 25 - (cleanScale * .5) ;
+	  	//bloomPass.sigma = bloomPass.kernelSize * .2;
+	  	//bloomPass.uniforms[ "strength" ].value = cleanScale + 3 ;
+	  	//bloomPass.strength = cleanScale + 3;
+	  	//effectFilm.uniforms.["scanLinesIntensity"].value = 1 - (cleanScale * .02 );
+
+	  	//console.log(effectFilm.scanLinesIntensity );
+}
+
 function render() {
 	//transparencyUpdate(transObjects, camera);
 
     var delta = clock.getDelta();
+
+    camera.lookAt( new THREE.Vector3(0, 0, 0));
     
     renderer.clear();
 
-    composer.render(delta);
+    composer.render(.01);
     
     setTimeout( function() {
-    	
-        requestAnimationFrame( render );
+    	animate();
+    	requestAnimationFrame( render );
 
     }, 3750/60 );
 }

@@ -1,19 +1,57 @@
+var WIDTH =  window.innerWidth,
+    HEIGHT =  window.innerHeight;
+
+
+var VIEW_ANGLE = 45,
+    ASPECT = WIDTH / HEIGHT,
+    NEAR = 0.1,
+    FAR = 10000;
+
+
+var colors = [ [0x50b0cf, 0xffd55d, 0xff655d], [ 0x5E76D6, 0xFFED5D, 0xFFA65D ], [ 0x775FD8, 0xFFC15D, 0xF8FE5C ], [ 0xA355D5, 0xbcf659, 0xFFDC5D ], 
+				[ 0XE754A4, 0x50DD80, 0xFFFB5D ] ];
+
+var renderer = new THREE.WebGLRenderer();
+var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE, ASPECT, NEAR, FAR  );
+
+//camera.lookAt(new THREE.Vector3(0, 0, 0));
+camera.position.x = 0;
+camera.position.y = 0;
+camera.position.z = 50;
+var scene = new THREE.Scene();
+
+renderer.setSize(WIDTH, HEIGHT);
+
+// var $container = $('#container');
+// $container.append(renderer.domElement);
+
+
+var counterA = 0, counterB = 0, counterC = 0;
+
 function setup () {
 	var time = [1/2];
-	var nR = Harmony.notesReturn(0,1,8);
-	var counter = 0;
-	var arpPattern = Harmony.arpPatterns[floor(random(Harmony.arpPatterns.length))];
-	arpie = Arp([12,12], 1/3);
+	var nR = Harmony.melodyReturn(0,2,8);
+	
+	//var arpPattern = Harmony.arpPatterns[floor(random(Harmony.arpPatterns.length))];
+	//arpie = Arp([12,12], 1/3);
 	
 	var notesLength = nR.length;
 	bV = Harmony.beetsReturn(4, 6);
 	
 	a = Synth('bleep')
-	arpie.target = a;
-	arpie.chord.seq ('c4maj7', 2);
-	arpie.seq.speed =bV;
-	
+	.note.seq(nR, [1/16])
 	a.noteOriginal = a.note
+	a.pan(-1);
+
+	b = Synth('bleep')
+	.note.seq(nR, [1/12])
+	b.noteOriginal = b.note
+	b.pan(1);
+
+	c = Synth('bleep')
+	.note.seq(nR, [1/8])
+	c.noteOriginal = c.note
+
 
 a.note = function() {
 
@@ -21,41 +59,67 @@ a.note = function() {
 
     a.noteOriginal.apply( a, args )
     
-    doSomeOtherStuff(args, notesLength, arpPattern)
+    doSomeOtherStuff(args, notesLength, "a")
 
 }
 
 Gibber.createProxyMethods( a, ['note'] )
 
-function doSomeOtherStuff (arg, l, pattern)  { 
+b.note = function() {
 
-	
+    var args = Array.prototype.slice.call( arguments, 0 )
 
-	console.log('a note!' + arg + "." + counter + " . " + pattern) 
-	counter++;
-	if (pattern == "updown") {
-		if (counter >= (l * 2) ) {
-		//OR... || startOver bool is marked true
-			counter = 0;
-		}
-	}
-	else if (pattern == "updown2"){
-		if (counter >= (l * 2) - 2 ) {
-		//OR... || startOver bool is marked true
-			counter = 0;
-		}
-	}
-	else {
-		if (counter >= l ) {
-		//OR... || startOver bool is marked true
-			counter = 0;
-		}
-	}
-	
+    b.noteOriginal.apply( b, args )
+    
+    doSomeOtherStuff(args, notesLength, "b")
+
 }
+
+Gibber.createProxyMethods( b, ['note'] )
+
+c.note = function() {
+
+    var args = Array.prototype.slice.call( arguments, 0 )
+
+    c.noteOriginal.apply( c, args )
+    
+    doSomeOtherStuff(args, notesLength, "c")
+
+}
+
+Gibber.createProxyMethods( c, ['note'] )
+
+
+
 
 //a.note.seq([0,1], 1/4) // outputs 'a note!' to the console
 
+}
+
+function doSomeOtherStuff (arg, l, obj)  { 
+
+	
+	if (obj == "a") {
+		counterA++;
+		if (counterA >= l) {
+			counterA = 0;
+		}
+		console.log('a note!' + arg + "." + counterA + " . " + obj) 
+	}
+	else if (obj == "b") {
+		counterB++
+		if (counterB >= l) {
+			counterB = 0;
+		}
+		console.log('a note!' + arg + "." + counterB + " . " + obj) 
+	}
+	else if (obj == "c") {
+		counterC++
+		if (counterC >= l) {
+			counterC = 0;
+		}
+		console.log('a note!' + arg + "." + counterC + " . " + obj) 
+	}
 }
 
 function draw () {
@@ -66,7 +130,7 @@ function draw () {
 
 
 var Harmony = (function () { 
-	var vanillaNotes = [7,4,2,0,-11,-9,-7], vanillaMeasures = [1,1,2,2,2,4,4,4,8,8,6,6,8,8,12,12,16],
+	var vanillaNotes = [7,4,2,0,11,9,14, 16], vanillaMeasures = [1,1,2,2,2,4,4,4,8,8,6,6,8,8,12,12,16],
 	beets = [1, 1/1.5,1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
 	arpPatternArray = ['updown2', 'updown', 'down', 'up'] ;
   	var notesReturn = function (oct, lowRange, highRange) {
