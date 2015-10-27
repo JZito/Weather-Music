@@ -1,0 +1,20 @@
+h1 { 
+
+	font-family:'Orbitron', sans-serif; font-weight: 700;
+	display: inline-block;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	padding: 10px;
+	border: none;
+	color: #14FF2A;
+	text-decoration: normal;
+	text-align: center;
+	-o-text-overflow: clip;
+	text-overflow: clip;
+	white-space: pre;
+	text-shadow: 0 0 10px rgba(255,255,255,1) , 0 0 20px rgba(255,255,255,1) , 
+		0 0 30px rgba(255,255,255,1) , 0 0 40px #39FF14 , 0 0 70px #39FF14 , 0 0 80px #39FF14 , 0 0 100px #39FF14 ;
+ 	font-size: 5.9vw;
+
+ }

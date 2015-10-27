@@ -2,6 +2,7 @@
 var WIDTH =  window.innerWidth,
     HEIGHT =  window.innerHeight;
 
+var start = false;
 
 var plane, cleanScale, audioRotationVar = 0.1;
 // set some camera attributes
@@ -32,7 +33,8 @@ var theta;
 
 // create a WebGL renderer, camera
 // and a scene
-var renderer = new THREE.WebGLRenderer();
+var renderer = new THREE.WebGLRenderer( { alpha: true });
+renderer.setClearColor( 0x000000, 0 );
 
 var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
                                 ASPECT,
@@ -158,7 +160,7 @@ function setup () {
 	syn0Bus.amp(1);
 	syn1Bus.pan(-.35);
 	syn1Bus.amp(1);
-	drum = XOX('x       *               *       x       *               *     -*', 1/32);
+	//drum = XOX('x       *               *       x       *               *     -*', 1/32);
 	// sine = Sine(.05, 2);
 	// sine._;
 	// drum.fx.add(Delay({time:1/16, feedback:.65, wet:.4}), HPF({cutoff:sine}))
@@ -187,7 +189,7 @@ function setup () {
 	followMain = Follow(Gibber.Master);
 	NewScore();
 	StartScore();
-	
+	start = true;
 
 	//createOriginalObjects();
 	//syns.push(m1);
@@ -627,8 +629,8 @@ var melodyReturn = function (oct, lowRange, highRange) {
 var clock = new THREE.Clock()
 
 function animate () {
-	
-        plane.material.opacity = followMain.getValue() + .1;
+	if (start) {
+		plane.material.opacity = followMain.getValue() + .1;
 	  	light.intensity = follow0.getValue() * 10 ;
 	  	light2.intensity = follow1.getValue() * 10;
 	  	ambientLight.intensity = ( follow2.getValue() * .8 ) + .25;
@@ -678,6 +680,7 @@ function animate () {
 	  	//effectFilm.uniforms.["scanLinesIntensity"].value = 1 - (cleanScale * .02 );
 
 	  	//console.log(effectFilm.scanLinesIntensity );
+	}  
 }
 
 function render() {

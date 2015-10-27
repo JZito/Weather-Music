@@ -1,9 +1,10 @@
 <html>
 <head>
+<link href='https://fonts.googleapis.com/css?family=Orbitron:400,700' rel='stylesheet' type='text/css'>
   <script language="javascript" type="text/javascript" src="addons/p5.js"></script>
   <!-- uncomment lines below to include extra p5 libraries -->
 	<script language="javascript" src="addons/p5.dom.js"></script>
-	 <script language="javascript" src="addons/three.min.js"></script>
+	 <script language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.min.js"></script>
   <script language="javascript" src="addons/p5.sound.js"></script>
   <script language="javascript" src="addons/threex.transparency.js"></script>
   <script language="javascript" src="addons/THREEx.WindowResize.js"></script>
@@ -14,39 +15,111 @@
 
   <script language="javascript" src="addons/p5.gibber.js"></script>
  <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
-  <script src="js/shaders/BleachBypassShader.js"></script>
-		<script src="js/shaders/ColorifyShader.js"></script>
+ 
 		<script src="js/shaders/ConvolutionShader.js"></script>
     <script src="js/CSS3DRenderer.js"></script>
 		<script src="js/shaders/CopyShader.js"></script>
 		
 		<script src="js/shaders/FilmShader.js"></script>
-		<script src="js/ColorConverter.js"></script>
-		<script src="js/shaders/HorizontalBlurShader.js"></script>
-		<script src="js/shaders/SepiaShader.js"></script>
-		<script src="js/shaders/MirrorShader.js"></script>
-		<script src="js/shaders/VerticalBlurShader.js"></script>
-		<script src="js/shaders/VignetteShader.js"></script>
+
 
 		<script src="js/postprocessing/EffectComposer.js"></script>
 
 		<script src="js/postprocessing/RenderPass.js"></script>
 		<script src="js/postprocessing/BloomPass.js"></script>
 		<script src="js/postprocessing/FilmPass.js"></script>
-		<script src="js/postprocessing/DotScreenPass.js"></script>
-		<script src="js/postprocessing/TexturePass.js"></script>
+		
 		<script src="js/postprocessing/ShaderPass.js"></script>
+
+    <script src="js/postprocessing/TexturePass.js"></script>
 		<script src="js/postprocessing/MaskPass.js"></script>
+    <script src="js/postprocessing/DotScreenPass.js"></script>
+    <script src="js/ColorConverter.js"></script>
+
+     <script src="js/shaders/BleachBypassShader.js"></script>
+    <script src="js/shaders/ColorifyShader.js"></script>
+    <script src="js/shaders/HorizontalBlurShader.js"></script>
+    <script src="js/shaders/SepiaShader.js"></script>
+    <script src="js/shaders/MirrorShader.js"></script>
+    <script src="js/shaders/VerticalBlurShader.js"></script>
+    <script src="js/shaders/VignetteShader.js"></script>
  
 
   <!-- this line removes any default padding and style. you might only need one of these values set. -->
 <style> 
-    body {
+
+body {
 				margin: 0px;
 				background-color: #ffffff;
 				overflow: hidden;
-		} 
+} 
+
+@font-face {
+    font-family: myFirstFont;
+    src: url(ledreali.ttf) format('truetype');
+}
+
+h1 { 
+
+  font-family: 'myFirstFont'; 
+  font-weight: normal;
+    font-style: normal;
+  z-index: 100;
+  display: inline-block;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 10px;
+  border: none;
+  color: #000000;
+  text-decoration: normal;
+  
+  -o-text-overflow: clip;
+  text-overflow: clip;
+  white-space: pre;
+  text-shadow: 0 0 10px rgba(255,255,255,.25) , 0 0 20px rgba(255,255,255,.25) , 
+    0 0 30px rgba(57,255,20,.45) , 0 0 40px rgba(57,255,20,.35) , 0 0 70px rgba(57,255,20,.25) , 
+    0 0 80px rgba(57,255,20,.15) , 0 0 100px rgba(57,255,20,.05) ;
+  font-size: 6.9vw;
+
+ }
+
+.word {
+  width:300px;
+  height:300px;
+  margin:0 auto;
+  top:20px;
+  left:40px;
+  right:40px;
+}
+
+.one {
+ position:fixed;
+ left:50%;
+ top:50%;
+ margin-left:-150px;
+ margin-top:-150px;
+}
+
+.two {
+ left:50%;
+ top:50%;
+ position:fixed;
+ margin-left:-150px;
+ margin-top:-50px;
+}
+.three {
+   left:50%;
+ top:50%;
+ position:fixed;
+ margin-left:-150px;
+ margin-top:50px;
+}
     .share-button {margin: auto; position: absolute; left: 0; bottom: 0;  z-index: 100;}
+
+    #container {
+
+    }
 </style>
 </head>
 
@@ -90,9 +163,16 @@
     var share = new Share(".share-button", config );
   </script>
 
-  
 <div id="container">
- 
+   <div class = "word one">
+  <h1>ONE</h1>
+  </div>
+  <div class = "word two">
+  <h1>MINUTE</h1>
+  </div>
+  <div class = "word three" >
+  <h1>MORE</h1>
+  </div>
  <script language="javascript" type="text/javascript" src="TestMelody.js"></script>
 </body>
-</html>
+</html> 
