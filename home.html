@@ -1,26 +1,56 @@
-<!doctype html>
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="UTF-8">
+    <title>[CSS3] Neon Glow</title>
+    
+    
+    
+    
+        <link rel="stylesheet" href="styles.css">
 
-<html lang="en">
-<head>
-  <meta charset="utf-8">
+    
+    
+    
+  </head>
 
-  <title>The HTML5 Herald</title>
-  <link href='https://fonts.googleapis.com/css?family=Orbitron:400,700' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="/p5/mi/styles.css">
+  <body>
 
-</head>
+    <div id="container">
 
-<body>
-<center>
-<div id="wordOne">
-<h1>ONE</h1>
+
+  <p><center><a href="https://en.wikipedia.org/wiki/Blue">
+    <div id="wordOne">O N E</div> <br>
+    <div id="wordTwo">M I N U T E</div><br>
+    <div id="wordThree">M O R E </div>
+    </center>
+  </a></p>
+
+
 </div>
-<div id="wordTwo">
-<h1>MINUTE</h1>
-</div>
-<div id="wordThree">
-<h1>MORE</h1>
-</div>
-  <!-- <script src="js/scripts.js"></script> -->
-</body>
+    
+    <script>
+		document.addEventListener("click", function(){
+			console.log("hello");
+			Disappear();
+		    
+		});
+
+		function Disappear(){
+    	document.getElementById("wordOne").innerHTML = " ";
+    // set timer to start next action a certain time after the sound starts
+    	setTimeout(function() {
+        	document.getElementById("wordThree").innerHTML = " ";
+        // set timer to start next action a certain time after making the image bigger
+        	setTimeout (function() {
+            	document.getElementById("wordTwo").innerHTML = " ";
+        	}, 1000);   // set this time for how long you want to wait after bigger, before hide
+    	}, 1000);   // set the time here for how long you want to wait after starting the sound before making it bigger
+}
+    </script>
+
+    
+    
+    
+  </body>
 </html>

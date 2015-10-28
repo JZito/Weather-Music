@@ -1,20 +1,127 @@
-h1 { 
+/*setup*/
 
-	font-family:'Orbitron', sans-serif; font-weight: 700;
-	display: inline-block;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-	padding: 10px;
-	border: none;
-	color: #14FF2A;
-	text-decoration: normal;
-	text-align: center;
-	-o-text-overflow: clip;
-	text-overflow: clip;
-	white-space: pre;
-	text-shadow: 0 0 10px rgba(255,255,255,1) , 0 0 20px rgba(255,255,255,1) , 
-		0 0 30px rgba(255,255,255,1) , 0 0 40px #39FF14 , 0 0 70px #39FF14 , 0 0 80px #39FF14 , 0 0 100px #39FF14 ;
- 	font-size: 5.9vw;
+* {
+  margin: 0;
+  padding: 0;
+}
 
- }
+
+
+@font-face {
+  font-family: 'digital';
+  font-style: normal;
+  font-weight: 400;
+  src: url('LetsgoDigitalRegular.ttf') format('truetype')
+}
+
+
+body {
+  top: 25%;
+
+  background-color: #222222;
+  background: repeating-linear-gradient(45deg, #2b2b2b 0%, #2b2b2b 10%, #222222 0%, #222222 50%) 0 / 15px 15px;
+}
+
+#container {
+  width: 500px;
+  margin: auto;
+}
+/*neeeeoooon*/
+
+p {
+  
+  font-size: 1em;
+
+}
+
+a {
+  text-decoration: none;
+  -webkit-transition: all 0.5s;
+  -moz-transition: all 0.5s;
+  transition: all 0.5s;
+}
+
+
+
+body a {
+  font-size: 1em;
+  line-height: 50%;
+  color: #228DFF;
+  font-family: 'digital';
+}
+
+body a:hover {
+  color: #ffffff;
+  -webkit-animation: neon2 1.5s ease-in-out infinite alternate;
+  -moz-animation: neon2 1.5s ease-in-out infinite alternate;
+  animation: neon2 1.5s ease-in-out infinite alternate;
+}
+
+#wordOne {
+ position:fixed;
+ 
+ margin-left:0px;
+ margin-top:50px;
+ 
+}
+
+#wordTwo {
+ 
+ position:fixed;
+ margin-left:0px;
+ margin-top:100px;
+ f
+}
+#wordThree {
+ 
+ position:fixed;
+ margin-left:0px;
+ margin-top:150px;
+ 
+}
+
+/*glow for webkit*/
+
+
+@-webkit-keyframes neon2 {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #228DFF, 0 0 70px #228DFF, 0 0 80px #228DFF, 0 0 100px #228DFF, 0 0 150px #228DFF;
+  }
+  to {
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #228DFF, 0 0 35px #228DFF, 0 0 40px #228DFF, 0 0 50px #228DFF, 0 0 75px #228DFF;
+  }
+}
+
+
+@-moz-keyframes neon2 {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #228DFF, 0 0 70px #228DFF, 0 0 80px #228DFF, 0 0 100px #228DFF, 0 0 150px #228DFF;
+  }
+  to {
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #228DFF, 0 0 35px #228DFF, 0 0 40px #228DFF, 0 0 50px #228DFF, 0 0 75px #228DFF;
+  }
+}
+
+/*glow*/
+
+
+
+@keyframes neon2 {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #228DFF, 0 0 70px #228DFF, 0 0 80px #228DFF, 0 0 100px #228DFF, 0 0 150px #228DFF;
+  }
+  to {
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #228DFF, 0 0 35px #228DFF, 0 0 40px #228DFF, 0 0 50px #228DFF, 0 0 75px #228DFF;
+  }
+}
+
+/*REEEEEEEEEEESPONSIVE*/
+
+@media (max-width: 650px) {
+  #container {
+    width: 100%;
+  }
+  p {
+    font-size: 3.5em;
+  }
+}

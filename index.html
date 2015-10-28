@@ -48,20 +48,22 @@
   <!-- this line removes any default padding and style. you might only need one of these values set. -->
 <style> 
 
+@font-face {
+    font-family: titleFont;
+    src: url('LetsgoDigitalRegular.ttf') format('truetype');
+}
+
 body {
 				margin: 0px;
 				background-color: #ffffff;
 				overflow: hidden;
 } 
 
-@font-face {
-    font-family: myFirstFont;
-    src: url(ledreali.ttf) format('truetype');
-}
+
 
 h1 { 
 
-  font-family: 'myFirstFont'; 
+  font-family: 'titleFont'; 
   font-weight: normal;
     font-style: normal;
   z-index: 100;
@@ -77,10 +79,10 @@ h1 {
   -o-text-overflow: clip;
   text-overflow: clip;
   white-space: pre;
-  text-shadow: 0 0 10px rgba(255,255,255,.25) , 0 0 20px rgba(255,255,255,.25) , 
-    0 0 30px rgba(57,255,20,.45) , 0 0 40px rgba(57,255,20,.35) , 0 0 70px rgba(57,255,20,.25) , 
+  text-shadow: 0 0 10px rgba(255,255,255,.25) , 0 0 20px rgba(200,255,255,.25) , 
+    0 0 30px rgba(100,255,20,.45) , 0 0 40px rgba(57,255,20,.35) , 0 0 70px rgba(57,255,20,.25) , 
     0 0 80px rgba(57,255,20,.15) , 0 0 100px rgba(57,255,20,.05) ;
-  font-size: 6.9vw;
+  
 
  }
 
@@ -88,32 +90,33 @@ h1 {
   width:300px;
   height:300px;
   margin:0 auto;
-  top:20px;
-  left:40px;
+  left:50%;
+  top:10%;
+  font-size: 5.9vw;
   right:40px;
 }
 
 .one {
  position:fixed;
- left:50%;
- top:50%;
+ 
  margin-left:-150px;
  margin-top:-150px;
+ 
 }
 
 .two {
- left:50%;
- top:50%;
+ 
  position:fixed;
  margin-left:-150px;
  margin-top:-50px;
+ f
 }
 .three {
-   left:50%;
- top:50%;
+ 
  position:fixed;
  margin-left:-150px;
  margin-top:50px;
+ 
 }
     .share-button {margin: auto; position: absolute; left: 0; bottom: 0;  z-index: 100;}
 
@@ -164,14 +167,15 @@ h1 {
   </script>
 
 <div id="container">
+<center>
    <div class = "word one">
   <h1>ONE</h1>
   </div>
   <div class = "word two">
-  <h1>MINUTE</h1>
+  <h1>&nbsp;MINUTE</h1>
   </div>
   <div class = "word three" >
-  <h1>MORE</h1>
+  <h1>&nbsp;&nbsp;&nbsp;MORE</h1>
   </div>
  <script language="javascript" type="text/javascript" src="TestMelody.js"></script>
 </body>
