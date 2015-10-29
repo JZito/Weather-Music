@@ -28,30 +28,28 @@ body {
 }
 /*neeeeoooon*/
 
-p {
-  
-  font-size: 1em;
 
-}
 
 a {
   text-decoration: none;
-  -webkit-transition: all 0.5s;
-  -moz-transition: all 0.5s;
-  transition: all 0.5s;
+  color: #228DFF;
+  
 }
 
 
 
-body a {
+body {
   font-size: 1em;
   line-height: 50%;
   color: #228DFF;
   font-family: 'digital';
 }
 
-body a:hover {
-  color: #ffffff;
+.classname {
+	color: #ffffff;
+	-webkit-transition: all 0.5s;
+  -moz-transition: all 0.5s;
+  transition: all 0.5s;
   -webkit-animation: neon2 1.5s ease-in-out infinite alternate;
   -moz-animation: neon2 1.5s ease-in-out infinite alternate;
   animation: neon2 1.5s ease-in-out infinite alternate;

@@ -1,3 +1,9 @@
+var started = false;
+// document.addEventListener("click", function(){
+// 	console.log("hello");
+// 	Disappear();
+    
+// });
 
 var WIDTH =  window.innerWidth,
     HEIGHT =  window.innerHeight;
@@ -88,7 +94,7 @@ var bgCol = new THREE.Color(0xffffff);
 var vat = new THREE.MeshPhongMaterial({color: bgCol, shininess: 3, transparent:true, shading: THREE.FlatShading});
 vat.blending = THREE.AdditiveBlending;
 plane = new THREE.Mesh(mesh, vat);
-//plane.material.transparent = true;
+plane.material.opacity = 0;
 plane.position.z = - 500;
 plane.position.x = -50;
 plane.position.y = 0;
@@ -102,21 +108,21 @@ scene.add(plane);
 
 var light = new THREE.DirectionalLight( colors[0][1]);
 light.distance = 3000;
-light.intensity = .25;
+light.intensity = 0;
 light.position.y = 0;
 light.position.z = 1200;
 light.position.x = -2000;
 
 var light2 = new THREE.DirectionalLight(colors[0][2]);
 light.distance = 3000;
-light2.intensity = .25;
+light2.intensity = 0;
 light2.position.y = 0;
 light2.position.z = 1200;
 light2.position.x = 2000;
 
 
 var ambientLight = new THREE.PointLight(colors[0][0]);
-ambientLight.intensity = .2;
+ambientLight.intensity = 0;
 
 scene.add(light);
 scene.add(light2);
@@ -187,66 +193,19 @@ function setup () {
 	follow1 = Follow(syn1Bus);
 	follow0 = Follow(syn0Bus);
 	followMain = Follow(Gibber.Master);
-	NewScore();
-	StartScore();
-	start = true;
+	
 
 	//createOriginalObjects();
 	//syns.push(m1);
 
 }
 var scaler;
-function draw () {
-	//console.log(follow2.getValue() + " . " + follow1.getValue() + " " + follow0.getValue() + " . " + followMain.getValue())
-	//console.log(songBus.amp.value);
-	//console.log(f);
-	//CheckTheTime(minute());
-	//console.log(m.frequency)
-	// var x = mouseX / windowWidth,
- //        y = mouseY / windowHeight,
- //        ww2 = windowWidth / 2,
- //        wh2 = windowHeight / 2 ;
-  
- //  	songBus.fx[1].roomsize = (1 - x);
- //  	//console.log(songBus.fx[1].roomsize + "room 1")
- //  	songBus.fx[4].roomsize = ((1 - y) * .5) + .5 ;
-
- //  	songBus.fx[3].feedback = x < .99 ? x : .99;
- //  	console.log(light.position.z);
-  	//console.log(songBus.fx[4].roomsize + "room 2");
-  	//console.log(songBus.fx[3].feedback + "feedback");
-  	//plane.scale.z = (follow0.getValue() * )
-  	
-  	//rot = plane.rotation.y += ( (targetRotation *.15) - plane.rotation.y ) * 0.05;
-
-  //		console.log(songBus.fx[2].gain + " . " + songBus.fx[3].feedback + " . " + bloomPass.strength + ". " + songBus.fx[4].sampleRate);
-  	// console.log(cleanScale);
-  	//songBus.fx[3].reverseChance = (rot * .0175);
-  	
-  	//console.log(plane.rotation.y + " . " + rot + " . " + audioRotationVar);
-  	// plane.rotation.y = theta * 2;
-  	// plane.rotation.z = theta * .5;
-  	// light2.rotation.y = theta * .5;
-  	// light.rotation.y = theta * .5;
- //  	if (notes) {
- //  		light.position.y = -4000 + (followSyn0.getValue() * 2000);
-	// light2.position.y = -4000 + (followSyn1.getValue() * 2000);
- //  	}
-  	
-  	//console.log (" . . " + light.intensity + " . . " + light2.intensity + " . . " + ambientLight.intensity);
-}
 
 function inverse(number) {
     return (10 - (Math.round(number/100)));
 }
 
-function DragCompensate ( p ) {
-	// var planeRot = p; 
-	// if (plane.rotation.y % 10) {
- //  		console.log ("!!!!");
- //  		direction = -direction;
- //  	}
-}
+
 
 function add(a, b) {
 	return a + b;
@@ -339,62 +298,6 @@ function ChangeEffects (place) {
 	}
 }
 
-var SphereCreate = function () {
-
-	//var i5 = (i*225) - 350;
-	//console.log(parent);
-	var tweenDir;
-	//color of object that called it
-		//partially transparent?
-	var col = plane.material.color.getHex();
-	//console.log("col" + col);
-	var sph = plane.clone();
-	
-	//position of object that called it
-	sph.scale.y = plane.scale.y;
-	sph.scale.x = plane.scale.x;
-	sph.position.z = -4000;
-	sph.position.x = plane.position.x + (-200 + Math.random() * 400);
-	sph.rotation.z = plane.rotation.z;
-
-	// sph.scale.x = parent.scale.x;
-	//sph.scale.y = window.innerHeight;
-	scene.add(sph);
-	//transObjects.push(sph);
-	//console.log(sph.position.x + sph + "sphere");
-	//var p = 12;
-	
-	// TweenMax.to(sph.material, 2, { opacity:.25,
-	// 	ease:  SteppedEase.config(24)} );
-	// TweenMax.to(sph.position, 6, {x:-1500 + (Math.random() * 3000),
-	// 	ease: SteppedEase.config(72),
-	// 	 } );
-	TweenMax.to(sph.material, 3, { opacity:0 , onComplete:KillSphere, onCompleteParams:[sph]} )
-	// TweenMax.to(sph.scale, 6, { x: sph.scale.x * 25, y: sph.scale.y * 25,
-	// 	ease: SteppedEase.config(36)});
-
-
-	
-	
-	// TweenMax.to(sph.rotation, .5, {x: -300 + Math.random() * 1000, y:p++,
- //  	ease: SteppedEase.config(5),
- //  	yoyo:false, } );
-
-	
-
-}
-
-function KillSphere(s) {
-	var spher = s;
-	scene.remove(s);
-	//remove sphere from scene
-	// TweenMax.to(spher.material, 1, { opacity:0,
-	// 	ease:  SteppedEase.config(12), onComplete:AlsoKillSPhere , onCompleteParams:[spher]} );
-	
-	//transObjects.remove(s);
-}
-
-
 function NewScore() {
 	var count = 0;
 	var killSeq = false;
@@ -436,23 +339,25 @@ function NewScore() {
 				})
  			}
 		}
-		else if (count == 3) {
-			lll = new Line (.75, 0, 1);
-			for (i = 0; i < synsLength; i++) {
-				console.log ("stopper" + syns[i])
-				//syns[i].amp(0);
-				syns[i].seq.stop();
+		// else if (count == 3) {
+		// 	lll = new Line (.75, 0, 1);
+		// 	for (i = 0; i < synsLength; i++) {
+		// 		console.log ("stopper" + syns[i])
+		// 		//syns[i].amp(0);
+		// 		syns[i].seq.stop();
 				
 				
-				//syns[i].fx[i].amp(lll);
-				//syns[i].amp(lll);
-				//oldSyns.push(syns[i]);
-			}
+		// 		//syns[i].fx[i].amp(lll);
+		// 		//syns[i].amp(lll);
+		// 		//oldSyns.push(syns[i]);
+		// 	}
 			
-			//llll.kill();
-		}
+		// 	//llll.kill();
+		// }
 		else if (count == 4) {
+			console.log("4" + " . " + synsLength)
 			for (i = 0; i < synsLength; i++) {
+
 				syns[i].kill();	
 			}
 			//lll.kill();
@@ -502,7 +407,7 @@ function CoinReturn() {
 }
 
 function StartScore() { 
-	looping = setInterval(NewScore, 30000);
+	looping = setInterval(NewScore, 60000);
 }
 
 function StopScore () {
@@ -604,6 +509,20 @@ var melodyReturn = function (oct, lowRange, highRange) {
     // public
 };
 
+var rewriteMelodyReturn = function (p) {
+  		
+	var inNotes = [], coin = Math.round(Math.random()*2),
+	y = floor(p.length/2) ;
+	//console.log (p.length + " nR length " + (y * coin) + " y + coin ");
+	inNotes = p.slice(0);
+	for (i = (y * coin); i <(y*coin)+y; i++){
+			inNotes[i] = ranNotes[floor(random(ranNotes.length))];
+			//console.log (inNotes[i] + "in score for" + i);
+		}
+	return inNotes;
+				  						
+};
+
 // function transparencyUpdate (objects, camera){
 // 	// update camera matrices
 // 	camera.updateMatrixWorld()
@@ -662,17 +581,16 @@ function animate () {
 	  	
 	  	
 	  	//songBus.fx[2].gain = cleanScale * .5;
-	  	songBus.fx[3].feedback = (cleanScale * .0195) < .94 ? (cleanScale * .0195) : .95;
+	  	songBus.fx[3].feedback = (cleanScale * .0195) < .98 ? (cleanScale * .0195) : .98;
 	  	
 	  	songBus.fx[1].dry = 1 - (cleanScale * .02);
 	  	songBus.fx[1].wet = 0 + (cleanScale * .02);
 	  	//songBus.fx[4].sampleRate = 1 - (cleanScale  * .02);
 	  
-	  	songBus.fx[4].sampleRate = (cleanScale * .0175);
+	  	songBus.fx[4].sampleRate = (cleanScale * .035);
 	  	songBus.fx[4].bitDepth = 16 - (cleanScale * .32);
+
 	  	//bloomPass.uniforms[ "resolution" ].value = 50 - cleanScale ;
-	  	bloomPass.resolution = 50 - cleanScale ;
-	  	bloomPass.kernelSize = 25 - (cleanScale * .5 );
 	  	//bloomPass.uniforms[ "kernelSize" ].value = 25 - (cleanScale * .5) ;
 	  	//bloomPass.sigma = bloomPass.kernelSize * .2;
 	  	//bloomPass.uniforms[ "strength" ].value = cleanScale + 3 ;
@@ -704,14 +622,24 @@ render();
 
 function onDocumentMouseDown( event ) {
 
-	event.preventDefault();
+	if (start == false) {
+		start=true;
+		Disappear();
+	}
+	else if (start == true) {
+		m.note.seq(ranNotes[floor(random(ranNotes.length))], beets[floor(random(beets.length))]);
+		m.note.seq.repeat( 1 )
+		
+		event.preventDefault();
 
-	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-	document.addEventListener( 'mouseup', onDocumentMouseUp, false );
-	document.addEventListener( 'mouseout', onDocumentMouseOut, false );
+		document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+		document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+		document.addEventListener( 'mouseout', onDocumentMouseOut, false );
 
-	mouseXOnMouseDown = event.clientX - windowHalfX;
-	targetRotationOnMouseDown = targetRotation;
+		mouseXOnMouseDown = event.clientX - windowHalfX;
+		targetRotationOnMouseDown = targetRotation;
+	}
+	
 
 }
 
@@ -763,6 +691,49 @@ function onDocumentTouchMove( event ) {
 
 	}
 
+}
+
+function Disappear(){
+	
+	var nR = melodyReturn( floor(random(-2,2)), 2,   2);
+	var nr2 = rewriteMelodyReturn(nR);
+	document.getElementById('wordOne').className ='classname';
+	m.note.seq(nR[0], 1/3);
+	m.note.seq.repeat( 1 )
+	m2.note.seq(nR2[0], 1/2);
+	m2.note.seq.repeat( 1 );
+// set timer to start next action a certain time after the sound starts
+	setTimeout(function() {
+		document.getElementById("wordOne").innerHTML = " ";
+    	document.getElementById('wordTwo').className ='classname';
+    	m.note.seq(nR[1], 1/3);
+		m.note.seq.repeat( 1 )
+		m2.note.seq(nR2[1], 1/2);
+		m2.note.seq.repeat( 1 );
+    	setTimeout (function() {
+    		document.getElementById("wordTwo").innerHTML = " ";
+    		document.getElementById('wordThree').className ='classname';
+    		m.note.seq(nR[2], 1/3);
+			m.note.seq.repeat( 1 )
+			m2.note.seq(nR2[2], 1/2);
+			m2.note.seq.repeat( 1 );
+    		setTimeout (function () {
+    			
+    			
+				start = true;
+				var element = document.getElementById("textContainer");
+				element.parentNode.removeChild(element);
+				setTimeout (function () {
+    				NewScore();
+					StartScore();
+    			}, 30000);
+    			//load the new gibbber content
+    			//destroy the whole div textcontainer
+    			
+    		}, 3000);
+        	
+    	}, 3000);   // set this time for how long you want to wait after bigger, before hide
+	}, 3000);   // set the time here for how long you want to wait after starting the sound before making it bigger
 }
 
 // function setMute () { 

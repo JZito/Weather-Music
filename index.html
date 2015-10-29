@@ -53,76 +53,119 @@
     src: url('LetsgoDigitalRegular.ttf') format('truetype');
 }
 
-body {
-				margin: 0px;
-				background-color: #ffffff;
-				overflow: hidden;
-} 
-
-
-
-h1 { 
-
-  font-family: 'titleFont'; 
-  font-weight: normal;
-    font-style: normal;
-  z-index: 100;
-  display: inline-block;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  padding: 10px;
-  border: none;
-  color: #000000;
-  text-decoration: normal;
-  
-  -o-text-overflow: clip;
-  text-overflow: clip;
-  white-space: pre;
-  text-shadow: 0 0 10px rgba(255,255,255,.25) , 0 0 20px rgba(200,255,255,.25) , 
-    0 0 30px rgba(100,255,20,.45) , 0 0 40px rgba(57,255,20,.35) , 0 0 70px rgba(57,255,20,.25) , 
-    0 0 80px rgba(57,255,20,.15) , 0 0 100px rgba(57,255,20,.05) ;
-  
-
- }
-
-.word {
-  width:300px;
-  height:300px;
-  margin:0 auto;
-  left:50%;
-  top:10%;
-  font-size: 5.9vw;
-  right:40px;
+* {
+  margin: 0;
+  padding: 0;
 }
 
-.one {
+
+
+@font-face {
+  font-family: 'digital';
+  font-style: normal;
+  font-weight: 400;
+  src: url('LetsgoDigitalRegular.ttf') format('truetype')
+}
+
+
+
+
+
+/*neeeeoooon*/
+
+
+
+
+
+
+#textContainer {
+  background-color: rgba(255,0,0,0) ;
+  font-size: 4em;
+  line-height: 0%;
+  color: #228DFF;
+  font-family: 'digital';
+   width:500px;
+   height:500px;
+   margin:0 auto;
+   position:absolute;
+   left:50%;
+   top:50%;
+   margin-left:-250px;
+   margin-top:-250px;
+}
+
+
+.classname {
+  color: #ffffff;
+  -webkit-transition: all 3s;
+  -moz-transition: all 3s;
+  transition: all 3s;
+  -webkit-animation: neon2 3s ease-in-out infinite alternate;
+  -moz-animation: neon2 3s ease-in-out infinite alternate;
+  animation: neon2 3s ease-in-out infinite alternate;
+}
+
+#wordOne {
  position:fixed;
  
- margin-left:-150px;
- margin-top:-150px;
+ margin-left:0px;
+ margin-top:250px;
  
 }
 
-.two {
+#wordTwo {
  
  position:fixed;
- margin-left:-150px;
- margin-top:-50px;
- f
+ margin-left:0px;
+ margin-top:350px;
+ 
 }
-.three {
+#wordThree {
  
  position:fixed;
- margin-left:-150px;
- margin-top:50px;
+ margin-left:0px;
+ margin-top:450px;
  
 }
+
+/*glow for webkit*/
+
+
+@-webkit-keyframes neon2 {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #228DFF, 0 0 70px #228DFF, 0 0 80px #228DFF, 0 0 100px #228DFF, 0 0 150px #228DFF;
+  }
+  to {
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #228DFF, 0 0 35px #228DFF, 0 0 40px #228DFF, 0 0 50px #228DFF, 0 0 75px #228DFF;
+  }
+}
+
+
+@-moz-keyframes neon2 {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #228DFF, 0 0 70px #228DFF, 0 0 80px #228DFF, 0 0 100px #228DFF, 0 0 150px #228DFF;
+  }
+  to {
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #228DFF, 0 0 35px #228DFF, 0 0 40px #228DFF, 0 0 50px #228DFF, 0 0 75px #228DFF;
+  }
+}
+
+/*glow*/
+
+
+
+@keyframes neon2 {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #228DFF, 0 0 70px #228DFF, 0 0 80px #228DFF, 0 0 100px #228DFF, 0 0 150px #228DFF;
+  }
+  to {
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #228DFF, 0 0 35px #228DFF, 0 0 40px #228DFF, 0 0 50px #228DFF, 0 0 75px #228DFF;
+  }
+}
+
+
     .share-button {margin: auto; position: absolute; left: 0; bottom: 0;  z-index: 100;}
 
-    #container {
-
-    }
 </style>
 </head>
 
@@ -166,17 +209,20 @@ h1 {
     var share = new Share(".share-button", config );
   </script>
 
-<div id="container">
-<center>
-   <div class = "word one">
-  <h1>ONE</h1>
+    <div id ="textContainer">
+        <h1>
+        <div id="wordOne">O N E</div> <br>
+        <div id="wordTwo">M I N U T E</div><br>
+        <div id="wordThree">M O R E </div>
+        
+        </h1>
+
+   
+
+
   </div>
-  <div class = "word two">
-  <h1>&nbsp;MINUTE</h1>
-  </div>
-  <div class = "word three" >
-  <h1>&nbsp;&nbsp;&nbsp;MORE</h1>
-  </div>
+   <div id="container">
+ </div>
  <script language="javascript" type="text/javascript" src="TestMelody.js"></script>
 </body>
 </html> 

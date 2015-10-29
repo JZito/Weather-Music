@@ -12,41 +12,30 @@
     
     
     
-  </head>
+</head>
 
-  <body>
+<body>
 
     <div id="container">
-
-
-  <p><center><a href="https://en.wikipedia.org/wiki/Blue">
-    <div id="wordOne">O N E</div> <br>
-    <div id="wordTwo">M I N U T E</div><br>
-    <div id="wordThree">M O R E </div>
-    </center>
-  </a></p>
-
-
 </div>
+		<div id ="textContainer">
+  			<p><center>
+  			<a href="https://en.wikipedia.org/wiki/Blue">
+    		<div id="wordOne">O N E</div> <br>
+    		<div id="wordTwo">M I N U T E</div><br>
+   			<div id="wordThree">M O R E </div>
+    		</center>
+  			</a></p>
+
+		
+
+
+	</div>
     
     <script>
-		document.addEventListener("click", function(){
-			console.log("hello");
-			Disappear();
-		    
-		});
+		
 
-		function Disappear(){
-    	document.getElementById("wordOne").innerHTML = " ";
-    // set timer to start next action a certain time after the sound starts
-    	setTimeout(function() {
-        	document.getElementById("wordThree").innerHTML = " ";
-        // set timer to start next action a certain time after making the image bigger
-        	setTimeout (function() {
-            	document.getElementById("wordTwo").innerHTML = " ";
-        	}, 1000);   // set this time for how long you want to wait after bigger, before hide
-    	}, 1000);   // set the time here for how long you want to wait after starting the sound before making it bigger
-}
+    
     </script>
 
     
