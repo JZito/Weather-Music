@@ -49,8 +49,8 @@
 <style> 
 
 @font-face {
-    font-family: titleFont;
-    src: url('LetsgoDigitalRegular.ttf') format('truetype');
+    font-family: 'analog';
+    src: url('PressStart2P.ttf') format('truetype');
 }
 
 * {
@@ -79,12 +79,27 @@
 
 
 #textContainer {
-  background-color: rgba(255,0,0,0) ;
-  font-size: 4em;
+  
+  font-size: 1em;
   line-height: 0%;
   color: #228DFF;
-  font-family: 'digital';
+  font-family: 'analog';
    width:500px;
+   height:500px;
+   margin:0 auto;
+   position:absolute;
+   left:50%;
+   top:50%;
+   margin-left:-250px;
+   margin-top:-250px;
+}
+
+#textContainer2 {
+  background-color: rgba(255,0,0,0) ;
+  color:rgba(0,245,60,0.5);
+  font-size: 1em;
+  font-family: 'analog';
+  width:500px;
    height:500px;
    margin:0 auto;
    position:absolute;
@@ -109,7 +124,7 @@
  position:fixed;
  
  margin-left:0px;
- margin-top:250px;
+ margin-top:50px;
  
 }
 
@@ -117,14 +132,14 @@
  
  position:fixed;
  margin-left:0px;
- margin-top:350px;
+ margin-top:150px;
  
 }
 #wordThree {
  
  position:fixed;
  margin-left:0px;
- margin-top:450px;
+ margin-top:250px;
  
 }
 
@@ -209,20 +224,19 @@
     var share = new Share(".share-button", config );
   </script>
 
-    <div id ="textContainer">
+ <!--    <div id ="textContainer">
         <h1>
-        <div id="wordOne">O N E</div> <br>
-        <div id="wordTwo">M I N U T E</div><br>
-        <div id="wordThree">M O R E </div>
+        <div id="wordOne"></div> <br>
+        <div id="wordTwo"></div><br>
+        <div id="wordThree"></div>
         
         </h1>
-
-   
-
-
-  </div>
+    </div>
+    <div id = "textContainer2"> 
+        <div id="textZone">+++++++<br>TOUCH ANYWHERE,<br>MAKE SOUND<br>+++++<br>DRAG LEFT OR RIGHT,<br>MAKE CHANGE<br>+++++++</div>
+    </div> -->
    <div id="container">
  </div>
- <script language="javascript" type="text/javascript" src="TestMelody.js"></script>
+ <script language="javascript" type="text/javascript" src="testSequenceFunction.js"></script>
 </body>
 </html> 

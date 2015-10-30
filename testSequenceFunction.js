@@ -11,98 +11,336 @@ var VIEW_ANGLE = 45,
 var colors = [ [0x50b0cf, 0xffd55d, 0xff655d], [ 0x5E76D6, 0xFFED5D, 0xFFA65D ], [ 0x775FD8, 0xFFC15D, 0xF8FE5C ], [ 0xA355D5, 0xbcf659, 0xFFDC5D ], 
 				[ 0XE754A4, 0x50DD80, 0xFFFB5D ] ];
 
-var renderer = new THREE.WebGLRenderer();
-var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE, ASPECT, NEAR, FAR  );
+var renderer = new THREE.WebGLRenderer( { alpha: true });
+renderer.setClearColor( 0x000000, 0 );
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
+                                ASPECT,
+                                NEAR,
+                                FAR  );
+
+var windowResize = THREEx.WindowResize(renderer, camera);
+
+var renderPass = new THREE.RenderPass(scene, camera);
+var composer = new THREE.EffectComposer(renderer);
+var windowResize = THREEx.WindowResize(renderer, camera);
+
+composer.addPass(renderPass);
+
+// start the renderer
+renderer.setSize(WIDTH, HEIGHT);
+
+var bloomPass = new THREE.BloomPass(25, 64, 16, 25);
+composer.addPass(bloomPass);
+bloomPass.clear = true;
+
+
+
+// hblur = new THREE.ShaderPass(THREE.HorizontalTiltShiftShader);
+var effectFilm = new THREE.FilmPass(1, .05, 128, false);
+effectFilm.renderToScreen = true;
+composer.addPass(effectFilm);
+// start the renderer
+renderer.setSize(WIDTH, HEIGHT);
+
+
 
 //camera.lookAt(new THREE.Vector3(0, 0, 0));
 camera.position.x = 0;
 camera.position.y = 0;
 camera.position.z = 50;
-var scene = new THREE.Scene();
+
+
 
 renderer.setSize(WIDTH, HEIGHT);
 
-// var $container = $('#container');
-// $container.append(renderer.domElement);
+
+var radius = 50, segments = 5, rings = 16;
+
+var col = new THREE.Color(0xFF0000);
+
+//Create plane
+// var mesh = new THREE.SphereGeometry(50,5,12);
+// var direction;
+// var bgCol = new THREE.Color(0xffffff);
+// var vat = new THREE.MeshPhongMaterial({color: bgCol, shininess: 3, transparent:true, shading: THREE.FlatShading});
+// vat.blending = THREE.AdditiveBlending;
+// plane = new THREE.Mesh(mesh, vat);
+// plane.material.opacity = 1;
+// plane.position.z = - 500;
+// plane.position.x = -10000;
+// plane.position.y = 0;
+// plane.scale.x = 5;
+// plane.scale.y = 5;
+// plane.scale.z = 5;
+
+
+
+//transObjects.push(plane);
+
+var light = new THREE.DirectionalLight( colors[0][1]);
+light.distance = 3000;
+light.intensity = .75;
+light.position.y = 0;
+light.position.z = 1200;
+light.position.x = -2000;
+
+var light2 = new THREE.DirectionalLight(colors[0][2]);
+light.distance = 3000;
+light2.intensity = .75;
+light2.position.y = 0;
+light2.position.z = 1200;
+light2.position.x = 2000;
+
+
+var ambientLight = new THREE.PointLight(colors[0][0]);
+ambientLight.intensity = .65;
+
+scene.add(light);
+scene.add(light2);
+camera.add(ambientLight);
+scene.add(ambientLight);
+var $container = $('#container');
+$container.append(renderer.domElement);
 
 
 var counterA = 0, counterB = 0, counterC = 0;
+var colorTicker = 2;
 
+function ChangeColors () {
+	colorTicker = floor(random(colors.length));
+}
+
+var SphereCreate = function (counter, type) {
+
+	//var i5 = (i*225) - 350;
+	//console.log(parent);
+	var tweenDir;
+	//color of object that called it
+		//partially transparent?
+	//console.log("col" + col);
+	var mesh = new THREE.SphereGeometry(50,5,12);
+	var vat = new THREE.MeshPhongMaterial({color: 0xffffff, shininess: 3, transparent:true, shading: THREE.FlatShading});
+	vat.blending = THREE.AdditiveBlending;
+	sph = new THREE.Mesh(mesh, vat);
+	
+	//position of object that called it
+	sph.position.z = -4000;
+
+	//sph.position.z = floor(random(-10000,-2000));
+	if (type == 'counterA') {
+		sph.position.y = 0;
+		sph.position.x = 5000 ;
+		sph.material.color.setHex(colors[colorTicker][1]);
+		
+	}
+	else if (type == 'counterB') {
+		sph.position.y = -1300 ;
+		sph.position.x = 5000 ;
+		sph.material.color.setHex(colors[colorTicker][2]);
+		console.log(colors[2][counter]);
+
+	}
+	else if (type == 'counterC') {
+		sph.position.y = 1300 ;
+		sph.position.x = 5000 ;
+		sph.material.color.setHex(colors[colorTicker][0]);
+		console.log("c" + counter + " . " + counterC + type)
+	}
+	
+	
+	
+	//sph.rotation.z = random(1);
+
+	 sph.scale.x = 40;
+	 sph.scale.y = 10;
+	//sph.scale.y = window.innerHeight;
+	scene.add(sph);
+	//transObjects.push(sph);
+	//console.log(sph.position.x + sph + "sphere");
+	//var p = 12;
+	
+	// TweenMax.to(sph.material, 2, { opacity:.25,
+	// 	ease:  SteppedEase.config(24)} );
+	// TweenMax.to(sph.position, 6, {x:-1500 + (Math.random() * 3000),
+	// 	ease: SteppedEase.config(72),
+	// 	 } );
+	//TweenMax.to(sph.material, 3, { opacity:0 , onComplete:KillSphere, onCompleteParams:[sph]} )
+	 TweenMax.to(sph.position, 1, { x: -12000,
+	 	ease: SteppedEase.config(12), onComplete:KillSphere, onCompleteParams:[sph]});
+
+
+	
+	
+	// TweenMax.to(sph.rotation, .5, {x: -300 + Math.random() * 1000, y:p++,
+ //  	ease: SteppedEase.config(5),
+ //  	yoyo:false, } );
+
+	
+
+}
+
+function KillSphere(s) {
+	scene.remove(s);
+	//remove sphere from scene
+	// TweenMax.to(spher.material, 1, { opacity:0,
+	// 	ease:  SteppedEase.config(12), onComplete:AlsoKillSPhere , onCompleteParams:[spher]} );
+	
+	//transObjects.remove(s);
+}
+var theta = 0;
+function animate () {
+	theta += 1;
+	light.intensity = follow.getValue() * .5;
+	ambientLight.intensity = follow.getValue() * .25;
+	light2.intensity = follow.getValue() *.25;
+	//plane.position.x = theta;
+	  	//bloomPass.uniforms[ "resolution" ].value = 50 - cleanScale ;
+	  	//bloomPass.uniforms[ "kernelSize" ].value = 25 - (cleanScale * .5) ;
+	  	//bloomPass.sigma = bloomPass.kernelSize * .2;
+	  	//bloomPass.uniforms[ "strength" ].value = cleanScale + 3 ;
+	  	//bloomPass.strength = cleanScale + 3;
+	  	//effectFilm.uniforms.["scanLinesIntensity"].value = 1 - (cleanScale * .02 );
+
+	  	//console.log(effectFilm.scanLinesIntensity );
+	
+}
+
+var clock = new THREE.Clock()
+
+function render() {
+	//transparencyUpdate(transObjects, camera);
+
+    var delta = clock.getDelta();
+
+    camera.lookAt( new THREE.Vector3(0, 0, 0));
+    
+    renderer.clear();
+
+    composer.render(.01);
+    
+    setTimeout( function() {
+    	animate();
+    	requestAnimationFrame( render );
+
+    }, 3750/60 );
+}
+render();
+var a, b, c;
+var follow;
 function setup () {
+	
 	var time = [1/2];
-	var nR = Harmony.melodyReturn(0,2,8);
+	drum = Kick().note.seq( 55,1/4 )
+	follow = Follow(drum);
+	var nR = Harmony.melodyReturn(0,2,3);
+	var nR2 = Harmony.melodyReturn(0,2,3);
+	var nR3 = Harmony.melodyReturn(0,2,3);
+	
 	
 	//var arpPattern = Harmony.arpPatterns[floor(random(Harmony.arpPatterns.length))];
 	//arpie = Arp([12,12], 1/3);
 	
 	var notesLength = nR.length;
-	bV = Harmony.beetsReturn(4, 6);
+	bV = Harmony.beetsReturn(1,3);
 	
 	a = Synth('bleep')
 	.note.seq(nR, [1/16])
-	a.noteOriginal = a.note
 	a.pan(-1);
 
+
 	b = Synth('bleep')
-	.note.seq(nR, [1/12])
-	b.noteOriginal = b.note
+	.note.seq(nR2, [1/2])
 	b.pan(1);
 
-	c = Synth('bleep')
-	.note.seq(nR, [1/8])
-	c.noteOriginal = c.note
+	c = Synth('rhodes')
+	.note.seq(nR3, [1/8])
+	
+	a.note.values.filters.push( function( args, pattern ) {
+  		doSomeOtherStuff(args, nR.length, "a")
 
+	    SphereCreate(counterA, 'counterA');
+  		return args
+	})
 
-a.note = function() {
+	b.note.values.filters.push( function( args, pattern ) {
+  		doSomeOtherStuff(args, nR2.length, "b")
 
-    var args = Array.prototype.slice.call( arguments, 0 )
+	    SphereCreate(counterB, 'counterB');
+  		return args
+	})
 
-    a.noteOriginal.apply( a, args )
-    
-    doSomeOtherStuff(args, notesLength, "a")
+	c.note.values.filters.push( function( args, pattern ) {
+  		doSomeOtherStuff(args, nR3.length, "c")
 
-}
-
-Gibber.createProxyMethods( a, ['note'] )
-
-b.note = function() {
-
-    var args = Array.prototype.slice.call( arguments, 0 )
-
-    b.noteOriginal.apply( b, args )
-    
-    doSomeOtherStuff(args, notesLength, "b")
-
-}
-
-Gibber.createProxyMethods( b, ['note'] )
-
-c.note = function() {
-
-    var args = Array.prototype.slice.call( arguments, 0 )
-
-    c.noteOriginal.apply( c, args )
-    
-    doSomeOtherStuff(args, notesLength, "c")
-
-}
-
-Gibber.createProxyMethods( c, ['note'] )
-
-
-
-
+	    SphereCreate(counterC, 'counterC');
+  		return args
+	})
 //a.note.seq([0,1], 1/4) // outputs 'a note!' to the console
 
 }
 
-function doSomeOtherStuff (arg, l, obj)  { 
+function NewNotes () {
+	
+}
 
+function ChangeNotes () {
+
+		var time = [1/2];
+	var nR = Harmony.melodyReturn(0,2,3);
+	var nR2 = Harmony.melodyReturn(1,2,3);
+	var nR3 = Harmony.melodyReturn(-1,2,3);
+	//var arpPattern = Harmony.arpPatterns[floor(random(Harmony.arpPatterns.length))];
+	//arpie = Arp([12,12], 1/3);
+	
+	var notesLength = nR.length;
+	bV = Harmony.beetsReturn(1,3);
+	a.note.seq(nR, [1/12]);
+	b.note.seq(nR2, [1/2]);
+	c.note.seq(nR3, [1/3]);
+
+	a.note.values.filters.push( function( args, pattern ) {
+  		doSomeOtherStuff(args, nR.length, "a")
+
+	    SphereCreate(counterA, 'counterA');
+  		return args
+	})
+
+	b.note.values.filters.push( function( args, pattern ) {
+  		doSomeOtherStuff(args, nR2.length, "b")
+
+	    SphereCreate(counterB, 'counterB');
+  		return args
+	})
+
+	c.note.values.filters.push( function( args, pattern ) {
+  		doSomeOtherStuff(args, nR3.length, "c")
+
+	    SphereCreate(counterC, 'counterC');
+  		return args
+	})
+
+	
+	//a.noteOriginal = a.note
+
+}
+
+var repeatTicker = 0;
+function doSomeOtherStuff (arg, l, obj)  { 
+// l is length of pattern for counter
+	console.log(repeatTicker);
+	if (repeatTicker >=16) {
+		ChangeColors();
+		ChangeNotes();//a.noteOriginal = a.note;
+		repeatTicker = 0;
+
+	}
 	
 	if (obj == "a") {
 		counterA++;
 		if (counterA >= l) {
 			counterA = 0;
+			repeatTicker++;
 		}
 		console.log('a note!' + arg + "." + counterA + " . " + obj) 
 	}

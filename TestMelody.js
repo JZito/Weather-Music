@@ -56,25 +56,11 @@ var rain = true;
 var night = true;
 var cloudy = false;
 var theta = 0;
-var renderPass = new THREE.RenderPass(scene, camera);
-var composer = new THREE.EffectComposer(renderer);
-var windowResize = THREEx.WindowResize(renderer, camera);
 
-composer.addPass(renderPass);
 
 // start the renderer
 renderer.setSize(WIDTH, HEIGHT);
 
-var bloomPass = new THREE.BloomPass(5, 48, 24, 50);
-composer.addPass(bloomPass);
-bloomPass.clear = true;
-
-
-
-// hblur = new THREE.ShaderPass(THREE.HorizontalTiltShiftShader);
-var effectFilm = new THREE.FilmPass(1, .05, 128, false);
-effectFilm.renderToScreen = true;
-composer.addPass(effectFilm);
 
 
 
@@ -156,9 +142,9 @@ function setup () {
 			nR = NotesReturn(bR.length), bR2 = WholeBeetsReturn(.5, floor(random(1,16))),
 			nR2 = NotesReturn(bR2.length);
 	canvas = createCanvas( windowWidth, windowHeight );
-	Clock.bpm(beepEM)
+	//Gibber.Clock.bpm(beepEM)
 	songBus = Bus().fx.add( 
-		Delay({time:1/2, feedback:.95, dry:0, wet:1}),StereoVerb({roomsize:.99,dry:1, damping:.05, wet:0}),Distortion(5),
+		Delay({time:1/3, feedback:.95, dry:.5, wet:.5}),StereoVerb({roomsize:.99,dry:1, damping:.05, wet:0}),Distortion(2),
 		Delay('endless'),LPF({cutoff:.2, amp:1, resonance:4}), Crush({ sampleRate: 1, bitDepth:16 })  );
 	syn0Bus = Bus().fx.add( Distortion(5), Delay('endless') );
 	syn1Bus = Bus().fx.add ( Distortion(5), Delay('endless') );
@@ -166,17 +152,18 @@ function setup () {
 	syn0Bus.amp(1);
 	syn1Bus.pan(-.35);
 	syn1Bus.amp(1);
+	
 	//drum = XOX('x       *               *       x       *               *     -*', 1/32);
 	// sine = Sine(.05, 2);
 	// sine._;
 	// drum.fx.add(Delay({time:1/16, feedback:.65, wet:.4}), HPF({cutoff:sine}))
 	// drum.connect(songBus)
 	//drum._;
-	m = Synth('squareLead')
+	m = Synth('rhodes')
 	//m.fx.add();
-	m2 = Synth('squareLead')
+	m2 = Synth('rhodes')
 	m3 = Synth('rhodes')
-	m3.fx.add(Gain(2),Delay('nightChill'))
+	// kick = Kick().note.seq( 55,1/4 )
 	m2.fx.add();
 	m.pan(.25);
 	m2.pan(-.25);
@@ -184,11 +171,12 @@ function setup () {
 	
 	m.connect(syn0Bus)
 	m2.connect(syn1Bus)
+	m3.send(songBus, .65);
 	syn0Bus.connect(songBus);
 	syn1Bus.connect(songBus);
 	busses.push(syn0Bus);
 	busses.push(syn1Bus);
-	busses.push(m2);
+	//busses.push(m2);
    // f = Follow();
 	syns.push(m);
 	syns.push(m2);
@@ -219,8 +207,8 @@ var SphereCreate = function (mX, mY) {
 	sph.scale.y = plane.scale.y;
 	sph.scale.x = plane.scale.x;
 	sph.position.z = floor(random(-8000,-10000));
-	sph.position.x = mX;
-	sph.rotation.z = mY;
+	sph.position.x = floor(random(-4000,4000));
+	sph.rotation.z = random(1);
 
 	// sph.scale.x = parent.scale.x;
 	//sph.scale.y = window.innerHeight;
@@ -660,24 +648,7 @@ function animate () {
 	}  
 }
 
-function render() {
-	//transparencyUpdate(transObjects, camera);
-
-    var delta = clock.getDelta();
-
-    camera.lookAt( new THREE.Vector3(0, 0, 0));
-    
-    renderer.clear();
-
-    composer.render(.01);
-    
-    setTimeout( function() {
-    	animate();
-    	requestAnimationFrame( render );
-
-    }, 3750/60 );
-}
-render();
+renderer.render(scene, camera);
 
 function onDocumentMouseDown( event ) {
 
@@ -688,7 +659,7 @@ function onDocumentMouseDown( event ) {
 	else if (start == true) {
 		SphereCreate(mouseX, mouseY);
 		m3.note.seq(ranNotes[floor(random(ranNotes.length))], beets[floor(random(beets.length))]);
-		m3.note.seq.repeat( 1 )
+		m3.note.seq.repeat(1);
 		
 		event.preventDefault();
 
@@ -731,10 +702,23 @@ function onDocumentTouchStart( event ) {
 
 	if ( event.touches.length === 1 ) {
 
-		event.preventDefault();
+		if (!start) {
+			start=true;
+			Disappear();
+		}
 
-		mouseXOnMouseDown = event.touches[ 0 ].pageX - windowHalfX;
-		targetRotationOnMouseDown = targetRotation;
+		else if (start) {
+			SphereCreate(mouseX, mouseY);
+			m3.note.seq(ranNotes[floor(random(ranNotes.length))], beets[floor(random(beets.length))]);
+			m3.note.seq.repeat(1);
+
+			event.preventDefault();
+
+			mouseXOnMouseDown = event.touches[ 0 ].pageX - windowHalfX;
+			targetRotationOnMouseDown = targetRotation;
+		}
+
+		
 
 	}
 
@@ -752,48 +736,101 @@ function onDocumentTouchMove( event ) {
 	}
 
 }
-
+var score;
 function Disappear(){
 	
 	var nR = melodyReturn( floor(random(-2,2)), 2,   2);
 	var nr2 = rewriteMelodyReturn(nR);
+	var element = document.getElementById("textContainer2");
+	element.parentNode.removeChild(element);
+	document.getElementById('wordOne').innerHTML = "O N E";
 	document.getElementById('wordOne').className ='classname';
-	m.note.seq(nR[0], 1/3);
-	m.note.seq.repeat( 1 )
-	m2.note.seq(nR2[0], 1/2);
-	m2.note.seq.repeat( 1 );
-// set timer to start next action a certain time after the sound starts
-	setTimeout(function() {
-		document.getElementById("wordOne").innerHTML = " ";
-    	document.getElementById('wordTwo').className ='classname';
-    	m.note.seq(nR[1], 1/3);
-		m.note.seq.repeat( 1 )
-		m2.note.seq(nR2[1], 1/2);
-		m2.note.seq.repeat( 1 );
-    	setTimeout (function() {
-    		document.getElementById("wordTwo").innerHTML = " ";
+	score = Score([0,
+		function(){
+			
+			
+			
+			
+			m.note.seq(nR[0], 1/3);
+			m.note.seq.repeat( 1 )
+			
+			console.log("hi111");
+		}, measures (1),
+		function() {
+			document.getElementById("wordOne").innerHTML = " ";
+			document.getElementById('wordTwo').innerHTML = "M I N U T E";
+	    	document.getElementById('wordTwo').className ='classname';
+	    	
+	    	m2.note.seq((nR2[0]), 1/2);
+			m2.note.seq.repeat( 1 );
+			console.log("hi222");
+		}, measures (1),
+		function () {
+			document.getElementById("wordTwo").innerHTML = " ";
+			document.getElementById('wordThree').innerHTML = "M O R E";
     		document.getElementById('wordThree').className ='classname';
+    		
     		m.note.seq(nR[2], 1/3);
 			m.note.seq.repeat( 1 )
-			m2.note.seq(nR2[2], 1/2);
+			m2.note.seq(nR2[1], 1/2);
 			m2.note.seq.repeat( 1 );
-    		setTimeout (function () {
+			m3.note.seq(nR2[2],1/3)
+			m3.note.seq.repeat(1)
+			console.log("hhii333")
+		}, measures(1),
+		function () {
+
+			start = true;
+			document.getElementById("wordTwo").innerHTML = " ";
+			var element = document.getElementById("textContainer");
+			element.parentNode.removeChild(element);
+			NewScore();
+			StartScore();
+
+			score.stop();
+		}, measures(1)
+		]).start()
+	score.seq.repeat(1);
+	
+	// var nR = melodyReturn( floor(random(-2,2)), 2,   2);
+	// var nr2 = rewriteMelodyReturn(nR);
+	// document.getElementById('wordOne').className ='classname';
+	// m.note.seq(nR[0], 1/3);
+	// m.note.seq.repeat( 1 )
+	// m2.note.seq(nR2[0], 1/2);
+	// m2.note.seq.repeat( 1 );
+// set timer to start next action a certain time after the sound starts
+	// setTimeout(function() {
+	// 	// document.getElementById("wordOne").innerHTML = " ";
+ //  //   	document.getElementById('wordTwo').className ='classname';
+ //  //   	m.note.seq(nR[1], 1/3);
+	// 	// m.note.seq.repeat( 1 )
+	// 	// m2.note.seq(nR2[1], 1/2);
+	// 	// m2.note.seq.repeat( 1 );
+ //    	setTimeout (function() {
+ //   //  		document.getElementById("wordTwo").innerHTML = " ";
+ //   //  		document.getElementById('wordThree').className ='classname';
+ //   //  		m.note.seq(nR[2], 1/3);
+	// 		// m.note.seq.repeat( 1 )
+	// 		// m2.note.seq(nR2[2], 1/2);
+	// 		// m2.note.seq.repeat( 1 );
+ //    		setTimeout (function () {
     			
     			
-				start = true;
-				var element = document.getElementById("textContainer");
-				element.parentNode.removeChild(element);
-				setTimeout (function () {
-    				NewScore();
-					StartScore();
-    			}, 30000);
-    			//load the new gibbber content
-    			//destroy the whole div textcontainer
+	// 			// start = true;
+	// 			// var element = document.getElementById("textContainer");
+	// 			// element.parentNode.removeChild(element);
+	// 			// setTimeout (function () {
+ //    // 				NewScore();
+	// 			// 	StartScore();
+ //    			}, 30000);
+ //    			//load the new gibbber content
+ //    			//destroy the whole div textcontainer
     			
-    		}, 3000);
+ //    		}, 3000);
         	
-    	}, 3000);   // set this time for how long you want to wait after bigger, before hide
-	}, 3000);   // set the time here for how long you want to wait after starting the sound before making it bigger
+ //    	}, 3000);   // set this time for how long you want to wait after bigger, before hide
+	// }, 3000);   // set the time here for how long you want to wait after starting the sound before making it bigger
 }
 
 // function setMute () { 
