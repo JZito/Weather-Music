@@ -172,9 +172,11 @@ function setup () {
 	// drum.fx.add(Delay({time:1/16, feedback:.65, wet:.4}), HPF({cutoff:sine}))
 	// drum.connect(songBus)
 	//drum._;
-	m = Synth('rhodesFade')
+	m = Synth('squareLead')
 	//m.fx.add();
-	m2 = Synth('rhodesFade')
+	m2 = Synth('squareLead')
+	m3 = Synth('rhodes')
+	m3.fx.add(Gain(2),Delay('nightChill'))
 	m2.fx.add();
 	m.pan(.25);
 	m2.pan(-.25);
@@ -186,6 +188,7 @@ function setup () {
 	syn1Bus.connect(songBus);
 	busses.push(syn0Bus);
 	busses.push(syn1Bus);
+	busses.push(m2);
    // f = Follow();
 	syns.push(m);
 	syns.push(m2);
@@ -200,6 +203,62 @@ function setup () {
 
 }
 var scaler;
+
+var SphereCreate = function (mX, mY) {
+
+	//var i5 = (i*225) - 350;
+	//console.log(parent);
+	var tweenDir;
+	//color of object that called it
+		//partially transparent?
+	var col = plane.material.color.getHex();
+	//console.log("col" + col);
+	var sph = plane.clone();
+	
+	//position of object that called it
+	sph.scale.y = plane.scale.y;
+	sph.scale.x = plane.scale.x;
+	sph.position.z = floor(random(-8000,-10000));
+	sph.position.x = mX;
+	sph.rotation.z = mY;
+
+	// sph.scale.x = parent.scale.x;
+	//sph.scale.y = window.innerHeight;
+	scene.add(sph);
+	//transObjects.push(sph);
+	//console.log(sph.position.x + sph + "sphere");
+	//var p = 12;
+	
+	// TweenMax.to(sph.material, 2, { opacity:.25,
+	// 	ease:  SteppedEase.config(24)} );
+	// TweenMax.to(sph.position, 6, {x:-1500 + (Math.random() * 3000),
+	// 	ease: SteppedEase.config(72),
+	// 	 } );
+	//TweenMax.to(sph.material, 3, { opacity:0 , onComplete:KillSphere, onCompleteParams:[sph]} )
+	 TweenMax.to(sph.scale, 6, { x: sph.scale.x * 25, y: sph.scale.y * 25,
+	 	ease: SteppedEase.config(36), onComplete:KillSphere, onCompleteParams:[sph]});
+
+
+	
+	
+	// TweenMax.to(sph.rotation, .5, {x: -300 + Math.random() * 1000, y:p++,
+ //  	ease: SteppedEase.config(5),
+ //  	yoyo:false, } );
+
+	
+
+}
+
+function KillSphere(s) {
+	var spher = s;
+	scene.remove(s);
+	//remove sphere from scene
+	// TweenMax.to(spher.material, 1, { opacity:0,
+	// 	ease:  SteppedEase.config(12), onComplete:AlsoKillSPhere , onCompleteParams:[spher]} );
+	
+	//transObjects.remove(s);
+}
+
 
 function inverse(number) {
     return (10 - (Math.round(number/100)));
@@ -334,7 +393,7 @@ function NewScore() {
 				syns[i].note.seq(nR, bR);
 				syns[i].note.seq.repeat( 1 )
 				syns[i].note.values.filters.push( function( args, pattern ) {
-				 //  	SphereCreate();
+				 //  	
 				    return args
 				})
  			}
@@ -580,7 +639,7 @@ function animate () {
 	  	
 	  	
 	  	
-	  	//songBus.fx[2].gain = cleanScale * .5;
+	  	m3.fx[0].gain = cleanScale * .5;
 	  	songBus.fx[3].feedback = (cleanScale * .0195) < .98 ? (cleanScale * .0195) : .98;
 	  	
 	  	songBus.fx[1].dry = 1 - (cleanScale * .02);
@@ -627,8 +686,9 @@ function onDocumentMouseDown( event ) {
 		Disappear();
 	}
 	else if (start == true) {
-		m.note.seq(ranNotes[floor(random(ranNotes.length))], beets[floor(random(beets.length))]);
-		m.note.seq.repeat( 1 )
+		SphereCreate(mouseX, mouseY);
+		m3.note.seq(ranNotes[floor(random(ranNotes.length))], beets[floor(random(beets.length))]);
+		m3.note.seq.repeat( 1 )
 		
 		event.preventDefault();
 
