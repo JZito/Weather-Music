@@ -1,11 +1,24 @@
 var WIDTH =  window.innerWidth,
     HEIGHT =  window.innerHeight;
 
+var syns = [];
+var objects = [];
+var previousValue;
+
+var mouseX = 0;
+var mouseXOnMouseDown = 0;
+
+var windowHalfX = window.innerWidth / 2;
+var windowHalfY = window.innerHeight / 2;
 
 var VIEW_ANGLE = 45,
     ASPECT = WIDTH / HEIGHT,
     NEAR = 0.1,
     FAR = 10000;
+
+var start = false;
+
+var particleMaterial;
 
 
 var colors = [ [0x50b0cf, 0xffd55d, 0xff655d], [ 0x5E76D6, 0xFFED5D, 0xFFA65D ], [ 0x775FD8, 0xFFC15D, 0xF8FE5C ], [ 0xA355D5, 0xbcf659, 0xFFDC5D ], 
@@ -19,7 +32,6 @@ var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
                                 NEAR,
                                 FAR  );
 
-var windowResize = THREEx.WindowResize(renderer, camera);
 
 var renderPass = new THREE.RenderPass(scene, camera);
 var composer = new THREE.EffectComposer(renderer);
@@ -59,25 +71,6 @@ var radius = 50, segments = 5, rings = 16;
 
 var col = new THREE.Color(0xFF0000);
 
-//Create plane
-// var mesh = new THREE.SphereGeometry(50,5,12);
-// var direction;
-// var bgCol = new THREE.Color(0xffffff);
-// var vat = new THREE.MeshPhongMaterial({color: bgCol, shininess: 3, transparent:true, shading: THREE.FlatShading});
-// vat.blending = THREE.AdditiveBlending;
-// plane = new THREE.Mesh(mesh, vat);
-// plane.material.opacity = 1;
-// plane.position.z = - 500;
-// plane.position.x = -10000;
-// plane.position.y = 0;
-// plane.scale.x = 5;
-// plane.scale.y = 5;
-// plane.scale.z = 5;
-
-
-
-//transObjects.push(plane);
-
 var light = new THREE.DirectionalLight( colors[0][1]);
 light.distance = 3000;
 light.intensity = .75;
@@ -103,6 +96,11 @@ scene.add(ambientLight);
 var $container = $('#container');
 $container.append(renderer.domElement);
 
+particleMaterial = new THREE.SpriteMaterial( {
+					color: 0x002fBe,
+					
+				} );
+
 
 var counterA = 0, counterB = 0, counterC = 0;
 var colorTicker = 2;
@@ -125,7 +123,7 @@ var SphereCreate = function (counter, type) {
 	sph = new THREE.Mesh(mesh, vat);
 	
 	//position of object that called it
-	sph.position.z = -4000;
+	sph.position.z = -9000;
 
 	//sph.position.z = floor(random(-10000,-2000));
 	if (type == 'counterA') {
@@ -138,14 +136,14 @@ var SphereCreate = function (counter, type) {
 		sph.position.y = -1300 ;
 		sph.position.x = 5000 ;
 		sph.material.color.setHex(colors[colorTicker][2]);
-		console.log(colors[2][counter]);
+		//console.log(colors[2][counter]);
 
 	}
 	else if (type == 'counterC') {
 		sph.position.y = 1300 ;
 		sph.position.x = 5000 ;
 		sph.material.color.setHex(colors[colorTicker][0]);
-		console.log("c" + counter + " . " + counterC + type)
+		//console.log("c" + counter + " . " + counterC + type)
 	}
 	
 	
@@ -154,6 +152,8 @@ var SphereCreate = function (counter, type) {
 
 	 sph.scale.x = 40;
 	 sph.scale.y = 10;
+	 objects.push(sph);
+
 	//sph.scale.y = window.innerHeight;
 	scene.add(sph);
 	//transObjects.push(sph);
@@ -181,6 +181,10 @@ var SphereCreate = function (counter, type) {
 }
 
 function KillSphere(s) {
+	var i = objects.indexOf(s);
+	if(i != -1) {
+		objects.splice(i, 1);
+	}
 	scene.remove(s);
 	//remove sphere from scene
 	// TweenMax.to(spher.material, 1, { opacity:0,
@@ -190,10 +194,12 @@ function KillSphere(s) {
 }
 var theta = 0;
 function animate () {
-	theta += 1;
+	//console.log(mouseX + " . "+ mouseY);
+	theta += .001;
 	light.intensity = follow.getValue() * .5;
 	ambientLight.intensity = follow.getValue() * .25;
 	light2.intensity = follow.getValue() *.25;
+	camera.rotation.z = theta;
 	//plane.position.x = theta;
 	  	//bloomPass.uniforms[ "resolution" ].value = 50 - cleanScale ;
 	  	//bloomPass.uniforms[ "kernelSize" ].value = 25 - (cleanScale * .5) ;
@@ -213,7 +219,7 @@ function render() {
 
     var delta = clock.getDelta();
 
-    camera.lookAt( new THREE.Vector3(0, 0, 0));
+    //camera.lookAt( new THREE.Vector3(0, 0, 0));
     
     renderer.clear();
 
@@ -225,10 +231,23 @@ function render() {
 
     }, 3750/60 );
 }
+
+
+//check the mouse x
+// if mousex doesn't equal mousex
+
 render();
-var a, b, c;
+
+
+//var a, b, c, d;
 var follow;
+
+
+
+
+
 function setup () {
+	
 	
 	var time = [1/2];
 	drum = Kick().note.seq( 55,1/4 )
@@ -244,18 +263,27 @@ function setup () {
 	var notesLength = nR.length;
 	bV = Harmony.beetsReturn(1,3);
 	
-	a = Synth('bleep')
+	a = FM('glockenspiel')
 	.note.seq(nR, [1/16])
 	a.pan(-1);
+	syns.push(a);
 
-
-	b = Synth('bleep')
+	b = FM('glockenspiel')
 	.note.seq(nR2, [1/2])
 	b.pan(1);
+	syns.push(b);
 
-	c = Synth('rhodes')
+	c = FM('glockenspiel')
+	.note.seq(nR3, [1/8])
+	syns.push(c);
+
+	d = Synth2('sunriseTri')
 	.note.seq(nR3, [1/8])
 	
+	syns.push(d);
+
+	d.seq.stop();
+
 	a.note.values.filters.push( function( args, pattern ) {
   		doSomeOtherStuff(args, nR.length, "a")
 
@@ -278,7 +306,11 @@ function setup () {
 	})
 //a.note.seq([0,1], 1/4) // outputs 'a note!' to the console
 
+	start = true;
+
 }
+
+
 
 function NewNotes () {
 	
@@ -295,9 +327,9 @@ function ChangeNotes () {
 	
 	var notesLength = nR.length;
 	bV = Harmony.beetsReturn(1,3);
-	a.note.seq(nR, [1/12]);
-	b.note.seq(nR2, [1/2]);
-	c.note.seq(nR3, [1/3]);
+	a.note.seq(nR, Harmony.beets[floor(random(Harmony.beets.length))]);
+	b.note.seq(nR2, [1/4]);
+	c.note.seq(nR3, [1/6]);
 
 	a.note.values.filters.push( function( args, pattern ) {
   		doSomeOtherStuff(args, nR.length, "a")
@@ -326,9 +358,10 @@ function ChangeNotes () {
 }
 
 var repeatTicker = 0;
+
 function doSomeOtherStuff (arg, l, obj)  { 
 // l is length of pattern for counter
-	console.log(repeatTicker);
+	//console.log(repeatTicker);
 	if (repeatTicker >=16) {
 		ChangeColors();
 		ChangeNotes();//a.noteOriginal = a.note;
@@ -342,21 +375,21 @@ function doSomeOtherStuff (arg, l, obj)  {
 			counterA = 0;
 			repeatTicker++;
 		}
-		console.log('a note!' + arg + "." + counterA + " . " + obj) 
+		//console.log('a note!' + arg + "." + counterA + " . " + obj) 
 	}
 	else if (obj == "b") {
 		counterB++
 		if (counterB >= l) {
 			counterB = 0;
 		}
-		console.log('a note!' + arg + "." + counterB + " . " + obj) 
+		//console.log('a note!' + arg + "." + counterB + " . " + obj) 
 	}
 	else if (obj == "c") {
 		counterC++
 		if (counterC >= l) {
 			counterC = 0;
 		}
-		console.log('a note!' + arg + "." + counterC + " . " + obj) 
+		//console.log('a note!' + arg + "." + counterC + " . " + obj) 
 	}
 }
 
@@ -365,10 +398,125 @@ function draw () {
 	//console.log(follow.getValue())
 }
 
+function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+function onDocumentMouseDown( event ) {
+
+		//SphereCreate(mouseX, mouseY);
+		//syns[3].note.seq(Harmony.vanillaNotes[floor(random(Harmony.vanillaNotes.length))], 1);
+		
+
+	event.preventDefault();
+
+	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+	document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+	document.addEventListener( 'mouseout', onDocumentMouseOut, false );
+		//mouseXOnMouseDown = event.clientX - windowHalfX;
+
+		
+		
+
+		//syns[3].note.seq.repeat(1);
+
+
+
+
+
+	
+	// syns[3].note.seq(0, 1);
+	// syns[3].note.seq.repeat(1);
+
+	//event.preventDefault();
+	//targetRotationOnMouseDown = targetRotation;
+//	}
+	
+
+}
+
+function ChangeLead (n) {
+	syns[3].seq.stop();
+	var chordNotes = [ -4, -1, 2, 5, 8, 11, 14, 15, 20, 23 ];
+	// n is note passed from mousemove
+	syns[3].note.seq(Harmony.vanillaNotes[n], 1)
+	syns[3].note.seq.repeat(0);
+}
+
+function onDocumentMouseMove( event ) {
+	event.preventDefault();
+
+	mouseX = event.clientX - windowHalfX;
+
+	//console.log(windowHalfX + " . " + (-1 * mouseY) );
+
+	 var x = mouseX / windowWidth,
+     	y = mouseY / windowHeight;
+ //     	ww2 = windowWidth / 2,
+ //      	wh2 = windowHeight / 2,
+ //      	value = follow.getValue(),
+ //      	radius = ( ww2 > wh2 ? wh2 : ww2 ) * value;
+  
+   	syns[3].resonance = (1 - x) * 4;      
+   	syns[3].cutoff = (1 - y) / 3;
+
+   	mouse.x = x;
+	mouse.y = (-1 * y) * .5;
+
+	console.log ()
+		raycaster.setFromCamera( mouse, camera );
+		var intersects = raycaster.intersectObjects( objects );
+
+		if ( intersects.length > 0 ) {
+			console.log("intersects ??");
+			intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
+			var particle = new THREE.Sprite( particleMaterial );
+			particle.position.copy( intersects[ 0 ].point );
+			particle.scale.x = particle.scale.y = .25;
+			scene.add( particle );
+			TweenMax.to(particle.position, 1, { z: -12000,
+	 			ease: SteppedEase.config(8), onComplete:KillSphere, onCompleteParams:[particle]});
+		}
+
+
+	var value = floor( mouseX / ( window.innerWidth / 10  )  ) + 5 ;
+	//console.log(value + " . . . . value");
+
+	if (value != previousValue) {
+		ChangeLead(value);
+	}
+
+	previousValue = value;
+
+	//targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.02;
+
+}
+
+function onDocumentMouseUp( event ) {
+	syns[3].seq.stop();
+
+	document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+	document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+	document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+
+}
+
+function onDocumentMouseOut( event ) {
+
+	syns[3].seq.stop();
+
+	document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+	document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+	document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+
+}
+
 
 
 var Harmony = (function () { 
-	var vanillaNotes = [7,4,2,0,11,9,14, 16], vanillaMeasures = [1,1,2,2,2,4,4,4,8,8,6,6,8,8,12,12,16],
+	var vanillaNotes = [-1, -3, -4, 0, 2, 3, 5, 6, 8, 9, 11, 12, 14, 15], vanillaMeasures = [1,1,2,2,2,4,4,4,8,8,6,6,8,8,12,12,16],
 	beets = [1, 1/1.5,1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
 	arpPatternArray = ['updown2', 'updown', 'down', 'up'] ;
   	var notesReturn = function (oct, lowRange, highRange) {
@@ -576,7 +724,9 @@ var Harmony = (function () {
   
   	return {
   		//vars
+  		vanillaNotes: vanillaNotes,
   		arpPatterns: arpPatternArray,
+  		beets: beets,
   		// functions
     	notesReturn: notesReturn,
     	bassLineReturn: bassLineReturn,
@@ -588,3 +738,13 @@ var Harmony = (function () {
     	chordsReturn: chordsReturn
   	};
 } ) ();
+
+
+function init () {
+
+	raycaster = new THREE.Raycaster();
+	mouse = new THREE.Vector2();
+	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+	
+}
+init();

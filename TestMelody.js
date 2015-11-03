@@ -56,11 +56,25 @@ var rain = true;
 var night = true;
 var cloudy = false;
 var theta = 0;
+var renderPass = new THREE.RenderPass(scene, camera);
+var composer = new THREE.EffectComposer(renderer);
+var windowResize = THREEx.WindowResize(renderer, camera);
 
+composer.addPass(renderPass);
 
 // start the renderer
 renderer.setSize(WIDTH, HEIGHT);
 
+var bloomPass = new THREE.BloomPass(5, 48, 24, 50);
+composer.addPass(bloomPass);
+bloomPass.clear = true;
+
+
+
+// hblur = new THREE.ShaderPass(THREE.HorizontalTiltShiftShader);
+var effectFilm = new THREE.FilmPass(1, .05, 128, false);
+effectFilm.renderToScreen = true;
+composer.addPass(effectFilm);
 
 
 
@@ -142,7 +156,7 @@ function setup () {
 			nR = NotesReturn(bR.length), bR2 = WholeBeetsReturn(.5, floor(random(1,16))),
 			nR2 = NotesReturn(bR2.length);
 	canvas = createCanvas( windowWidth, windowHeight );
-	//Gibber.Clock.bpm(beepEM)
+	Gibber.Clock.bpm(beepEM)
 	songBus = Bus().fx.add( 
 		Delay({time:1/3, feedback:.95, dry:.5, wet:.5}),StereoVerb({roomsize:.99,dry:1, damping:.05, wet:0}),Distortion(2),
 		Delay('endless'),LPF({cutoff:.2, amp:1, resonance:4}), Crush({ sampleRate: 1, bitDepth:16 })  );
@@ -648,7 +662,24 @@ function animate () {
 	}  
 }
 
-renderer.render(scene, camera);
+function render() {
+	//transparencyUpdate(transObjects, camera);
+
+    var delta = clock.getDelta();
+
+    camera.lookAt( new THREE.Vector3(0, 0, 0));
+    
+    renderer.clear();
+
+    composer.render(.01);
+    
+    setTimeout( function() {
+    	animate();
+    	requestAnimationFrame( render );
+
+    }, 3750/60 );
+}
+render();
 
 function onDocumentMouseDown( event ) {
 

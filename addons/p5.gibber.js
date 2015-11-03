@@ -12323,14 +12323,13 @@ module.exports = function( Gibber ) {
       
       
     },
-    pad4: { waveform:'Saw', maxVoices:4, attack:2, decay:2, cutoff:.3, filterMult:.35, 
+    pad4: { waveform:'Saw', decay:2, cutoff:.3, filterMult:.35, 
     resonance:1.5, 
-    amp:.4,
       presetInit: function() { this.fx.add( Gibber.Audio.FX.Delay( 1/9, .55 ) ) }
     },
-    sunriseTri: {waveform:'Triangle', maxVoices:6, amp:.4, glide:.9, resonance:1, useADSR:true, 
-                               requireReleaseTrigger:false,
-                attack:4, decay:12, sustain:.1, release:2},
+    sunriseTri: {waveform:'Triangle', maxVoices:3, amp:.95, glide:.9, resonance:1, useADSR:true, 
+                               requireReleaseTrigger:true,
+                attack:.125, decay:4, sustain:.1, release:2},
     triTest: {waveform:'Triangle', maxVoices:6, amp:1, resonance:1, useADSR:true, 
                                requireReleaseTrigger:true,
                 attack:8/1, decay:8/1, sustain:1/2, release:1/1}     
@@ -12617,7 +12616,7 @@ module.exports = function( Gibber ) {
       attack  : 1/64,
       decay : 1/16,
       presetInit: function() {
-        this.fx.add( Gibber.Audio.FX.Vibrato(random(2), random(.65)), Gibber.Audio.FX.Delay({feedback:.9, time: 1/48,dry:1, wet:1, }) )
+        this.fx.add( Gibber.Audio.FX.Gain(5),Gibber.Audio.FX.Vibrato(random(2), random(.65)), Gibber.Audio.FX.Delay({feedback:.6, time: 1/48,dry:1, wet:1, }) )
       }
       // presetInit: function() {
       //   this.bus = Gibber.Audio.Busses.Bus().fx.add( , Gibber.Audio.FX.Crush('dirty'), 
