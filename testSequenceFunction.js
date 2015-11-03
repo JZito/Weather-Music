@@ -109,6 +109,33 @@ function ChangeColors () {
 	colorTicker = floor(random(colors.length));
 }
 
+var TrailCreate = function (mX, mY) {
+
+	var mesh = new THREE.SphereGeometry(12,5,12);
+	var vat = new THREE.MeshPhongMaterial({color: 0xffffff, shininess: 3, transparent:true, shading: THREE.FlatShading});
+	vat.blending = THREE.AdditiveBlending;
+	trail = new THREE.Mesh(mesh, vat);
+
+	trail.position.z = -9000;
+
+	trail.position.y = mY;
+	trail.position.x = mX ;
+
+	 trail.scale.x = 40;
+	 trail.scale.y = 10;
+	 objects.push(trail);
+
+	//sph.scale.y = window.innerHeight;
+	scene.add(trail);
+
+	 TweenMax.to(trail.position, 1, { z: -12000,
+	 	ease: SteppedEase.config(12), onComplete:KillSphere, onCompleteParams:[sph]});
+
+
+
+
+}
+
 var SphereCreate = function (counter, type) {
 
 	//var i5 = (i*225) - 350;
@@ -166,11 +193,10 @@ var SphereCreate = function (counter, type) {
 	// 	ease: SteppedEase.config(72),
 	// 	 } );
 	//TweenMax.to(sph.material, 3, { opacity:0 , onComplete:KillSphere, onCompleteParams:[sph]} )
-	 TweenMax.to(sph.position, 1, { x: -12000,
-	 	ease: SteppedEase.config(12), onComplete:KillSphere, onCompleteParams:[sph]});
-
-
 	
+
+	TweenMax.to(sph.position, 1, { x: -12000,
+	 	ease: SteppedEase.config(12), onComplete:KillSphere, onCompleteParams:[sph]});
 	
 	// TweenMax.to(sph.rotation, .5, {x: -300 + Math.random() * 1000, y:p++,
  //  	ease: SteppedEase.config(5),
@@ -192,7 +218,9 @@ function KillSphere(s) {
 	
 	//transObjects.remove(s);
 }
+
 var theta = 0;
+
 function animate () {
 	//console.log(mouseX + " . "+ mouseY);
 	theta += .001;
@@ -449,6 +477,9 @@ function onDocumentMouseMove( event ) {
 	event.preventDefault();
 
 	mouseX = event.clientX - windowHalfX;
+	mouseY = event.clientY - windowHalfY;
+
+	TrailCreate(mouseX, mouseY);
 
 	//console.log(windowHalfX + " . " + (-1 * mouseY) );
 
@@ -465,20 +496,35 @@ function onDocumentMouseMove( event ) {
    	mouse.x = x;
 	mouse.y = (-1 * y) * .5;
 
-	console.log ()
-		raycaster.setFromCamera( mouse, camera );
-		var intersects = raycaster.intersectObjects( objects );
+	
+			var vector = new THREE.Vector3();
 
-		if ( intersects.length > 0 ) {
-			console.log("intersects ??");
-			intersects[ 0 ].object.material.color.setHex( Math.random() * 0xffffff );
+			vector.set(
+			    ( event.clientX / window.innerWidth ) * 2 - 1,
+			    - ( event.clientY / window.innerHeight ) * 2 + 1,
+			    0.5 );
+
+			vector.unproject( camera );
+
+			var dir = vector.sub( camera.position ).normalize();
+
+			var distance = - camera.position.z / dir.z;
+
+			var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
+
+			pos.x = pos.x * 2000;
+			pos.z = -4000;
+
 			var particle = new THREE.Sprite( particleMaterial );
-			particle.position.copy( intersects[ 0 ].point );
-			particle.scale.x = particle.scale.y = .25;
+			console.log(dir);
+			particle.position= pos;
+			particle.scale.x = particle.scale.y = 5;
 			scene.add( particle );
+
+
 			TweenMax.to(particle.position, 1, { z: -12000,
 	 			ease: SteppedEase.config(8), onComplete:KillSphere, onCompleteParams:[particle]});
-		}
+		
 
 
 	var value = floor( mouseX / ( window.innerWidth / 10  )  ) + 5 ;
