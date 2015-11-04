@@ -1,22 +1,21 @@
 var WIDTH =  window.innerWidth,
     HEIGHT =  window.innerHeight;
 
+var VIEW_ANGLE = 45,
+    ASPECT = WIDTH / HEIGHT,
+    NEAR = 0.1,
+    FAR = 10000;
+
 var syns = [];
 var objects = [];
 var previousValue;
+var start = false;
 
 var mouseX = 0;
 var mouseXOnMouseDown = 0;
 
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
-
-var VIEW_ANGLE = 45,
-    ASPECT = WIDTH / HEIGHT,
-    NEAR = 0.1,
-    FAR = 10000;
-
-var start = false;
 
 var particleMaterial;
 
@@ -59,7 +58,7 @@ renderer.setSize(WIDTH, HEIGHT);
 
 //camera.lookAt(new THREE.Vector3(0, 0, 0));
 camera.position.x = 0;
-camera.position.y = 0;
+camera.position.y = 500;
 camera.position.z = 50;
 
 
@@ -111,15 +110,15 @@ function ChangeColors () {
 
 var TrailCreate = function (mX, mY) {
 
-	var mesh = new THREE.SphereGeometry(12,5,12);
+	var mesh = new THREE.SphereGeometry(100,5,12);
 	var vat = new THREE.MeshPhongMaterial({color: 0xffffff, shininess: 3, transparent:true, shading: THREE.FlatShading});
 	vat.blending = THREE.AdditiveBlending;
 	trail = new THREE.Mesh(mesh, vat);
+	//console.log (mX + " . " + mY);
+	trail.position.z = 0;
 
-	trail.position.z = -9000;
-
-	trail.position.y = mY;
-	trail.position.x = mX ;
+	trail.position.y = (-1 * mY) + 2000;
+	trail.position.x = mX + 2000 ;
 
 	 trail.scale.x = 40;
 	 trail.scale.y = 10;
@@ -129,7 +128,7 @@ var TrailCreate = function (mX, mY) {
 	scene.add(trail);
 
 	 TweenMax.to(trail.position, 1, { z: -12000,
-	 	ease: SteppedEase.config(12), onComplete:KillSphere, onCompleteParams:[sph]});
+	 	ease: SteppedEase.config(6), onComplete:KillSphere, onCompleteParams:[sph]});
 
 
 
@@ -148,27 +147,29 @@ var SphereCreate = function (counter, type) {
 	var vat = new THREE.MeshPhongMaterial({color: 0xffffff, shininess: 3, transparent:true, shading: THREE.FlatShading});
 	vat.blending = THREE.AdditiveBlending;
 	sph = new THREE.Mesh(mesh, vat);
+	sph.scale.x = 40;
+	 sph.scale.y = 10;
 	
 	//position of object that called it
 	sph.position.z = -9000;
 
 	//sph.position.z = floor(random(-10000,-2000));
 	if (type == 'counterA') {
-		sph.position.y = 0;
-		sph.position.x = 5000 ;
+		sph.position.y = 0 +(counter * 500);
+		sph.position.x = 6000 ;
 		sph.material.color.setHex(colors[colorTicker][1]);
 		
 	}
 	else if (type == 'counterB') {
-		sph.position.y = -1300 ;
-		sph.position.x = 5000 ;
+		sph.position.y = -2500 +(counter * 500); ;
+		sph.position.x = 6000 ;
 		sph.material.color.setHex(colors[colorTicker][2]);
 		//console.log(colors[2][counter]);
 
 	}
 	else if (type == 'counterC') {
-		sph.position.y = 1300 ;
-		sph.position.x = 5000 ;
+		sph.position.y = 2500 +(counter * 500); ;
+		sph.position.x = 6000 ;
 		sph.material.color.setHex(colors[colorTicker][0]);
 		//console.log("c" + counter + " . " + counterC + type)
 	}
@@ -177,30 +178,14 @@ var SphereCreate = function (counter, type) {
 	
 	//sph.rotation.z = random(1);
 
-	 sph.scale.x = 40;
-	 sph.scale.y = 10;
+	 
 	 objects.push(sph);
 
 	//sph.scale.y = window.innerHeight;
 	scene.add(sph);
-	//transObjects.push(sph);
-	//console.log(sph.position.x + sph + "sphere");
-	//var p = 12;
-	
-	// TweenMax.to(sph.material, 2, { opacity:.25,
-	// 	ease:  SteppedEase.config(24)} );
-	// TweenMax.to(sph.position, 6, {x:-1500 + (Math.random() * 3000),
-	// 	ease: SteppedEase.config(72),
-	// 	 } );
-	//TweenMax.to(sph.material, 3, { opacity:0 , onComplete:KillSphere, onCompleteParams:[sph]} )
-	
-
 	TweenMax.to(sph.position, 1, { x: -12000,
 	 	ease: SteppedEase.config(12), onComplete:KillSphere, onCompleteParams:[sph]});
 	
-	// TweenMax.to(sph.rotation, .5, {x: -300 + Math.random() * 1000, y:p++,
- //  	ease: SteppedEase.config(5),
- //  	yoyo:false, } );
 
 	
 
@@ -223,11 +208,14 @@ var theta = 0;
 
 function animate () {
 	//console.log(mouseX + " . "+ mouseY);
-	theta += .001;
-	light.intensity = follow.getValue() * .5;
-	ambientLight.intensity = follow.getValue() * .25;
-	light2.intensity = follow.getValue() *.25;
-	camera.rotation.z = theta;
+	if (start) {
+		theta += .001;
+		light.intensity = follow.getValue() * .5;
+		ambientLight.intensity = follow.getValue() * .25;
+		light2.intensity = follow.getValue() *.25;
+		camera.rotation.z = theta;
+	}
+	
 	//plane.position.x = theta;
 	  	//bloomPass.uniforms[ "resolution" ].value = 50 - cleanScale ;
 	  	//bloomPass.uniforms[ "kernelSize" ].value = 25 - (cleanScale * .5) ;
@@ -314,26 +302,24 @@ function setup () {
 
 	a.note.values.filters.push( function( args, pattern ) {
   		doSomeOtherStuff(args, nR.length, "a")
-
-	    SphereCreate(counterA, 'counterA');
-  		return args
+		return args
 	})
 
 	b.note.values.filters.push( function( args, pattern ) {
   		doSomeOtherStuff(args, nR2.length, "b")
-
-	    SphereCreate(counterB, 'counterB');
-  		return args
+		return args
 	})
 
 	c.note.values.filters.push( function( args, pattern ) {
   		doSomeOtherStuff(args, nR3.length, "c")
-
-	    SphereCreate(counterC, 'counterC');
-  		return args
+		return args
 	})
-//a.note.seq([0,1], 1/4) // outputs 'a note!' to the console
 
+	drum.note.values.filters.push( function( args, pattern) {
+		KickTracker();
+		return args;
+	})
+	
 	start = true;
 
 }
@@ -346,7 +332,7 @@ function NewNotes () {
 
 function ChangeNotes () {
 
-		var time = [1/2];
+	var time = [1/2];
 	var nR = Harmony.melodyReturn(0,2,3);
 	var nR2 = Harmony.melodyReturn(1,2,3);
 	var nR3 = Harmony.melodyReturn(-1,2,3);
@@ -362,21 +348,21 @@ function ChangeNotes () {
 	a.note.values.filters.push( function( args, pattern ) {
   		doSomeOtherStuff(args, nR.length, "a")
 
-	    SphereCreate(counterA, 'counterA');
+	    
   		return args
 	})
 
 	b.note.values.filters.push( function( args, pattern ) {
   		doSomeOtherStuff(args, nR2.length, "b")
 
-	    SphereCreate(counterB, 'counterB');
+	    
   		return args
 	})
 
 	c.note.values.filters.push( function( args, pattern ) {
   		doSomeOtherStuff(args, nR3.length, "c")
 
-	    SphereCreate(counterC, 'counterC');
+	    
   		return args
 	})
 
@@ -385,35 +371,57 @@ function ChangeNotes () {
 
 }
 
-var repeatTicker = 0;
+var repeatTicker = -1;
+var repeatPoint = 7;
+
+function KickTracker() {
+	//2, 3 or 4 or 6 measures, switch
+	var amounts = [7, 11,11, 15,15, 23];
+
+
+	
+	if (repeatTicker >= repeatPoint) {
+		ChangeNotes();
+		ChangeColors();
+		repeatTicker = -1;
+		repeatPoint = amounts[floor(random(amounts.length))];
+	}
+	repeatTicker++;
+	console.log(repeatTicker);
+}
 
 function doSomeOtherStuff (arg, l, obj)  { 
 // l is length of pattern for counter
 	//console.log(repeatTicker);
-	if (repeatTicker >=16) {
-		ChangeColors();
-		ChangeNotes();//a.noteOriginal = a.note;
-		repeatTicker = 0;
+	// if (repeatTicker >=16) {
+	// 	ChangeColors();
+	// 	ChangeNotes();//a.noteOriginal = a.note;
+	// 	repeatTicker = 0;
 
-	}
+	// }
 	
 	if (obj == "a") {
 		counterA++;
+		SphereCreate(counterA, 'counterA');
 		if (counterA >= l) {
 			counterA = 0;
-			repeatTicker++;
+			
+			//repeatTicker++;
 		}
 		//console.log('a note!' + arg + "." + counterA + " . " + obj) 
 	}
 	else if (obj == "b") {
 		counterB++
+		SphereCreate(counterB, 'counterB');
 		if (counterB >= l) {
 			counterB = 0;
+			
 		}
 		//console.log('a note!' + arg + "." + counterB + " . " + obj) 
 	}
 	else if (obj == "c") {
 		counterC++
+		SphereCreate(counterC, 'counterC');
 		if (counterC >= l) {
 			counterC = 0;
 		}
@@ -443,6 +451,9 @@ function onDocumentMouseDown( event ) {
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	document.addEventListener( 'mouseup', onDocumentMouseUp, false );
 	document.addEventListener( 'mouseout', onDocumentMouseOut, false );
+
+	mouseXOnMouseDown = event.clientX - windowHalfX;
+	//targetRotationOnMouseDown = targetRotation;
 		//mouseXOnMouseDown = event.clientX - windowHalfX;
 
 		
@@ -474,57 +485,27 @@ function ChangeLead (n) {
 }
 
 function onDocumentMouseMove( event ) {
-	event.preventDefault();
+	//event.preventDefault();
 
 	mouseX = event.clientX - windowHalfX;
-	mouseY = event.clientY - windowHalfY;
+	// mouseY = event.clientY + windowHalfY;
 
 	TrailCreate(mouseX, mouseY);
 
 	//console.log(windowHalfX + " . " + (-1 * mouseY) );
 
-	 var x = mouseX / windowWidth,
+	var x = mouseX / windowWidth,
      	y = mouseY / windowHeight;
  //     	ww2 = windowWidth / 2,
  //      	wh2 = windowHeight / 2,
  //      	value = follow.getValue(),
  //      	radius = ( ww2 > wh2 ? wh2 : ww2 ) * value;
-  
-   	syns[3].resonance = (1 - x) * 4;      
+  	console.log (x + " . " + y);
+	syns[3].resonance = (1 - x) * 4;      
    	syns[3].cutoff = (1 - y) / 3;
 
    	mouse.x = x;
 	mouse.y = (-1 * y) * .5;
-
-	
-			var vector = new THREE.Vector3();
-
-			vector.set(
-			    ( event.clientX / window.innerWidth ) * 2 - 1,
-			    - ( event.clientY / window.innerHeight ) * 2 + 1,
-			    0.5 );
-
-			vector.unproject( camera );
-
-			var dir = vector.sub( camera.position ).normalize();
-
-			var distance = - camera.position.z / dir.z;
-
-			var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
-
-			pos.x = pos.x * 2000;
-			pos.z = -4000;
-
-			var particle = new THREE.Sprite( particleMaterial );
-			console.log(dir);
-			particle.position= pos;
-			particle.scale.x = particle.scale.y = 5;
-			scene.add( particle );
-
-
-			TweenMax.to(particle.position, 1, { z: -12000,
-	 			ease: SteppedEase.config(8), onComplete:KillSphere, onCompleteParams:[particle]});
-		
 
 
 	var value = floor( mouseX / ( window.innerWidth / 10  )  ) + 5 ;
