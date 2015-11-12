@@ -1,16 +1,22 @@
 var WIDTH =  window.innerWidth,
     HEIGHT =  window.innerHeight;
 
-var VIEW_ANGLE = 45,
+var VIEW_ANGLE = 70,
     ASPECT = WIDTH / HEIGHT,
     NEAR = 0.1,
     FAR = 10000;
 
 var syns = [];
 var objects = [];
+var planes = [];
 var previousValue;
 var start = false;
-
+var plane;
+var planeCounter = -1;
+var mouse = new THREE.Vector2(),
+offset = new THREE.Vector3(),
+raycaster = new THREE.Raycaster();
+var INTERSECTED, SELECTED;
 var mouseX = 0;
 var mouseXOnMouseDown = 0;
 
@@ -62,7 +68,7 @@ renderer.setSize(WIDTH, HEIGHT);
 //camera.lookAt(new THREE.Vector3(0, 0, 0));
 camera.position.x = 0;
 camera.position.y = 500;
-camera.position.z = 50;
+camera.position.z = 1000;
 
 
 
@@ -111,34 +117,35 @@ function ChangeColors () {
 	colorTicker = floor(random(colors.length));
 }
 
-var TrailCreate = function (mX, mY) {
-
-	var mesh = new THREE.SphereGeometry(100,5,12);
+var CreatePlayerObject =  function () {
+	var mesh = new THREE.SphereGeometry(50,5,12);
 	var vat = new THREE.MeshPhongMaterial({color: 0xffffff, shininess: 3, transparent:true, shading: THREE.FlatShading});
 	vat.blending = THREE.AdditiveBlending;
-	trail = new THREE.Mesh(mesh, vat);
-	//console.log (mX + " . " + mY);
-	trail.position.z = 0;
+	sph = new THREE.Mesh(mesh, vat);
+	
+    sph.position.x = Math.random() * 3000 - 6000;
+    sph.position.y = Math.random() * 600 - 300;
+    sph.position.z = -9000;
 
-	trail.position.y = (-1 * mY) + 2000;
-	trail.position.x = mX + 2000 ;
+    sph.scale.x = 50;
+    sph.scale.y = Math.random() * 20 + 10;
+    sph.scale.z = Math.random() * 30 + 15;
 
-	 trail.scale.x = 40;
-	 trail.scale.y = 10;
-	 objects.push(trail);
+    
+    scene.add( sph );
 
-	//sph.scale.y = window.innerHeight;
-	scene.add(trail);
-
-	 TweenMax.to(trail.position, 1, { z: -12000,
-	 	ease: SteppedEase.config(6), onComplete:KillSphere, onCompleteParams:[sph]});
+    objects.push( sph );
 
 
-
-
+    plane = new THREE.Mesh(
+        new THREE.PlaneBufferGeometry( 2000, 2000, 8, 8 ),
+        new THREE.MeshBasicMaterial( { visible:false } )
+    );
+    scene.add( plane );
+    planes.push( plane );
 }
 
-var SphereCreate = function (counter, type) {
+var CreateSphere = function (counter, type) {
 
 	//var i5 = (i*225) - 350;
 	//console.log(parent);
@@ -200,11 +207,6 @@ function KillSphere(s) {
 		objects.splice(i, 1);
 	}
 	scene.remove(s);
-	//remove sphere from scene
-	// TweenMax.to(spher.material, 1, { opacity:0,
-	// 	ease:  SteppedEase.config(12), onComplete:AlsoKillSPhere , onCompleteParams:[spher]} );
-	
-	//transObjects.remove(s);
 }
 
 var theta = 0;
@@ -218,17 +220,6 @@ function animate () {
 		light2.intensity = follow.getValue() *.25;
 		camera.rotation.z = theta;
 	}
-	
-	//plane.position.x = theta;
-	  	//bloomPass.uniforms[ "resolution" ].value = 50 - cleanScale ;
-	  	//bloomPass.uniforms[ "kernelSize" ].value = 25 - (cleanScale * .5) ;
-	  	//bloomPass.sigma = bloomPass.kernelSize * .2;
-	  	//bloomPass.uniforms[ "strength" ].value = cleanScale + 3 ;
-	  	//bloomPass.strength = cleanScale + 3;
-	  	//effectFilm.uniforms.["scanLinesIntensity"].value = 1 - (cleanScale * .02 );
-
-	  	//console.log(effectFilm.scanLinesIntensity );
-	
 }
 
 var clock = new THREE.Clock()
@@ -390,7 +381,6 @@ function KickTracker() {
 		repeatPoint = amounts[floor(random(amounts.length))];
 	}
 	repeatTicker++;
-	console.log(repeatTicker);
 }
 
 function doSomeOtherStuff (arg, l, obj)  { 
@@ -405,7 +395,7 @@ function doSomeOtherStuff (arg, l, obj)  {
 	
 	if (obj == "a") {
 		counterA++;
-		SphereCreate(counterA, 'counterA');
+		CreateSphere(counterA, 'counterA');
 		if (counterA >= l) {
 			counterA = 0;
 			
@@ -415,7 +405,7 @@ function doSomeOtherStuff (arg, l, obj)  {
 	}
 	else if (obj == "b") {
 		counterB++
-		SphereCreate(counterB, 'counterB');
+		CreateSphere(counterB, 'counterB');
 		if (counterB >= l) {
 			counterB = 0;
 			
@@ -424,7 +414,7 @@ function doSomeOtherStuff (arg, l, obj)  {
 	}
 	else if (obj == "c") {
 		counterC++
-		SphereCreate(counterC, 'counterC');
+		CreateSphere(counterC, 'counterC');
 		if (counterC >= l) {
 			counterC = 0;
 		}
@@ -445,17 +435,45 @@ function onWindowResize() {
 
 function onDocumentMouseDown( event ) {
 
-		//SphereCreate(mouseX, mouseY);
-		//syns[3].note.seq(Harmony.vanillaNotes[floor(random(Harmony.vanillaNotes.length))], 1);
-		
-
 	event.preventDefault();
+	CreatePlayerObject();
+	planeCounter++;
+	var thisPlane = planes[planeCounter];
+	console.log(thisPlane);
+	//Click();
+	
 
-	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-	document.addEventListener( 'mouseup', onDocumentMouseUp, false );
-	document.addEventListener( 'mouseout', onDocumentMouseOut, false );
+	raycaster.setFromCamera( mouse, camera );
+
+    var intersects = raycaster.intersectObjects( objects );
+
+    if ( intersects.length > 0 ) {
+
+//                  controls.enabled = false;
+
+        SELECTED = intersects[ 0 ].object;
+
+        var intersects = raycaster.intersectObject( thisPlane);
+
+        if ( intersects.length > 0 ) {
+
+            offset.copy( intersects[ 0 ].point ).sub( thisPlane.position );
+
+        }
+
+        container.style.cursor = 'move';
+
+    }
+	
+
+
 
 	mouseXOnMouseDown = event.clientX - windowHalfX;
+	document.addEventListener( 'mousemove', function() {
+    	onDocumentMouseMove(planes[planeCounter]);
+	}, false );
+	document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+	document.addEventListener( 'mouseout', onDocumentMouseOut, false );
 	//targetRotationOnMouseDown = targetRotation;
 		//mouseXOnMouseDown = event.clientX - windowHalfX;
 
@@ -479,6 +497,8 @@ function onDocumentMouseDown( event ) {
 
 }
 
+
+
 function ChangeLead (n) {
 	syns[3].seq.stop();
 	var chordNotes = [ -4, -1, 2, 5, 8, 11, 14, 15, 20, 23 ];
@@ -487,28 +507,64 @@ function ChangeLead (n) {
 	syns[3].note.seq.repeat(0);
 }
 
-function onDocumentMouseMove( event ) {
+function onDocumentMouseMove( thisPlane ) {
 	//event.preventDefault();
+	
+	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-	mouseX = event.clientX - windowHalfX;
-	// mouseY = event.clientY + windowHalfY;
+    //
 
-	TrailCreate(mouseX, mouseY);
+    raycaster.setFromCamera( mouse, camera );
 
-	//console.log(windowHalfX + " . " + (-1 * mouseY) );
+    if ( SELECTED ) {
 
-	var x = mouseX / windowWidth,
-     	y = mouseY / windowHeight;
- //     	ww2 = windowWidth / 2,
- //      	wh2 = windowHeight / 2,
- //      	value = follow.getValue(),
- //      	radius = ( ww2 > wh2 ? wh2 : ww2 ) * value;
-  	console.log (x + " . " + y);
+        var intersects = raycaster.intersectObject( thisPlane );
+
+        if ( intersects.length > 0 ) {
+
+            SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
+
+        }
+
+        return;
+
+    }
+
+    var intersects = raycaster.intersectObjects( objects );
+
+    if ( intersects.length > 0 ) {
+
+        if ( INTERSECTED != intersects[ 0 ].object ) {
+
+            if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+
+            INTERSECTED = intersects[ 0 ].object;
+            INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+
+            plane.position.copy( INTERSECTED.position );
+            plane.lookAt( camera.position );
+
+        }
+
+        container.style.cursor = 'pointer';
+
+    } else {
+
+        if ( INTERSECTED ) INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+
+        INTERSECTED = null;
+
+        container.style.cursor = 'auto';
+
+    }
+    mouse.x = x;
+	mouse.y = (-1 * y) * .5;
+  	//console.log (x + " . " + y);
 	syns[3].resonance = (1 - x) * 4;      
    	syns[3].cutoff = (1 - y) / 3;
 
-   	mouse.x = x;
-	mouse.y = (-1 * y) * .5;
+   	
 
 
 	var value = floor( mouseX / ( window.innerWidth / 10  )  ) + 5 ;
@@ -519,6 +575,8 @@ function onDocumentMouseMove( event ) {
 	}
 
 	previousValue = value;
+
+	console.log(thisPlane);
 
 	//targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.02;
 
@@ -771,10 +829,6 @@ var Harmony = (function () {
 
 
 function init () {
-
-	raycaster = new THREE.Raycaster();
-	mouse = new THREE.Vector2();
 	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-	
 }
 init();
