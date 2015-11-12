@@ -42,7 +42,7 @@ var theta;
 var renderer = new THREE.WebGLRenderer( { alpha: true });
 renderer.setClearColor( 0x000000, 0 );
 
-var camera = new THREE.OrthographicCamera(  VIEW_ANGLE,
+var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
                                 ASPECT,
                                 NEAR,
                                 FAR  );

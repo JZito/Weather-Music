@@ -31,6 +31,9 @@ var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
                                 NEAR,
                                 FAR  );
 
+// like a break point
+//debugger;
+//
 
 var renderPass = new THREE.RenderPass(scene, camera);
 var composer = new THREE.EffectComposer(renderer);
