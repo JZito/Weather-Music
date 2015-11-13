@@ -509,7 +509,7 @@ function ChangeLead (n) {
 
 function onDocumentMouseMove( thisPlane ) {
 	//event.preventDefault();
-	
+	console.log(thisPlane);
 	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
@@ -575,8 +575,6 @@ function onDocumentMouseMove( thisPlane ) {
 	}
 
 	previousValue = value;
-
-	console.log(thisPlane);
 
 	//targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.02;
 
