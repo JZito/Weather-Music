@@ -14,7 +14,7 @@ var projector, mouse = new THREE.Vector2(), mousePoint = new THREE.Vector2(),
 INTERSECTED;
 var composer;
 var ballSprite;
-var objects = [];
+var objects = [], countersA = [], countersB = [], countersC = [];
 var light, light2, ambientLight;
 var follow;
 var start;
@@ -29,7 +29,8 @@ var repeatTicker = -1;
 var repeatPoint = 7;
 var counterA = 0, counterB = 0, counterC = 0;
 var colorTicker = 2;
-
+var previousValue;
+var mouseX = 0;
 init();
 animate();
 
@@ -130,52 +131,105 @@ function init()
 	blast = new THREE.Mesh(mesh, vat2);
 }
 
- function CreateObject (counter, type) {
+ function CreateObject (type, beat) {
 
-	//var i5 = (i*225) - 350;
-	//console.log(parent);
 	var tweenDir;
-	//color of object that called it
-		//partially transparent?
-	//console.log("col" + col);
 	var mesh = new THREE.SphereGeometry(50,5,12);
 	var vat = new THREE.MeshPhongMaterial({color: 0xffffff, shininess: 3, transparent:true, shading: THREE.FlatShading});
 	vat.blending = THREE.AdditiveBlending;
 	var sph = new THREE.Mesh(mesh, vat);
-	sph.scale.x = .5;
-	 sph.scale.y = 2;
+	sph.scale.x = .05;
+	sph.scale.y = 2;
 	
 	//position of object that called it
 	sph.position.z = -1000;
 
 	//sph.position.z = floor(random(-10000,-2000));
 	if (type == 'counterA') {
+		
 		sph.position.y = -100 ;
 		//+(counter * 100);
 		sph.position.x = 1200 ;
 		sph.material.color.setHex(colors[colorTicker][1]);
-		
+		AdvanceObjects('counterA', beat);
+		countersA.push(sph);		
 	}
 	else if (type == 'counterB') {
+		AdvanceObjects('counterB', beat);
 		sph.position.y = -500 ;
 		//+(counter * 100); 
 		sph.position.x = 1200 ;
 		sph.material.color.setHex(colors[colorTicker][2]);
+		countersB.push(sph);
 		//console.log(colors[2][counter]);
 
 	}
 	else if (type == 'counterC') {
+		AdvanceObjects('counterC', beat);
 		sph.position.y = 300 ;
 		//+(counter * 100); 
 		sph.position.x = 1200 ;
 		sph.material.color.setHex(colors[colorTicker][0]);
+		countersC.push(sph);
 		//console.log("c" + counter + " . " + counterC + type)
 	}
 	objects.push(sph);
 	//sph.scale.y = window.innerHeight;
 	scene.add(sph);
-	TweenMax.to(sph.position, 2, { x: -1500,
-	 	ease: Power0.easeNone, onComplete:KillObject, onCompleteParams:[sph]});
+	// TweenMax.to(sph.position, 2, { x: -1500,
+	//  	ease: Power0.easeNone, onComplete:KillObject, onCompleteParams:[sph]});
+}
+
+function AdvanceObjects(family, beat) {
+	if (family == 'counterA') {
+		countersA.forEach(function(obj) {
+			if (obj.position.x < -10000) {
+				KillObject(obj);
+				var i = countersA.indexOf(obj);
+				if(i != -1) {
+					objects.splice(i, 1);
+				}
+			}
+			else {
+				var distance = obj.position.x - (10000 * (beat / 8) );
+				console.log(distance);
+				TweenMax.to(obj.position, (beat / 4), { x: distance,
+	 			ease: Power4.easeIn });
+			}   
+		}) ;
+	}
+	else if (family == 'counterB') {
+		countersB.forEach(function(obj) {
+			if (obj.position.x < -10000) {
+				KillObject(obj);
+				var i = countersB.indexOf(obj);
+				if(i != -1) {
+					objects.splice(i, 1);
+				}
+			}
+			else {
+				var distance = obj.position.x - (10000 * (beat / 8) );
+				TweenMax.to(obj.position, (beat / 4), { x: distance,
+	 			ease: Power2.easeIn });
+			} 
+		}) ;
+	}
+	else if (family == 'counterC') {
+		countersC.forEach(function(obj) {
+			if (obj.position.x < -10000) {
+				KillObject(obj);
+				var i = countersC.indexOf(obj);
+				if(i != -1) {
+					objects.splice(i, 1);
+				}
+			}
+			else {
+				var distance = obj.position.x - (10000 * (beat / 8) );
+				TweenMax.to(obj.position, (beat / 4), { x: distance,
+	 			ease: Power4.easeOut });
+			}  
+		}) ;
+	}
 }
 
 function KillObject(s) {
@@ -183,6 +237,7 @@ function KillObject(s) {
 	if(i != -1) {
 		objects.splice(i, 1);
 	}
+	// /var j = 
 	scene.remove(s);
 }
 
@@ -201,6 +256,8 @@ function onDocumentMouseDown( event ) {
 
 function onDocumentMouseMove( event ) 
 {
+	var x = mouseX / windowWidth,
+     	y = mouseY / windowHeight;
     vector.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
 
     vector.unproject( camera );
@@ -211,7 +268,17 @@ function onDocumentMouseMove( event )
 
     tracer.position.copy( camera.position ).add( dir.multiplyScalar( distance ) );
 
-	//console.log(mousePoint.x + " . " + ballSprite.position.x + " . " + ballSprite.position.y + " . " + " yo ");
+    // mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    // mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    mouse.x = x;
+	mouse.y = (-1 * y) * .5;
+    syns[3].resonance = (1 - x) * 4;      
+   	syns[3].cutoff = (1 - y) / 3;
+	var value = floor( mouseX / ( window.innerWidth / 10  )  ) + 5 ;
+	if (value != previousValue) {
+		ChangeLead(value);
+	}
+	previousValue = value;
 }
 
 function onDocumentMouseUp( event ) {
@@ -258,7 +325,7 @@ function animate () {
 	if (start) {
 	 	//theta += .001;
 	 	light.intensity = follow.getValue() * 2;
-		ambientLight.intensity = follow.getValue() * .5;
+		ambientLight.intensity = (follow.getValue() * .5) + .5;
 	 	light2.intensity = follow.getValue() * 2;
 		//camera.rotation.z = theta;
 	 }
@@ -279,7 +346,7 @@ function render() {
     	animate();
     	requestAnimationFrame( render );
 
-    }, 3750/60 );
+    }, 1375/60 );
 }
 render();
 // function render() 
@@ -291,6 +358,7 @@ render();
 function setup () {
 	
 	
+
 	var time = [1/2];
 	
 	drum = Kick().note.seq( 55,1/4 )
@@ -298,6 +366,9 @@ function setup () {
 	var nR = Harmony.melodyReturn(0,2,3);
 	var nR2 = Harmony.melodyReturn(0,2,3);
 	var nR3 = Harmony.melodyReturn(0,2,3);
+	var bR0 = Harmony.beets[floor(random(2))];
+	var bR1 = Harmony.beets[floor(random(2))];
+	var bR2 = Harmony.beets[floor(random(2))];
 	
 	
 	//var arpPattern = Harmony.arpPatterns[floor(random(Harmony.arpPatterns.length))];
@@ -309,15 +380,18 @@ function setup () {
 	a = FM('glockenspiel')
 	.note.seq(nR, [1/16])
 	a.pan(-1);
+	a.fx.add(Delay(1/6, .65));
 	syns.push(a);
 
 	b = FM('glockenspiel')
 	.note.seq(nR2, [1/2])
 	b.pan(1);
+	a.fx.add(Delay(1/6, .65));
 	syns.push(b);
 
 	c = FM('glockenspiel')
 	.note.seq(nR3, [1/8])
+	a.fx.add(Delay(1/6, .65));
 	syns.push(c);
 
 	d = Synth2('sunriseTri')
@@ -328,17 +402,19 @@ function setup () {
 	d.seq.stop();
 
 	a.note.values.filters.push( function( args, pattern ) {
-  		TrackChanges(args, nR.length, "a")
+		//TrackChanges(args, nR.length, "a", bR0);
+		//counterA++;
+		CreateObject('counterA', bR0);
 		return args
 	})
 
 	b.note.values.filters.push( function( args, pattern ) {
-  		TrackChanges(args, nR2.length, "b")
+  		CreateObject('counterB', bR1);
 		return args
 	})
 
 	c.note.values.filters.push( function( args, pattern ) {
-  		TrackChanges(args, nR3.length, "c")
+  		CreateObject('counterC', bR2);
 		return args
 	})
 
@@ -351,12 +427,17 @@ function setup () {
 
 }
 
+function ChangeLead (n) {
+	syns[3].seq.stop();
+	var chordNotes = [ -4, -1, 2, 5, 8, 11, 14, 15, 20, 23 ];
+	// n is note passed from mousemove
+	syns[3].note.seq(Harmony.vanillaNotes[n], 1)
+	syns[3].note.seq.repeat(0);
+}
+
 function KickTracker() {
 	//2, 3 or 4 or 6 measures, switch
 	var amounts = [7, 11,11, 15,15, 23];
-
-
-	
 	if (repeatTicker >= repeatPoint) {
 		ChangeNotes();
 		ChangeColors();
@@ -366,73 +447,44 @@ function KickTracker() {
 	repeatTicker++;
 }
 
-function TrackChanges (arg, l, obj)  { 
-// l is length of pattern for counter
-//obj is type
-	if (obj == "a") {
-		counterA++;
-		CreateObject(counterA, 'counterA');
-		if (counterA >= l) {
-			counterA = 0;
-			
-			//repeatTicker++;
-		}
-		//console.log('a note!' + arg + "." + counterA + " . " + obj) 
-	}
-	else if (obj == "b") {
-		counterB++
-		CreateObject(counterB, 'counterB');
-		if (counterB >= l) {
-			counterB = 0;
-			
-		}
-		//console.log('a note!' + arg + "." + counterB + " . " + obj) 
-	}
-	else if (obj == "c") {
-		counterC++
-		CreateObject(counterC, 'counterC');
-		if (counterC >= l) {
-			counterC = 0;
-		}
-		//console.log('a note!' + arg + "." + counterC + " . " + obj) 
-	}
-}
-
 function ChangeNotes () {
 
 	var time = [1/2];
-	var nR = Harmony.melodyReturn(0,2,3);
-	var nR2 = Harmony.melodyReturn(1,2,3);
-	var nR3 = Harmony.melodyReturn(-1,2,3);
-	//var arpPattern = Harmony.arpPatterns[floor(random(Harmony.arpPatterns.length))];
-	//arpie = Arp([12,12], 1/3);
+	var nR0 = Harmony.melodyReturn(0,2,3);
+	var nR1 = Harmony.melodyReturn(1,2,3);
+	var nR2 = Harmony.melodyReturn(-1,2,3);
+	//can be compositional here, have beets react to other beats to form pleaseing poly rhythms
+	var bR0 = Harmony.beets[floor(random(2))];
+	var bR1 = Harmony.beets[floor(random(2))];
+	var bR2 = Harmony.beets[floor(random(2))];
 	
-	var notesLength = nR.length;
-	bV = Harmony.beetsReturn(1,3);
-	a.note.seq(nR, Harmony.beets[floor(random(Harmony.beets.length))]);
-	b.note.seq(nR2, [1/4]);
-	c.note.seq(nR3, [1/6]);
+	
+	var notesLength = nR0.length;
+	//bV = Harmony.beetsReturn(1,3);
+	a.note.seq(nR0, bR0 );
+	b.note.seq(nR1, bR1 );
+	c.note.seq(nR2,  bR2 );
 
 	a.note.values.filters.push( function( args, pattern ) {
-  		TrackChanges(args, nR.length, "a")
+		CreateObject('counterA', bR0);
 		return args
 	})
 
 	b.note.values.filters.push( function( args, pattern ) {
-  		TrackChanges(args, nR2.length, "b")
+  		CreateObject('counterB', bR1);
 		return args
 	})
 
 	c.note.values.filters.push( function( args, pattern ) {
-  		TrackChanges(args, nR3.length, "c")
-  		return args
+  		CreateObject('counterC', bR2);
+		return args
 	})
 
 }
 
 var Harmony = (function () { 
 	var vanillaNotes = [-1, -3, -4, 0, 2, 3, 5, 6, 8, 9, 11, 12, 14, 15], vanillaMeasures = [1,1,2,2,2,4,4,4,8,8,6,6,8,8,12,12,16],
-	beets = [1, 1/1.5,1/2, 1/2, 1/3, 1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
+	beets = [1/3,1/6, 1/4, 1/4, 1/4,1/8, 1/8,1/8,1/16, 1/16, 1/32],
 	arpPatternArray = ['updown2', 'updown', 'down', 'up'] ;
   	var notesReturn = function (oct, lowRange, highRange) {
   		var scoreNotes = [];

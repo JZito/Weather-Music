@@ -12493,7 +12493,8 @@ module.exports = function( Gibber ) {
         this.fx.add( Gibber.Audio.FX.Crush('littleBit') )
       },
       useADSR:true, 
-      amp:.08,
+      amp:.5,
+      requireReleaseTrigger:true,
       cutoff: .55,
       octave2:-1,
       octave3:0,

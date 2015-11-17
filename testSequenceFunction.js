@@ -8,6 +8,9 @@ var VIEW_ANGLE = 70,
 
 var syns = [];
 var objects = [];
+var countersA = [];
+var countersB = [];
+var countersC = [];
 var planes = [];
 var previousValue;
 var start = false;
@@ -158,7 +161,7 @@ var CreateSphere = function (counter, type) {
 	vat.blending = THREE.AdditiveBlending;
 	sph = new THREE.Mesh(mesh, vat);
 	sph.scale.x = 40;
-	 sph.scale.y = 10;
+	sph.scale.y = 10;
 	
 	//position of object that called it
 	sph.position.z = -9000;
@@ -168,12 +171,14 @@ var CreateSphere = function (counter, type) {
 		sph.position.y = 0 +(counter * 500);
 		sph.position.x = 6000 ;
 		sph.material.color.setHex(colors[colorTicker][1]);
+		countersA.push(sph);
 		
 	}
 	else if (type == 'counterB') {
 		sph.position.y = -2500 +(counter * 500); ;
 		sph.position.x = 6000 ;
 		sph.material.color.setHex(colors[colorTicker][2]);
+		countersB.push(sph);
 		//console.log(colors[2][counter]);
 
 	}
@@ -181,24 +186,16 @@ var CreateSphere = function (counter, type) {
 		sph.position.y = 2500 +(counter * 500); ;
 		sph.position.x = 6000 ;
 		sph.material.color.setHex(colors[colorTicker][0]);
+		countersC.push(sph);
 		//console.log("c" + counter + " . " + counterC + type)
 	}
 	
-	
-	
-	//sph.rotation.z = random(1);
-
-	 
-	 objects.push(sph);
+	objects.push(sph);
 
 	//sph.scale.y = window.innerHeight;
 	scene.add(sph);
-	TweenMax.to(sph.position, 1, { x: -12000,
-	 	ease: SteppedEase.config(12), onComplete:KillSphere, onCompleteParams:[sph]});
-	
-
-	
-
+	// TweenMax.to(sph.position, 1, { x: -12000,
+	//  	ease: SteppedEase.config(12), onComplete:KillSphere, onCompleteParams:[sph]});
 }
 
 function KillSphere(s) {
@@ -212,7 +209,6 @@ function KillSphere(s) {
 var theta = 0;
 
 function animate () {
-	//console.log(mouseX + " . "+ mouseY);
 	if (start) {
 		theta += .001;
 		light.intensity = follow.getValue() * .5;
@@ -225,9 +221,8 @@ function animate () {
 var clock = new THREE.Clock()
 
 function render() {
-	//transparencyUpdate(transObjects, camera);
-
-    var delta = clock.getDelta();
+	
+	var delta = clock.getDelta();
 
     //camera.lookAt( new THREE.Vector3(0, 0, 0));
     
@@ -238,23 +233,12 @@ function render() {
     setTimeout( function() {
     	animate();
     	requestAnimationFrame( render );
-
     }, 3750/60 );
 }
 
-
-//check the mouse x
-// if mousex doesn't equal mousex
-
 render();
-
-
 //var a, b, c, d;
 var follow;
-
-
-
-
 
 function setup () {
 	
@@ -340,6 +324,7 @@ function ChangeNotes () {
 	c.note.seq(nR3, [1/6]);
 
 	a.note.values.filters.push( function( args, pattern ) {
+		console.log(args);
   		doSomeOtherStuff(args, nR.length, "a")
 
 	    
@@ -371,9 +356,6 @@ var repeatPoint = 7;
 function KickTracker() {
 	//2, 3 or 4 or 6 measures, switch
 	var amounts = [7, 11,11, 15,15, 23];
-
-
-	
 	if (repeatTicker >= repeatPoint) {
 		ChangeNotes();
 		ChangeColors();
