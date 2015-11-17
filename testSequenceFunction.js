@@ -72,7 +72,7 @@ camera.position.z = 1000;
 
 
 
-renderer.setSize(WIDTH, HEIGHT);
+//renderer.setSize(WIDTH, HEIGHT);
 
 
 var radius = 50, segments = 5, rings = 16;
