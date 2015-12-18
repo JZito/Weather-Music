@@ -14,7 +14,7 @@ var projector, mouse = new THREE.Vector2(), mousePoint = new THREE.Vector2(),
 INTERSECTED;
 var composer;
 var ballSprite;
-var objects = [], countersA = [], countersB = [], countersC = [];
+var objects = [], countersA = [], countersB = [], countersC = [], countersD = [], countersE = [], countersF = [];
 var light, light2, ambientLight;
 var follow;
 var start;
@@ -131,15 +131,17 @@ function init()
 	blast = new THREE.Mesh(mesh, vat2);
 }
 
- function CreateObject (type, beat) {
+ function CreateObject (type) {
+ 	console.log(type);
 
 	var tweenDir;
+	var tweenTime = 16;
 	var mesh = new THREE.SphereGeometry(50,5,12);
 	var vat = new THREE.MeshPhongMaterial({color: 0xffffff, shininess: 3, transparent:true, shading: THREE.FlatShading});
 	vat.blending = THREE.AdditiveBlending;
 	var sph = new THREE.Mesh(mesh, vat);
 	sph.scale.x = .05;
-	sph.scale.y = 2;
+	sph.scale.y = 1;
 	
 	//position of object that called it
 	sph.position.z = -1000;
@@ -151,95 +153,119 @@ function init()
 		//+(counter * 100);
 		sph.position.x = 1200 ;
 		sph.material.color.setHex(colors[colorTicker][1]);
-		AdvanceObjects('counterA', beat);
-		countersA.push(sph);		
+		//AdvanceObjects('counterA', beat);
+		countersA.push(sph);	
+		
+ 		TweenMax.to(sph.position, tweenTime, { x: -10000 });	
 	}
 	else if (type == 'counterB') {
-		AdvanceObjects('counterB', beat);
+		//AdvanceObjects('counterB', beat);
 		sph.position.y = -500 ;
 		//+(counter * 100); 
 		sph.position.x = 1200 ;
 		sph.material.color.setHex(colors[colorTicker][2]);
 		countersB.push(sph);
+		TweenMax.to(sph.position, tweenTime, { x: -10000});
 		//console.log(colors[2][counter]);
 
 	}
 	else if (type == 'counterC') {
-		AdvanceObjects('counterC', beat);
+		//AdvanceObjects('counterC', beat);
 		sph.position.y = 300 ;
-		//+(counter * 100); 
 		sph.position.x = 1200 ;
 		sph.material.color.setHex(colors[colorTicker][0]);
 		countersC.push(sph);
-		//console.log("c" + counter + " . " + counterC + type)
+		TweenMax.to(sph.position, tweenTime, { x: -10000,  });
+	}
+	else if (type == 'counterD') {
+				//AdvanceObjects('counterB', beat);
+		sph.position.y = -300 ;
+		//+(counter * 100); 
+		sph.position.x = -1200 ;
+		sph.material.color.setHex(colors[colorTicker][floor(random(3))]);
+		countersD.push(sph);
+		TweenMax.to(sph.position, tweenTime, { x: 10000, });
+
+	}
+		else if (type == 'counterE') {
+				//AdvanceObjects('counterB', beat);
+		sph.position.y = 100 ;
+		//+(counter * 100); 
+		sph.position.x = -1200 ;
+		sph.material.color.setHex(colors[colorTicker][floor(random(3))]);
+		countersE.push(sph);
+		TweenMax.to(sph.position, tweenTime, { x: 10000,  });
+
 	}
 	objects.push(sph);
-	//sph.scale.y = window.innerHeight;
+	
 	scene.add(sph);
-	// TweenMax.to(sph.position, 2, { x: -1500,
-	//  	ease: Power0.easeNone, onComplete:KillObject, onCompleteParams:[sph]});
+	
+
+
+
 }
 
-function AdvanceObjects(family, beat) {
-	if (family == 'counterA') {
-		countersA.forEach(function(obj) {
-			if (obj.position.x < -10000) {
-				KillObject(obj);
-				var i = countersA.indexOf(obj);
-				if(i != -1) {
-					objects.splice(i, 1);
-				}
-			}
-			else {
-				var distance = obj.position.x - (10000 * (beat / 8) );
-				console.log(distance);
-				TweenMax.to(obj.position, (beat / 4), { x: distance,
-	 			ease: Power4.easeIn });
-			}   
-		}) ;
-	}
-	else if (family == 'counterB') {
-		countersB.forEach(function(obj) {
-			if (obj.position.x < -10000) {
-				KillObject(obj);
-				var i = countersB.indexOf(obj);
-				if(i != -1) {
-					objects.splice(i, 1);
-				}
-			}
-			else {
-				var distance = obj.position.x - (10000 * (beat / 8) );
-				TweenMax.to(obj.position, (beat / 4), { x: distance,
-	 			ease: Power2.easeIn });
-			} 
-		}) ;
-	}
-	else if (family == 'counterC') {
-		countersC.forEach(function(obj) {
-			if (obj.position.x < -10000) {
-				KillObject(obj);
-				var i = countersC.indexOf(obj);
-				if(i != -1) {
-					objects.splice(i, 1);
-				}
-			}
-			else {
-				var distance = obj.position.x - (10000 * (beat / 8) );
-				TweenMax.to(obj.position, (beat / 4), { x: distance,
-	 			ease: Power4.easeOut });
-			}  
-		}) ;
-	}
-}
+// function AdvanceObjects(family, beat) {
+// 	if (family == 'counterA') {
+// 		countersA.forEach(function(obj) {
+// 			if (obj.position.x < -10000) {
+// 				KillObject(obj);
+// 				var i = countersA.indexOf(obj);
+// 				if(i != -1) {
+// 					objects.splice(i, 1);
+// 				}
+// 			}
+// 			else {
+// 				var distance = obj.position.x - (10000 * (beat / 8) );
+// 				console.log(distance);
+// 				TweenMax.to(obj.position, (beat / 4), { x: distance,
+// 	 			ease: Power4.easeIn });
+// 			}   
+// 		}) ;
+// 	}
+// 	else if (family == 'counterB') {
+// 		countersB.forEach(function(obj) {
+// 			if (obj.position.x < -10000) {
+// 				KillObject(obj);
+// 				var i = countersB.indexOf(obj);
+// 				if(i != -1) {
+// 					objects.splice(i, 1);
+// 				}
+// 			}
+// 			else {
+// 				var distance = obj.position.x - (10000 * (beat / 8) );
+// 				TweenMax.to(obj.position, (beat / 4), { x: distance,
+// 	 			ease: Power2.easeIn });
+// 			} 
+// 		}) ;
+// 	}
+// 	else if (family == 'counterC') {
+// 		countersC.forEach(function(obj) {
+// 			if (obj.position.x < -10000) {
+// 				KillObject(obj);
+// 				var i = countersC.indexOf(obj);
+// 				if(i != -1) {
+// 					objects.splice(i, 1);
+// 				}
+// 			}
+// 			else {
+// 				var distance = obj.position.x - (10000 * (beat / 8) );
+// 				TweenMax.to(obj.position, (beat / 4), { x: distance,
+// 	 			ease: Power4.easeOut });
+// 			}  
+// 		}) ;
+// 	}
+// }
 
-function KillObject(s) {
-	var i = objects.indexOf(s);
-	if(i != -1) {
-		objects.splice(i, 1);
-	}
-	// /var j = 
-	scene.remove(s);
-}
+// function KillObject(s) {
+// 	var i = objects.indexOf(s);
+// 	if(i != -1) {
+// 		objects.splice(i, 1);
+// 	}
+// 	// /var j = 
+// 	scene.remove(s);
+// }
 
 function ChangeColors () {
 	colorTicker = floor(random(colors.length));
@@ -300,22 +326,10 @@ function onDocumentMouseOut( event ) {
 
 }
 
-// function animate() 
-// {
-//     requestAnimationFrame( animate );
-// 	render();		
-// 	//update();
-// }
 
 function update()
 {
-	// if ( keyboard.pressed("z") ) 
-	// { 
-	// 	// do something
-	// }
-	
-	// controls.update();
-	// stats.update();
+
 }
 
 
@@ -363,12 +377,16 @@ function setup () {
 	
 	drum = Kick().note.seq( 55,1/4 )
 	follow = Follow(drum);
+	Clock.bpm(90);
 	var nR = Harmony.melodyReturn(0,2,3);
 	var nR2 = Harmony.melodyReturn(0,2,3);
 	var nR3 = Harmony.melodyReturn(0,2,3);
 	var bR0 = Harmony.beets[floor(random(2))];
 	var bR1 = Harmony.beets[floor(random(2))];
 	var bR2 = Harmony.beets[floor(random(2))];
+	var bR3 = Harmony.beets[floor(random(8))];
+	var bR4 = Harmony.beets[floor(random(8))];
+	var bR5 = Harmony.beets[floor(random(8))];
 	
 	
 	//var arpPattern = Harmony.arpPatterns[floor(random(Harmony.arpPatterns.length))];
@@ -380,19 +398,29 @@ function setup () {
 	a = FM('glockenspiel')
 	.note.seq(nR, [1/16])
 	a.pan(-1);
-	a.fx.add(Delay(1/6, .65));
+	a.fx.add(Delay(1/6, .45));
 	syns.push(a);
 
 	b = FM('glockenspiel')
 	.note.seq(nR2, [1/2])
 	b.pan(1);
-	a.fx.add(Delay(1/6, .65));
+	a.fx.add(Delay(1/6, .45));
 	syns.push(b);
 
 	c = FM('glockenspiel')
 	.note.seq(nR3, [1/8])
-	a.fx.add(Delay(1/6, .65));
+	a.fx.add(Delay(1/6, .45));
 	syns.push(c);
+
+	e = FM('magicBong')
+	.note.seq(nR3, [1/8])
+	a.fx.add(Delay(1/6, .45));
+	syns.push(e);
+
+	f = FM('magicBong')
+	.note.seq(nR3, [1/8])
+	a.fx.add(Delay(1/6, .45));
+	syns.push(f);
 
 	d = Synth2('sunriseTri')
 	.note.seq(nR3, [1/8])
@@ -416,6 +444,14 @@ function setup () {
 	c.note.values.filters.push( function( args, pattern ) {
   		CreateObject('counterC', bR2);
 		return args
+	})
+	e.note.values.filters.push( function (args, pattern) {
+		CreateObject('counterD', bR3);
+		return args;
+	})
+	f.note.values.filters.push( function (args, pattern) {
+		CreateObject('counterE', bR4);
+		return args;
 	})
 
 	drum.note.values.filters.push( function( args, pattern) {
@@ -453,31 +489,47 @@ function ChangeNotes () {
 	var nR0 = Harmony.melodyReturn(0,2,3);
 	var nR1 = Harmony.melodyReturn(1,2,3);
 	var nR2 = Harmony.melodyReturn(-1,2,3);
+	var nR3 = Harmony.melodyReturn(1,2,3);
+	var nR4 = Harmony.melodyReturn(-1,2,3);
 	//can be compositional here, have beets react to other beats to form pleaseing poly rhythms
-	var bR0 = Harmony.beets[floor(random(2))];
-	var bR1 = Harmony.beets[floor(random(2))];
-	var bR2 = Harmony.beets[floor(random(2))];
+	var bR0 = Harmony.beetsReturn(1,floor(random(1,6)));
+	var bR1 = Harmony.beetsReturn(1,floor(random(1,6)));
+	var bR2 = Harmony.beetsReturn(1,floor(random(1,6)));
+	var bR3 = Harmony.beetsReturn(1,floor(random(1,6)));
+	var bR4 = Harmony.beetsReturn(1,floor(random(1,6)));
+	var bR5 = Harmony.beetsReturn(1,floor(random(1,6)));
 	
 	
 	var notesLength = nR0.length;
-	//bV = Harmony.beetsReturn(1,3);
+	bV = Harmony.beetsReturn(1,3);
 	a.note.seq(nR0, bR0 );
 	b.note.seq(nR1, bR1 );
 	c.note.seq(nR2,  bR2 );
+	e.note.seq(nR3, bR3 );
+	f.note.seq(nR4, bR4 );
 
 	a.note.values.filters.push( function( args, pattern ) {
-		CreateObject('counterA', bR0);
+		console.log("a.note.values");
+		CreateObject('counterA');
 		return args
 	})
 
 	b.note.values.filters.push( function( args, pattern ) {
-  		CreateObject('counterB', bR1);
+  		CreateObject('counterB');
 		return args
 	})
 
 	c.note.values.filters.push( function( args, pattern ) {
-  		CreateObject('counterC', bR2);
+  		CreateObject('counterC');
 		return args
+	})
+	e.note.values.filters.push( function (args, pattern) {
+		CreateObject('counterD');
+		return args;
+	})
+	f.note.values.filters.push( function (args, pattern) {
+		CreateObject('counterE');
+		return args;
 	})
 
 }

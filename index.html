@@ -10,7 +10,6 @@
   <script language="javascript" src="addons/THREEx.WindowResize.js"></script>
   <script language="javascript" src="addons/orbitcontrols.js"></script>
  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-  <script language="javascript" src="addons/share.min.js"></script>
 <script src="js/TrackballControls.js"></script>
 
 
@@ -68,119 +67,12 @@
   src: url('LetsgoDigitalRegular.ttf') format('truetype')
 }
 
-
-
-
-
-/*neeeeoooon*/
-
-
-
-
-
-
-#textContainer {
-  
-  font-size: 1em;
-  line-height: 0%;
-  color: #228DFF;
-  font-family: 'analog';
-   width:500px;
-   height:500px;
-   margin:0 auto;
-   position:absolute;
-   left:50%;
-   top:50%;
-   margin-left:-250px;
-   margin-top:-250px;
-}
-
-#textContainer2 {
-  background-color: rgba(255,0,0,0) ;
-  color:rgba(0,245,60,0.5);
-  font-size: 1em;
-  font-family: 'analog';
-  width:500px;
-   height:500px;
-   margin:0 auto;
-   position:absolute;
-   left:50%;
-   top:50%;
-   margin-left:-250px;
-   margin-top:-250px;
-}
-
-
-.classname {
-  color: #ffffff;
-  -webkit-transition: all 3s;
-  -moz-transition: all 3s;
-  transition: all 3s;
-  -webkit-animation: neon2 3s ease-in-out infinite alternate;
-  -moz-animation: neon2 3s ease-in-out infinite alternate;
-  animation: neon2 3s ease-in-out infinite alternate;
-}
-
-#wordOne {
- position:fixed;
- 
- margin-left:0px;
- margin-top:50px;
- 
-}
-
-#wordTwo {
- 
- position:fixed;
- margin-left:0px;
- margin-top:150px;
- 
-}
-#wordThree {
- 
- position:fixed;
- margin-left:0px;
- margin-top:250px;
- 
-}
 body {
   margin: 0;
-}
-
-/*glow for webkit*/
-
-
-@-webkit-keyframes neon2 {
-  from {
-    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #228DFF, 0 0 70px #228DFF, 0 0 80px #228DFF, 0 0 100px #228DFF, 0 0 150px #228DFF;
-  }
-  to {
-    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #228DFF, 0 0 35px #228DFF, 0 0 40px #228DFF, 0 0 50px #228DFF, 0 0 75px #228DFF;
-  }
+  overflow: hidden;
 }
 
 
-@-moz-keyframes neon2 {
-  from {
-    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #228DFF, 0 0 70px #228DFF, 0 0 80px #228DFF, 0 0 100px #228DFF, 0 0 150px #228DFF;
-  }
-  to {
-    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #228DFF, 0 0 35px #228DFF, 0 0 40px #228DFF, 0 0 50px #228DFF, 0 0 75px #228DFF;
-  }
-}
-
-/*glow*/
-
-
-
-@keyframes neon2 {
-  from {
-    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #228DFF, 0 0 70px #228DFF, 0 0 80px #228DFF, 0 0 100px #228DFF, 0 0 150px #228DFF;
-  }
-  to {
-    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #228DFF, 0 0 35px #228DFF, 0 0 40px #228DFF, 0 0 50px #228DFF, 0 0 75px #228DFF;
-  }
-}
 
 
     .share-button {margin: auto; position: absolute; left: 0; bottom: 0;  z-index: 100;}
@@ -190,43 +82,7 @@ body {
 
 <body>
 
- <div class="share-button" id="share"></div>
-   <script>
 
-   config = {
-  //protocol:    // the protocol you'd prefer to use. [Default: your current protocol]
-  url: 'http://127.0.0.0/p5/mi',        // the url you'd like to share. [Default: `window.location.href`]
-  // title:       // title to be shared alongside your link [Default: See below in defaults section]
-  // description: // text to be shared alongside your link, [Default: See below in defaults section]   
-  // image:       // image to be shared [Default: See below in defaults section]
-  ui: {
-    flyout: 'top right',           // change the flyout direction of the shares. chose from `top left`, `top center`, `top right`, `bottom left`, `bottom right`, `bottom center`, `middle left`, or `middle right` [Default: `top center`]
-    // button_font:       // include the Lato font set from the Google Fonts API. [Default: `true`]
-     button_text: 'share',        // change the text of the button, [Default: `Share`]
-    // icon_font:         // include the minified Entypo font set. [Default: `true`]
-  },
-  networks: {
-    googlePlus: {
-      
-    },
-    twitter: {
-      
-    },
-    facebook: {
-     
-    },
-    pinterest: {
-     
-    },
-    reddit: {
-      // enabled: // Enable Reddit. [Default: true]
-      // url: // the url you'd like to share to Reddit [Default: config.url]
-      // title: // title to be shared alongside your link to Reddit [Default: config.title]
-    },
-  }
-}
-    var share = new Share(".share-button", config );
-  </script>
 
  <!--    <div id ="textContainer">
         <h1>
